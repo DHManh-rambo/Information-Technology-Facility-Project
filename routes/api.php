@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\DB;
 
 Route::get('/khachhang', function () {
-    $data = DB::table('KhachHang')->get();
+    $data = DB::table('khach_hang')->get();
 
     return response()->json($data);
 });
