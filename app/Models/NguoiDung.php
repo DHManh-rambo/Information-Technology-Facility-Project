@@ -15,6 +15,7 @@ class NguoiDung extends Authenticatable
     public $incrementing = true; 
     protected $keyType = 'int';
 
+    public $timestamps = false;
     protected $fillable = [
         'ten_dang_nhap',
         'mat_khau',
@@ -57,8 +58,10 @@ class NguoiDung extends Authenticatable
     }
 
     
-    public function setMatKhauAttribute($value)
+   /* public function setMatKhauAttribute($value)
     {
         $this->attributes['mat_khau'] = bcrypt($value);
     }
+        cái này để băm mật khẩu nhé, nếu hiện bản rõ thì giữ nguyên còn muốn băm mk thì dùng
+        */ 
 }
