@@ -12,12 +12,20 @@
     <h2> Quản lý người dùng</h2>
 
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+    <div class="alert alert-success" id="alert-success">
+        <span>{{ session('success') }}</span>
+        <button type="button" class="close-alert" onclick="this.parentElement.style.display='none';">&times;</button>
+    </div>
     @endif
     @if($errors->any())
-        <div class="alert alert-error">
-            @foreach($errors->all() as $err) {{ $err }} <br> @endforeach
-        </div>
+    <div class="alert alert-error" id="alert-error">
+        <ul style="margin:0; padding-left:1.2rem;">
+            @foreach($errors->all() as $err)
+                <li>{{ $err }}</li>
+            @endforeach
+        </ul>
+        <button type="button" class="close-alert" onclick="this.parentElement.style.display='none';">&times;</button>
+    </div>
     @endif
 
     
@@ -46,6 +54,7 @@
                         <label>Vai trò *</label>
                         <select name="vai_tro" id="vai_tro" required>
                             <option value="">-- Chọn vai trò --</option>
+                            <option value="ADMIN">Admin</option>
                             <option value="KHACH_HANG">Khách hàng</option>
                             <option value="NHAN_VIEN">Nhân viên</option>
                             <option value="SHIPPER">Shipper</option>
@@ -59,7 +68,11 @@
                     <h4>Thông tin khách hàng</h4>
                     <div class="form-row">
                         <div class="form-group"><label>Họ tên *</label><input type="text" name="ten_khach_hang" id="ten_khach_hang"></div>
-                        <div class="form-group"><label>Số điện thoại *</label><input type="text" name="so_dien_thoai" id="so_dien_thoai"></div>
+                        <div class="form-group"><label>Số điện thoại *</label><input type="text" name="so_dien_thoai" id="so_dien_thoai" 
+                        ="10" 
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                        pattern="\d{10}" 
+                        title="Vui lòng nhập đúng 10 chữ số"></div>
                         <div class="form-group"><label>Email *</label><input type="email" name="email" id="email"></div>
                     </div>
                     <div class="form-row">
@@ -74,7 +87,11 @@
                     <h4>Thông tin nhân viên</h4>
                     <div class="form-row">
                         <div class="form-group"><label>Họ tên *</label><input type="text" name="ten_nhan_vien" id="ten_nhan_vien"></div>
-                        <div class="form-group"><label>Số điện thoại *</label><input type="text" name="so_dien_thoai_nv" id="so_dien_thoai_nv"></div>
+                        <div class="form-group"><label>Số điện thoại *</label><input type="text" name="so_dien_thoai_nv" id="so_dien_thoai_nv" 
+                        maxlength="10" 
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                        pattern="\d{10}" 
+                        title="Vui lòng nhập đúng 10 chữ số"></div>
                         <div class="form-group"><label>Email *</label><input type="email" name="email_nv" id="email_nv"></div>
                     </div>
                     <div class="form-row">

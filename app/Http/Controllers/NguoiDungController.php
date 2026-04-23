@@ -35,18 +35,17 @@ class NguoiDungController extends Controller
         $request->validate([
             'ten_dang_nhap' => 'required|unique:nguoi_dung',
             'mat_khau' => 'required|min:4',
-            'vai_tro' => 'required|in:KHACH_HANG,NHAN_VIEN,SHIPPER',
+            'vai_tro' => 'required|in:KHACH_HANG,NHAN_VIEN,SHIPPER,ADMIN',
         ]);
 
         DB::beginTransaction();
         try {
             $user = NguoiDung::create([
                 'ten_dang_nhap' => $request->ten_dang_nhap,
-                'mat_khau' => $request->mat_khau, 
+                'mat_khau' => $request->mat_khau,
                 'vai_tro' => $request->vai_tro,
             ]);
 
-            
             if ($request->vai_tro == 'KHACH_HANG') {
                 $this->validateKhachHang($request);
                 KhachHang::create([
@@ -57,13 +56,13 @@ class NguoiDungController extends Controller
                     'dia_chi' => $request->dia_chi,
                     'diem_tich_luy' => $request->diem_tich_luy ?? 0,
                 ]);
-            } else { 
+            } elseif (in_array($request->vai_tro, ['NHAN_VIEN', 'SHIPPER'])) {
                 $this->validateNhanVien($request);
                 NhanVien::create([
                     'ma_nhan_vien' => $user->ma_nguoi_dung,
                     'ten_nhan_vien' => $request->ten_nhan_vien,
-                    'email' => $request->email,
-                    'so_dien_thoai' => $request->so_dien_thoai,
+                    'email' => $request->email_nv,
+                    'so_dien_thoai' => $request->so_dien_thoai_nv,
                     'chuc_vu' => $request->chuc_vu,
                     'cong_viec' => $request->cong_viec,
                     'luong' => $request->luong,
@@ -78,7 +77,6 @@ class NguoiDungController extends Controller
         }
     }
 
-    
     public function update(Request $request, $id)
     {
         $user = NguoiDung::findOrFail($id);
@@ -86,12 +84,10 @@ class NguoiDungController extends Controller
         $request->validate([
             'ten_dang_nhap' => 'required|unique:nguoi_dung,ten_dang_nhap,' . $id . ',ma_nguoi_dung',
             'mat_khau' => 'nullable|min:4',
-            
         ]);
 
         DB::beginTransaction();
         try {
-
             $user->ten_dang_nhap = $request->ten_dang_nhap;
             if ($request->filled('mat_khau')) {
                 $user->mat_khau = $request->mat_khau;
@@ -116,14 +112,15 @@ class NguoiDungController extends Controller
                     ['ma_nhan_vien' => $user->ma_nguoi_dung],
                     [
                         'ten_nhan_vien' => $request->ten_nhan_vien,
-                        'email' => $request->email,
-                        'so_dien_thoai' => $request->so_dien_thoai,
+                        'email' => $request->email_nv,
+                        'so_dien_thoai' => $request->so_dien_thoai_nv,
                         'chuc_vu' => $request->chuc_vu,
                         'cong_viec' => $request->cong_viec,
                         'luong' => $request->luong,
                     ]
                 );
             }
+            
 
             DB::commit();
             return redirect()->route('nguoi-dung.index')->with('success', 'Cập nhật thành công!');
@@ -143,6 +140,7 @@ class NguoiDungController extends Controller
             } elseif ($user->isNhanVien()) {
                 NhanVien::where('ma_nhan_vien', $id)->delete();
             }
+            
             $user->delete();
             DB::commit();
             return response()->json(['success' => true]);
@@ -156,7 +154,7 @@ class NguoiDungController extends Controller
     {
         $request->validate([
             'ten_khach_hang' => 'required|string|max:100',
-            'so_dien_thoai' => 'required|string|max:15',
+            'so_dien_thoai' => 'required|string|size:10|regex:/^\d{10}$/',
             'email' => 'required|email|max:100',
             'dia_chi' => 'nullable|string',
             'diem_tich_luy' => 'nullable|integer',
@@ -167,8 +165,8 @@ class NguoiDungController extends Controller
     {
         $request->validate([
             'ten_nhan_vien' => 'required|string|max:100',
-            'email' => 'required|email|max:100',
-            'so_dien_thoai' => 'required|string|max:15',
+            'email_nv' => 'required|email|max:100',
+            'so_dien_thoai_nv' => 'required|string|size:10|regex:/^\d{10}$/',
             'chuc_vu' => 'required|in:CSKH,VAN_HANH,THIET_KE,ONLINE,SHIPPER,KHAC',
             'cong_viec' => 'nullable|string',
             'luong' => 'nullable|numeric|min:0',
