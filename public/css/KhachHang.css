@@ -1,0 +1,124 @@
+ body {
+     font-family: 'Courier New', monospace;
+     background-color: #f4f4f4;
+     color: #111;
+     margin: 0;
+     padding: 20px;
+ }
+
+ .container {
+     max-width: 1200px;
+     margin: 0 auto;
+     background: white;
+     border: 2px solid #333;
+     padding: 20px;
+     box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.1);
+ }
+
+ h1 {
+     border-bottom: 3px solid #111;
+     padding-bottom: 5px;
+     display: inline-block;
+ }
+
+ table {
+     width: 100%;
+     border-collapse: collapse;
+     margin-top: 20px;
+ }
+
+ th,
+ td {
+     border: 1px solid #333;
+     padding: 10px;
+     text-align: left;
+ }
+
+ th {
+     background-color: #ddd;
+     font-weight: bold;
+ }
+
+ tr:nth-child(even) {
+     background-color: #f9f9f9;
+ }
+
+ button,
+ .btn {
+     background-color: #111;
+     color: white;
+     border: none;
+     padding: 6px 12px;
+     cursor: pointer;
+     font-family: inherit;
+     font-size: 14px;
+     margin: 2px;
+     transition: 0.2s;
+ }
+
+ button:hover,
+ .btn:hover {
+     background-color: #444;
+ }
+
+ .btn-danger {
+     background-color: #8b0000;
+ }
+
+ .btn-danger:hover {
+     background-color: #b22222;
+ }
+
+ .btn-secondary {
+     background-color: #555;
+ }
+
+ .edit-form-container {
+     display: none;
+     background: #eaeaea;
+     border: 2px solid #333;
+     padding: 15px;
+     margin-bottom: 20px;
+ }
+
+ .form-group {
+     margin-bottom: 12px;
+ }
+
+ label {
+     display: inline-block;
+     width: 130px;
+     font-weight: bold;
+ }
+
+ input,
+ textarea {
+     width: 300px;
+     padding: 5px;
+     border: 1px solid #333;
+     background: white;
+ }
+
+ textarea {
+     height: 60px;
+ }
+
+ .sort-buttons {
+     margin: 20px 0;
+ }
+
+ .alert {
+     padding: 10px;
+     margin-bottom: 15px;
+     border: 1px solid #333;
+ }
+
+ .alert-success {
+     background: #d4edda;
+     color: #155724;
+ }
+
+ .alert-error {
+     background: #f8d7da;
+     color: #721c24;
+ }

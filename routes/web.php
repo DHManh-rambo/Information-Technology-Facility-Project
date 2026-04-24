@@ -2,13 +2,21 @@
 
 use App\Http\Controllers\NguoiDungController;
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\KhachHangController;
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/nguoi-dung', [NguoiDungController::class, 'index'])->name('nguoi-dung.index');
-Route::post('/nguoi-dung', [NguoiDungController::class, 'store'])->name('nguoi-dung.store');
-Route::put('/nguoi-dung/{id}', [NguoiDungController::class, 'update'])->name('nguoi-dung.update');
-Route::delete('/nguoi-dung/{id}', [NguoiDungController::class, 'destroy'])->name('nguoi-dung.destroy');
-Route::get('/nguoi-dung/{id}/edit-data', [NguoiDungController::class, 'editData'])->name('nguoi-dung.edit-data');
+Route::prefix('nguoi-dung')->name('nguoi-dung.')->group(function () {
+    Route::get('/', [NguoiDungController::class, 'index'])->name('index');
+    Route::post('/', [NguoiDungController::class, 'store'])->name('store');
+    Route::put('/{id}', [NguoiDungController::class, 'update'])->name('update');
+    Route::delete('/{id}', [NguoiDungController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}/edit-data', [NguoiDungController::class, 'editData'])->name('edit-data');
+});
+
+Route::prefix('khach-hang')->name('khach-hang.')->group(function () {
+    Route::get('/', [KhachHangController::class, 'index'])->name('index');
+    Route::put('/{id}', [KhachHangController::class, 'update'])->name('update');
+    Route::delete('/{id}', [KhachHangController::class, 'destroy'])->name('destroy');
+});
