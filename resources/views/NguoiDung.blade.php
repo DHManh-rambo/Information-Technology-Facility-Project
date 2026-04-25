@@ -55,7 +55,6 @@
                         <select name="vai_tro" id="vai_tro" required>
                             <option value="">-- Chọn vai trò --</option>
                             <option value="ADMIN">Admin</option>
-                            <option value="KHACH_HANG">Khách hàng</option>
                             <option value="NHAN_VIEN">Nhân viên</option>
                             <option value="SHIPPER">Shipper</option>
                         </select>
@@ -69,7 +68,7 @@
                     <div class="form-row">
                         <div class="form-group"><label>Họ tên *</label><input type="text" name="ten_khach_hang" id="ten_khach_hang"></div>
                         <div class="form-group"><label>Số điện thoại *</label><input type="text" name="so_dien_thoai" id="so_dien_thoai" 
-                        ="10" 
+                        maxlength="10" 
                         oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
                         pattern="\d{10}" 
                         title="Vui lòng nhập đúng 10 chữ số"></div>
@@ -121,18 +120,13 @@
         <div class="card-body" style="overflow-x: auto;">
             <table>
                 <thead>
-                    <tr><th>ID</th><th>Tên đăng nhập</th><th>Mật khẩu</th><th>Vai trò</th><th>Họ tên</th><th>Email/SĐT</th><th>Thao tác</th></tr>
+                    <tr><th>ID</th><th>Tên đăng nhập</th><th>Vai trò</th><th>Họ tên</th><th>Email/SĐT</th><th>Thao tác</th></tr>
                 </thead>
                 <tbody id="userTableBody">
                     @foreach($nguoiDungs as $user)
                     <tr data-id="{{ $user->ma_nguoi_dung }}">
                         <td>{{ $user->ma_nguoi_dung }}</td>
                         <td>{{ $user->ten_dang_nhap }}</td>
-                        <td class="pwd-cell">
-                            <span class="pwd-mask">******</span>
-                            <span class="pwd-plain" style="display:none;">{{ $user->mat_khau }}</span>
-                            <button class="btn btn-sm toggle-view-pwd" onclick="toggleViewPassword(this)"></button>
-                        </td>
                         <td>{{ $user->vai_tro }}</td>
                         <td>
                             @if($user->isKhachHang() && $user->khachHang) {{ $user->khachHang->ten_khach_hang }}
@@ -145,7 +139,9 @@
                             @endif
                         </td>
                         <td class="action-buttons">
-                            <button class="btn btn-sm btn-secondary" onclick="editUser({{ $user->ma_nguoi_dung }})">Sửa</button>
+                            @if(!$user->isKhachHang())
+                                <button class="btn btn-sm btn-secondary" onclick="editUser({{ $user->ma_nguoi_dung }})">Sửa</button>
+                            @endif
                             <button class="btn btn-sm btn-danger" onclick="deleteUser({{ $user->ma_nguoi_dung }})">Xóa</button>
                         </td>
                     </tr>
@@ -181,21 +177,6 @@
         else field.type = 'password';
     }
 
-    window.toggleViewPassword = function(btn) {
-        let td = btn.closest('td');
-        let maskSpan = td.querySelector('.pwd-mask');
-        let plainSpan = td.querySelector('.pwd-plain');
-        if (maskSpan.style.display !== 'none') {
-            maskSpan.style.display = 'none';
-            plainSpan.style.display = 'inline';
-            btn.textContent = '.';
-        } else {
-            maskSpan.style.display = 'inline';
-            plainSpan.style.display = 'none';
-            btn.textContent = '.';
-        }
-    }
-
     window.resetForm = function() {
         form.reset();
         document.getElementById('formMethod').value = 'POST';
@@ -220,13 +201,7 @@
                 roleSelect.disabled = true;
                 toggleRoleFields();
                 
-                if (data.vai_tro === 'KHACH_HANG') {
-                    document.getElementById('ten_khach_hang').value = data.ten_khach_hang || '';
-                    document.getElementById('so_dien_thoai').value = data.so_dien_thoai || '';
-                    document.getElementById('email').value = data.email || '';
-                    document.getElementById('dia_chi').value = data.dia_chi || '';
-                    document.getElementById('diem_tich_luy').value = data.diem_tich_luy || 0;
-                } else if (data.vai_tro === 'NHAN_VIEN' || data.vai_tro === 'SHIPPER') {
+                if (data.vai_tro === 'NHAN_VIEN' || data.vai_tro === 'SHIPPER') {
                     document.getElementById('ten_nhan_vien').value = data.ten_nhan_vien || '';
                     document.getElementById('so_dien_thoai_nv').value = data.so_dien_thoai || '';
                     document.getElementById('email_nv').value = data.email || '';
