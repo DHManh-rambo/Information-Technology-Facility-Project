@@ -12,13 +12,20 @@ return new class extends Migration {
             $table->string('ten_san_pham');
             $table->decimal('gia', 10, 2);
             $table->integer('so_luong');
+
             $table->enum('loai_san_pham', [
                 'HOA_TUOI','HOA_GIA','SAN_PHAM_PREMIUM',
                 'CHAU_HOA_GIA','CHAU_HOA_TUOI',
                 'CAY_CANH','HOA_SAP','HOA_GIAY_NHUN',
-                'TERRARIUM','PHU_KIEN'
+                'TERRARIUM','PHU_KIEN','QUA_TANG'
             ]);
+
             $table->text('mo_ta')->nullable();
+            $table->string('hinh_anh')->nullable();
+
+            $table->enum('trang_thai', ['DANG_BAN','NGUNG_BAN'])
+                  ->default('DANG_BAN'); 
+
             $table->timestamps();
         });
     }
