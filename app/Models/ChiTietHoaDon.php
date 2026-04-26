@@ -40,4 +40,8 @@ class ChiTietHoaDon extends Model
     {
         return $this->belongsTo(SanPham::class, 'ma_san_pham', 'ma_san_pham');
     }
+    public function getThanhTienAttribute()
+    {
+        return $this->so_luong * $this->gia;
+    }
 }

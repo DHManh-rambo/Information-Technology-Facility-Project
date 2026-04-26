@@ -16,15 +16,17 @@ return new class extends Migration {
             $table->integer('so_luong');
             $table->decimal('gia', 10, 2);
 
+            $table->unique(['ma_hoa_don', 'ma_san_pham']);
+
             $table->foreign('ma_hoa_don')
-                  ->references('ma_hoa_don')
-                  ->on('hoa_don')
-                  ->onDelete('cascade');
+                ->references('ma_hoa_don')
+                ->on('hoa_don')
+                ->onDelete('cascade');
 
             $table->foreign('ma_san_pham')
-                  ->references('ma_san_pham')
-                  ->on('san_pham');
-        });
+                ->references('ma_san_pham')
+                ->on('san_pham');
+            });
     }
 
     public function down(): void
