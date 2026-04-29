@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\KhachHangController;
 use App\Http\Controllers\NhanVienController;
 use App\Http\Controllers\SanPhamController;
+use App\Http\Controllers\HoaDonController;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -33,4 +34,9 @@ Route::prefix('san-pham')->name('san-pham.')->controller(SanPhamController::clas
     Route::get('/{id}/edit-data', 'editData')->name('edit-data');
     Route::put('/{id}', 'update')->name('update');
     Route::patch('/{id}/toggle', 'toggleTrangThai')->name('toggle');
+});
+Route::prefix('hoa-don')->name('hoa-don.')->controller(HoaDonController::class)->group(function () {
+    Route::get('/', 'index')->name('index');
+    Route::get('/{id}', 'show')->name('show');
+    Route::delete('/{id}', 'destroy')->name('destroy');
 });
