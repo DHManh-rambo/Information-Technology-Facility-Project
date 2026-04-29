@@ -1,4 +1,4 @@
-{{-- resources/views/hoa-don/index.blade.php --}}
+{{-- resources/views/HoaDon.blade.php --}}
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -8,15 +8,11 @@
     <link rel="stylesheet" href="{{ asset('css/HoaDon.css') }}">
     <title>Quản Lý Hóa Đơn – Flower Store</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-
-    
 </head>
 <body>
 
-{{-- ==================== HEADER ==================== --}}
 <header class="site-header">
     <h1>Flower Store</h1>
-    
 </header>
 
 <div class="page-wrap">
@@ -28,7 +24,6 @@
         <form method="GET" action="{{ route('hoa-don.index') }}" id="filterForm">
             <div class="filter-grid">
 
-                {{-- Khách hàng (select) --}}
                 <div class="filter-group" style="grid-column: span 2;">
                     <label for="ma_khach_hang">Khách hàng</label>
                     <select name="ma_khach_hang" id="ma_khach_hang">
@@ -42,7 +37,6 @@
                     </select>
                 </div>
 
-                {{-- Trạng thái hóa đơn --}}
                 <div class="filter-group">
                     <label for="trang_thai">Trạng thái đơn</label>
                     <select name="trang_thai" id="trang_thai">
@@ -55,7 +49,6 @@
                     </select>
                 </div>
 
-                {{-- Trạng thái thanh toán --}}
                 <div class="filter-group">
                     <label for="trang_thai_thanh_toan">Thanh toán</label>
                     <select name="trang_thai_thanh_toan" id="trang_thai_thanh_toan">
@@ -65,19 +58,16 @@
                     </select>
                 </div>
 
-                {{-- Ngày cụ thể --}}
                 <div class="filter-group">
                     <label for="ngay_dat">Ngày đặt (cụ thể)</label>
                     <input type="date" name="ngay_dat" id="ngay_dat" value="{{ request('ngay_dat') }}">
                 </div>
 
-                {{-- Từ ngày --}}
                 <div class="filter-group">
                     <label for="tu_ngay">Từ ngày</label>
                     <input type="date" name="tu_ngay" id="tu_ngay" value="{{ request('tu_ngay') }}">
                 </div>
 
-                {{-- Đến ngày --}}
                 <div class="filter-group">
                     <label for="den_ngay">Đến ngày</label>
                     <input type="date" name="den_ngay" id="den_ngay" value="{{ request('den_ngay') }}">
@@ -86,12 +76,8 @@
             </div>
 
             <div class="filter-actions">
-                <button type="submit" class="btn btn-primary">
-                    &#9906; Lọc kết quả
-                </button>
-                <a href="{{ route('hoa-don.index') }}" class="btn btn-ghost">
-                    ↺ Đặt lại
-                </a>
+                <button type="submit" class="btn btn-primary">&#9906; Lọc kết quả</button>
+                <a href="{{ route('hoa-don.index') }}" class="btn btn-ghost">↺ Đặt lại</a>
                 @if(request()->hasAny(['ma_khach_hang','trang_thai','trang_thai_thanh_toan','ngay_dat','tu_ngay','den_ngay']))
                     <span style="font-family:var(--font-mono);font-size:0.65rem;color:var(--ink-soft);margin-left:auto;">
                         Đang lọc — {{ $hoaDons->total() }} kết quả
@@ -126,7 +112,7 @@
                         <th>Hành động</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="hoaDonTbody">
                     @forelse($hoaDons as $index => $hd)
                     <tr id="row-{{ $hd->ma_hoa_don }}">
                         <td class="td-mono">{{ $hoaDons->firstItem() + $index }}</td>
@@ -154,20 +140,21 @@
                         </td>
                         <td class="td-mono">{{ $hd->phuong_thuc_thanh_toan }}</td>
                         <td>{{ Str::limit($hd->dia_chi_giao, 24) }}</td>
-                        <td>{{ $hd->nhanVienGiao?->ten_nhan_vien ?? '—' }}</td>
+                        {{-- FIX: dùng shipper() thay vì nhanVienGiao() --}}
+                        <td>{{ $hd->shipper?->ten_nhan_vien ?? '—' }}</td>
                         <td>
                             <div class="td-actions">
-                                {{-- Nút Chi tiết --}}
                                 <button class="btn btn-detail btn-sm"
                                         onclick="openPanel({{ $hd->ma_hoa_don }})"
                                         title="Xem chi tiết hóa đơn">
                                     ⊞ Chi tiết
                                 </button>
 
-                                {{-- Nút Xóa: chỉ hiện nếu chưa TT hoặc đã CANCELLED --}}
                                 @if($hd->trang_thai_thanh_toan === 'CHUA_THANH_TOAN' || $hd->trang_thai === 'CANCELLED')
                                     <button class="btn btn-danger btn-sm"
-                                            onclick="confirmDelete({{ $hd->ma_hoa_don }}, 'HD-{{ str_pad($hd->ma_hoa_don, 4, '0', STR_PAD_LEFT) }}')"
+                                            data-id="{{ $hd->ma_hoa_don }}"
+                                            data-label="HD-{{ str_pad($hd->ma_hoa_don, 4, '0', STR_PAD_LEFT) }}"
+                                            onclick="confirmDelete(this)"
                                             title="Xóa hóa đơn">
                                         ✕ Xóa
                                     </button>
@@ -176,7 +163,7 @@
                         </td>
                     </tr>
                     @empty
-                    <tr>
+                    <tr id="emptyRow">
                         <td colspan="11">
                             <div class="empty-state">
                                 <div class="empty-icon">◻</div>
@@ -189,17 +176,14 @@
             </table>
         </div>
 
-        {{-- Phân trang --}}
         @if($hoaDons->hasPages())
         <div class="pagination-wrap">
-            {{-- Trang trước --}}
             @if($hoaDons->onFirstPage())
                 <span class="disabled">‹ Trước</span>
             @else
                 <a href="{{ $hoaDons->previousPageUrl() }}">‹ Trước</a>
             @endif
 
-            {{-- Số trang --}}
             @foreach($hoaDons->getUrlRange(1, $hoaDons->lastPage()) as $page => $url)
                 @if($page == $hoaDons->currentPage())
                     <span class="current">{{ $page }}</span>
@@ -208,7 +192,6 @@
                 @endif
             @endforeach
 
-            {{-- Trang sau --}}
             @if($hoaDons->hasMorePages())
                 <a href="{{ $hoaDons->nextPageUrl() }}">Sau ›</a>
             @else
@@ -251,7 +234,6 @@
 {{-- ==================== TOAST ==================== --}}
 <div class="toast" id="toast"></div>
 
-{{-- ==================== JAVASCRIPT ==================== --}}
 <script>
     const csrfToken  = document.querySelector('meta[name="csrf-token"]').content;
     const mainCol    = document.getElementById('mainCol');
@@ -312,6 +294,7 @@
             CANCELLED:'badge-cancelled'
         }[tt] || '';
 
+        
         const items = (hd.chi_tiet_hoa_dons || []).map(ct => `
             <tr>
                 <td>${ct.san_pham?.ten_san_pham ?? 'N/A'}</td>
@@ -332,7 +315,7 @@
                         ${hd.trang_thai_thanh_toan === 'DA_THANH_TOAN' ? 'Đã thanh toán' : 'Chưa thanh toán'}
                     </span></span>
                 </div>
-                <div class="info-row"><span class="lbl">Phương thức</span><span class="val">${hd.phuong_thuc_thanh_toan}</span></div>
+                <div class="info-row"><span class="lbl">Phương thức</span><span class="val">${hd.phuong_thuc_thanh_toan ?? '—'}</span></div>
                 <div class="info-row"><span class="lbl">Ngày giao</span><span class="val">${fmtDate(hd.ngay_giao)}</span></div>
             </div>
 
@@ -366,12 +349,16 @@
         `;
     }
 
-    function confirmDelete(id, label) {
+    
+    function confirmDelete(btn) {
+        const id    = btn.dataset.id;
+        const label = btn.dataset.label;
         currentDeleteId = id;
         document.getElementById('confirmMsg').innerHTML =
             `Bạn có chắc muốn xóa <strong>${label}</strong> không?<br>Toàn bộ chi tiết hóa đơn sẽ bị xóa theo.`;
         document.getElementById('confirmOverlay').classList.add('show');
     }
+
     function closeDialog() {
         document.getElementById('confirmOverlay').classList.remove('show');
         currentDeleteId = null;
@@ -379,10 +366,11 @@
 
     document.getElementById('confirmOkBtn').addEventListener('click', function () {
         if (!currentDeleteId) return;
+        const deleteId = currentDeleteId;
         this.textContent = '...';
         this.disabled = true;
 
-        fetch(`/hoa-don/${currentDeleteId}`, {
+        fetch(`/hoa-don/${deleteId}`, {
             method: 'DELETE',
             headers: {
                 'X-CSRF-TOKEN': csrfToken,
@@ -397,13 +385,20 @@
             this.disabled = false;
 
             if (res.success) {
-                const row = document.getElementById('row-' + currentDeleteId);
+                
+                const row = document.getElementById('row-' + deleteId);
                 if (row) {
                     row.style.transition = 'opacity 0.3s';
                     row.style.opacity = '0';
-                    setTimeout(() => row.remove(), 300);
+                    setTimeout(() => {
+                        row.remove();
+                        
+                        if (panel.classList.contains('open') &&
+                            panelTitle.textContent.includes(String(deleteId).padStart(4,'0'))) {
+                            closePanel();
+                        }
+                    }, 320);
                 }
-                if (panel.classList.contains('open')) closePanel();
                 showToast(res.message, 'success');
             } else {
                 showToast(res.message, 'error');
