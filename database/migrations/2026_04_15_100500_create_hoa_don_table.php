@@ -8,43 +8,43 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('hoa_don', function (Blueprint $table) {
-            $table->id('ma_hoa_don');
+         $table->id('ma_hoa_don');
 
-            $table->unsignedBigInteger('ma_khach_hang');
+         $table->unsignedBigInteger('ma_khach_hang');
+         $table->dateTime('ngay_dat')->nullable();
+         $table->decimal('tong_tien', 10, 2)->default(0);
 
-            $table->dateTime('ngay_dat')->useCurrent();
+        $table->enum('trang_thai', [
+             'PENDING',
+            'CONFIRMED',
+            'SHIPPING',
+            'DELIVERED',
+            'CANCELLED'
+        ])->default('PENDING');
 
-            $table->decimal('tong_tien', 10, 2)->default(0);
+        $table->enum('trang_thai_thanh_toan', [
+            'CHUA_THANH_TOAN',
+            'DA_THANH_TOAN'
+        ])->default('CHUA_THANH_TOAN');
 
-            $table->enum('trang_thai', [
-               'PENDING','CONFIRMED','PROCESSING',
-               'OUT_FOR_DELIVERY','DELIVERED','CANCELLED'
-            ])->default('PENDING');
+        $table->enum('phuong_thuc_thanh_toan', ['COD','NGAN_HANG'])->nullable();
 
-            $table->enum('trang_thai_thanh_toan', [
-                'CHUA_THANH_TOAN','DA_THANH_TOAN','CHO'
-            ])->default('CHUA_THANH_TOAN');
+        $table->text('dia_chi_giao')->nullable();
+        $table->string('so_dien_thoai', 15)->nullable();
+        $table->dateTime('ngay_giao')->nullable();
 
-            $table->enum('phuong_thuc_thanh_toan', ['NGAN_HANG','COD']);
+        $table->unsignedBigInteger('ma_nhan_vien_giao')->nullable();
 
-            $table->text('dia_chi_giao');
-            $table->string('so_dien_thoai', 15);
+        $table->foreign('ma_khach_hang')
+            ->references('ma_khach_hang')
+            ->on('khach_hang');
 
-            $table->dateTime('ngay_giao')->nullable();
-
-            $table->unsignedBigInteger('ma_nhan_vien_giao')->nullable();
-            $table->foreign('ma_khach_hang')
-                  ->references('ma_khach_hang')
-                  ->on('khach_hang');
-
-            $table->foreign('ma_nhan_vien_giao')
-                  ->references('ma_nhan_vien')
-                  ->on('nhan_vien')
-                  ->onDelete('set null');
-
-            $table->timestamps();
-        });
-    }
+         $table->foreign('ma_nhan_vien_giao')
+            ->references('ma_nhan_vien')
+            ->on('nhan_vien')
+            ->nullOnDelete(); 
+            });
+        }
 
     public function down(): void
     {
