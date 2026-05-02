@@ -18,6 +18,13 @@ return new class extends Migration {
         $table->string('email_ncc', 100)->nullable();
         $table->text('dia_chi_ncc')->nullable();
 
+       
+        $table->enum('trang_thai', ['DRAFT', 'CONFIRMED'])
+              ->default('DRAFT');
+
+        
+        $table->timestamps();
+
         $table->foreign('ma_nhan_vien')
               ->references('ma_nhan_vien')
               ->on('nhan_vien')

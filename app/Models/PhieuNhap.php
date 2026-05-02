@@ -11,10 +11,6 @@ class PhieuNhap extends Model
 
     protected $table = 'phieu_nhap';
     protected $primaryKey = 'ma_phieu_nhap';
-    public $incrementing = true;
-    protected $keyType = 'int';
-
-    public $timestamps = false;
 
     protected $fillable = [
         'ngay_nhap',
@@ -23,6 +19,7 @@ class PhieuNhap extends Model
         'so_dien_thoai_ncc',
         'email_ncc',
         'dia_chi_ncc',
+        'trang_thai', 
     ];
 
     protected $casts = [
@@ -30,12 +27,12 @@ class PhieuNhap extends Model
     ];
 
    
+
     public function nhanVien()
     {
         return $this->belongsTo(NhanVien::class, 'ma_nhan_vien', 'ma_nhan_vien');
     }
 
-   
     public function chiTietNhaps()
     {
         return $this->hasMany(ChiTietNhap::class, 'ma_phieu_nhap', 'ma_phieu_nhap');
