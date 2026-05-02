@@ -21,7 +21,7 @@ class SanPhamController extends Controller
         'QUA_TANG'         => 'Quà Tặng',
     ];
 
-    
+
     public function index(Request $request)
     {
         $query = SanPham::query();
@@ -36,13 +36,13 @@ class SanPhamController extends Controller
         return view('SanPham', compact('danhSachSanPham', 'danhSachLoai'));
     }
 
-    
+
     public function store(Request $request)
     {
         $request->validate([
             'ten_san_pham'  => 'required|string|max:100',
             'gia'           => 'required|numeric|min:0',
-            'so_luong'      => 'required|integer|min:0',
+           
             'loai_san_pham' => 'required|in:' . implode(',', array_keys($this->danhSachLoai)),
             'mo_ta'         => 'nullable|string',
             'hinh_anh'      => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
@@ -50,19 +50,15 @@ class SanPhamController extends Controller
             'ten_san_pham.required'  => 'Vui lòng nhập tên sản phẩm.',
             'gia.required'           => 'Vui lòng nhập giá.',
             'gia.numeric'            => 'Giá phải là số.',
-            'so_luong.required'      => 'Vui lòng nhập số lượng.',
-            'so_luong.integer'       => 'Số lượng phải là số nguyên.',
             'loai_san_pham.required' => 'Vui lòng chọn loại sản phẩm.',
             'hinh_anh.image'         => 'File tải lên phải là hình ảnh.',
             'hinh_anh.max'           => 'Ảnh không được vượt quá 2MB.',
         ]);
 
-        
         $duongDanAnh = null;
         if ($request->hasFile('hinh_anh')) {
             $file    = $request->file('hinh_anh');
             $tenFile = time() . '_' . $file->getClientOriginalName();
-          
             $file->move(public_path('img'), $tenFile);
             $duongDanAnh = 'img/' . $tenFile;
         }
@@ -70,25 +66,25 @@ class SanPhamController extends Controller
         SanPham::create([
             'ten_san_pham'  => $request->ten_san_pham,
             'gia'           => $request->gia,
-            'so_luong'      => $request->so_luong,
+            'so_luong'      => 0,           
             'loai_san_pham' => $request->loai_san_pham,
             'mo_ta'         => $request->mo_ta,
             'hinh_anh'      => $duongDanAnh,
-            'trang_thai'    => 'DANG_BAN', 
+            'trang_thai'    => 'DANG_BAN',
         ]);
 
         return redirect()->route('san-pham.index')
-                         ->with('success', 'Thêm sản phẩm thành công!');
+                         ->with('success', 'Thêm sản phẩm thành công! Số lượng ban đầu là 0, hãy tạo phiếu nhập để thêm hàng vào kho.');
     }
 
-    
+
     public function editData($id)
     {
         $sanPham = SanPham::findOrFail($id);
         return response()->json($sanPham);
     }
 
-    
+
     public function update(Request $request, $id)
     {
         $sanPham = SanPham::findOrFail($id);
@@ -96,14 +92,13 @@ class SanPhamController extends Controller
         $request->validate([
             'ten_san_pham'  => 'required|string|max:100',
             'gia'           => 'required|numeric|min:0',
-            'so_luong'      => 'required|integer|min:0',
+            
             'loai_san_pham' => 'required|in:' . implode(',', array_keys($this->danhSachLoai)),
             'mo_ta'         => 'nullable|string',
             'hinh_anh'      => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
         ], [
             'ten_san_pham.required'  => 'Vui lòng nhập tên sản phẩm.',
             'gia.required'           => 'Vui lòng nhập giá.',
-            'so_luong.required'      => 'Vui lòng nhập số lượng.',
             'loai_san_pham.required' => 'Vui lòng chọn loại sản phẩm.',
             'hinh_anh.image'         => 'File tải lên phải là hình ảnh.',
             'hinh_anh.max'           => 'Ảnh không được vượt quá 2MB.',
@@ -123,7 +118,7 @@ class SanPhamController extends Controller
         $sanPham->update([
             'ten_san_pham'  => $request->ten_san_pham,
             'gia'           => $request->gia,
-            'so_luong'      => $request->so_luong,
+           
             'loai_san_pham' => $request->loai_san_pham,
             'mo_ta'         => $request->mo_ta,
             'hinh_anh'      => $duongDanAnh,
@@ -133,7 +128,7 @@ class SanPhamController extends Controller
                          ->with('success', 'Cập nhật sản phẩm thành công!');
     }
 
-    
+
     public function toggleTrangThai($id)
     {
         $sanPham = SanPham::findOrFail($id);

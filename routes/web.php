@@ -7,6 +7,7 @@ use App\Http\Controllers\NhanVienController;
 use App\Http\Controllers\SanPhamController;
 use App\Http\Controllers\HoaDonController;
 use App\Http\Controllers\DonHangController;
+use App\Http\Controllers\PhieuNhapController;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -51,4 +52,18 @@ Route::prefix('don-hang')->name('don-hang.')->controller(\App\Http\Controllers\D
     Route::post('/{id}/confirm', 'confirm')->name('confirm');
    
     Route::post('/{id}/cancel', 'cancel')->name('cancel');
+});
+Route::prefix('phieu-nhap')->name('phieu-nhap.')->controller(PhieuNhapController::class)->group(function () {
+ 
+    Route::get('/', 'index')->name('index');
+ 
+    Route::post('/', 'store')->name('store');
+ 
+    Route::get('/{id}/edit-data', 'editData')->name('edit-data');
+ 
+    Route::put('/{id}', 'update')->name('update');
+ 
+    Route::delete('/{id}', 'destroy')->name('destroy');
+ 
+    Route::post('/{id}/confirm', 'confirm')->name('confirm');
 });
