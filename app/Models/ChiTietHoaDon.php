@@ -14,34 +14,40 @@ class ChiTietHoaDon extends Model
     public $incrementing = true;
     protected $keyType = 'int';
 
-    
     public $timestamps = false;
 
     protected $fillable = [
         'ma_hoa_don',
         'ma_san_pham',
+        'ma_chi_tiet_nhap',
         'so_luong',
-        'gia',
+        'gia_nhap_snapshot',
+        'gia_ban_snapshot',
     ];
 
     protected $casts = [
         'so_luong' => 'integer',
-        'gia' => 'decimal:2',
+        'gia_nhap_snapshot' => 'decimal:2',
+        'gia_ban_snapshot' => 'decimal:2',
     ];
 
-    
     public function hoaDon()
     {
         return $this->belongsTo(HoaDon::class, 'ma_hoa_don', 'ma_hoa_don');
     }
 
-    
     public function sanPham()
     {
         return $this->belongsTo(SanPham::class, 'ma_san_pham', 'ma_san_pham');
     }
+
+    public function chiTietNhap()
+    {
+        return $this->belongsTo(ChiTietNhap::class, 'ma_chi_tiet_nhap', 'ma_chi_tiet_nhap');
+    }
+
     public function getThanhTienAttribute()
     {
-        return $this->so_luong * $this->gia;
+        return $this->so_luong * $this->gia_ban_snapshot;
     }
 }

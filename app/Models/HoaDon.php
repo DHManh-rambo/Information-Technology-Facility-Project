@@ -13,6 +13,7 @@ class HoaDon extends Model
     protected $primaryKey = 'ma_hoa_don';
     public $incrementing = true;
     protected $keyType = 'int';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -34,19 +35,16 @@ class HoaDon extends Model
         'ngay_giao' => 'datetime',
     ];
 
-   
     public function chiTietHoaDon()
     {
         return $this->hasMany(ChiTietHoaDon::class, 'ma_hoa_don', 'ma_hoa_don');
     }
 
-    
     public function khachHang()
     {
         return $this->belongsTo(KhachHang::class, 'ma_khach_hang', 'ma_khach_hang');
     }
 
-   
     public function shipper()
     {
         return $this->belongsTo(NhanVien::class, 'ma_nhan_vien_giao', 'ma_nhan_vien');
