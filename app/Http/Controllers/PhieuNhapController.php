@@ -14,7 +14,6 @@ class PhieuNhapController extends Controller
     
     public function index(Request $request)
     {
-        
         $query = PhieuNhap::with(['nhanVien', 'chiTietNhaps.sanPham']);
 
         
@@ -22,7 +21,7 @@ class PhieuNhapController extends Controller
             $query->where('trang_thai', $request->trang_thai);
         }
 
-       
+      
         if ($request->filled('tu_ngay')) {
             $query->whereDate('ngay_nhap', '>=', $request->tu_ngay);
         }
@@ -30,14 +29,13 @@ class PhieuNhapController extends Controller
             $query->whereDate('ngay_nhap', '<=', $request->den_ngay);
         }
 
-       
         if ($request->filled('tim_ncc')) {
             $query->where('ten_nha_cung_cap', 'LIKE', '%' . $request->tim_ncc . '%');
         }
 
         $danhSachPhieuNhap = $query->orderBy('ma_phieu_nhap', 'desc')->get();
 
-       
+        
         $danhSachNhanVien = NhanVien::where('chuc_vu', 'VAN_HANH')->get();
 
         
@@ -52,7 +50,7 @@ class PhieuNhapController extends Controller
         ));
     }
 
-   
+    
     public function store(Request $request)
     {
         $request->validate([
@@ -62,18 +60,21 @@ class PhieuNhapController extends Controller
             'so_dien_thoai_ncc' => 'nullable|digits:10',
             'email_ncc'         => 'nullable|email|max:100',
             'dia_chi_ncc'       => 'nullable|string',
-           
+
             'san_pham'          => 'required|array|min:1',
             'san_pham.*'        => 'required|exists:san_pham,ma_san_pham|distinct',
             'so_luong'          => 'required|array|min:1',
             'so_luong.*'        => 'required|integer|min:1',
             'gia_nhap'          => 'required|array|min:1',
             'gia_nhap.*'        => 'required|numeric|min:0',
+           
+            'gia_ban'           => 'nullable|array',
+            'gia_ban.*'         => 'nullable|numeric|min:0',
         ], [
             'ngay_nhap.required'        => 'Vui lòng chọn ngày nhập.',
             'ma_nhan_vien.required'     => 'Vui lòng chọn nhân viên.',
-            'so_dien_thoai_ncc.digits'  => 'Số điện thoại nhà cung cấp phải đủ 10 chữ số.',
-            'email_ncc.email'           => 'Email nhà cung cấp không đúng định dạng (phải có @).',
+            'so_dien_thoai_ncc.digits'  => 'Số điện thoại NCC phải đủ 10 chữ số.',
+            'email_ncc.email'           => 'Email NCC không đúng định dạng (phải có @).',
             'san_pham.required'         => 'Vui lòng thêm ít nhất 1 sản phẩm vào phiếu nhập.',
             'san_pham.*.distinct'       => 'Không được chọn cùng 1 sản phẩm 2 lần trong cùng phiếu.',
             'san_pham.*.exists'         => 'Sản phẩm không hợp lệ.',
@@ -81,9 +82,10 @@ class PhieuNhapController extends Controller
             'so_luong.*.integer'        => 'Số lượng phải là số nguyên.',
             'gia_nhap.*.min'            => 'Giá nhập không được âm.',
             'gia_nhap.*.numeric'        => 'Giá nhập phải là số.',
+            'gia_ban.*.numeric'         => 'Giá bán phải là số.',
+            'gia_ban.*.min'             => 'Giá bán không được âm.',
         ]);
 
-        
         DB::transaction(function () use ($request) {
 
             
@@ -97,13 +99,25 @@ class PhieuNhapController extends Controller
                 'trang_thai'        => 'DRAFT',
             ]);
 
-           
+            
             foreach ($request->san_pham as $index => $maSanPham) {
+
+                $giaNhap = $request->gia_nhap[$index];
+
+                
+                $giaBanNhap = $request->gia_ban[$index] ?? null;
+                $giaBan = ($giaBanNhap !== null && $giaBanNhap !== '')
+                    ? (float) $giaBanNhap
+                    : (float) $giaNhap * 1.5;
+
                 ChiTietNhap::create([
-                    'ma_phieu_nhap' => $phieuNhap->ma_phieu_nhap,
-                    'ma_san_pham'   => $maSanPham,
-                    'so_luong'      => $request->so_luong[$index],
-                    'gia_nhap'      => $request->gia_nhap[$index],
+                    'ma_phieu_nhap'   => $phieuNhap->ma_phieu_nhap,
+                    'ma_san_pham'     => $maSanPham,
+                    'so_luong'        => $request->so_luong[$index],
+                    'gia_nhap'        => $giaNhap,
+                    'gia_ban'         => $giaBan,
+                   
+                    'so_luong_con_lai' => $request->so_luong[$index],
                 ]);
             }
         });
@@ -124,7 +138,7 @@ class PhieuNhapController extends Controller
     {
         $phieuNhap = PhieuNhap::findOrFail($id);
 
-       
+        
         if ($phieuNhap->trang_thai !== 'DRAFT') {
             return redirect()->route('phieu-nhap.index')
                              ->with('error', 'Không thể sửa phiếu nhập đã xác nhận!');
@@ -143,12 +157,16 @@ class PhieuNhapController extends Controller
             'so_luong.*'        => 'required|integer|min:1',
             'gia_nhap'          => 'required|array|min:1',
             'gia_nhap.*'        => 'required|numeric|min:0',
+            'gia_ban'           => 'nullable|array',
+            'gia_ban.*'         => 'nullable|numeric|min:0',
         ], [
             'so_dien_thoai_ncc.digits' => 'Số điện thoại phải đủ 10 chữ số.',
             'email_ncc.email'          => 'Email không đúng định dạng (phải có @).',
             'san_pham.required'        => 'Vui lòng thêm ít nhất 1 sản phẩm.',
             'san_pham.*.distinct'      => 'Không được chọn cùng 1 sản phẩm 2 lần.',
             'so_luong.*.min'           => 'Số lượng phải lớn hơn 0.',
+            'gia_ban.*.numeric'        => 'Giá bán phải là số.',
+            'gia_ban.*.min'            => 'Giá bán không được âm.',
         ]);
 
         DB::transaction(function () use ($request, $phieuNhap) {
@@ -167,11 +185,22 @@ class PhieuNhapController extends Controller
             $phieuNhap->chiTietNhaps()->delete();
 
             foreach ($request->san_pham as $index => $maSanPham) {
+
+                $giaNhap = $request->gia_nhap[$index];
+
+               
+                $giaBanNhap = $request->gia_ban[$index] ?? null;
+                $giaBan = ($giaBanNhap !== null && $giaBanNhap !== '')
+                    ? (float) $giaBanNhap
+                    : (float) $giaNhap * 1.5;
+
                 ChiTietNhap::create([
-                    'ma_phieu_nhap' => $phieuNhap->ma_phieu_nhap,
-                    'ma_san_pham'   => $maSanPham,
-                    'so_luong'      => $request->so_luong[$index],
-                    'gia_nhap'      => $request->gia_nhap[$index],
+                    'ma_phieu_nhap'    => $phieuNhap->ma_phieu_nhap,
+                    'ma_san_pham'      => $maSanPham,
+                    'so_luong'         => $request->so_luong[$index],
+                    'gia_nhap'         => $giaNhap,
+                    'gia_ban'          => $giaBan,
+                    'so_luong_con_lai' => $request->so_luong[$index],
                 ]);
             }
         });
@@ -190,18 +219,18 @@ class PhieuNhapController extends Controller
                              ->with('error', 'Không thể xóa phiếu nhập đã xác nhận!');
         }
 
+        
         $phieuNhap->delete();
 
         return redirect()->route('phieu-nhap.index')
                          ->with('success', 'Đã xóa phiếu nhập!');
     }
 
-   
+    
     public function confirm($id)
     {
         $phieuNhap = PhieuNhap::with('chiTietNhaps')->findOrFail($id);
 
-        
         if ($phieuNhap->trang_thai !== 'DRAFT') {
             return redirect()->route('phieu-nhap.index')
                              ->with('error', 'Phiếu nhập này đã được xác nhận rồi!');
@@ -209,8 +238,8 @@ class PhieuNhapController extends Controller
 
         DB::transaction(function () use ($phieuNhap) {
 
-            
             foreach ($phieuNhap->chiTietNhaps as $chiTiet) {
+                
                 $sanPham = SanPham::findOrFail($chiTiet->ma_san_pham);
                 $sanPham->so_luong += $chiTiet->so_luong;
                 $sanPham->save();

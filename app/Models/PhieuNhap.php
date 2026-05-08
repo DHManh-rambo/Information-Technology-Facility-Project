@@ -11,6 +11,10 @@ class PhieuNhap extends Model
 
     protected $table = 'phieu_nhap';
     protected $primaryKey = 'ma_phieu_nhap';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
+    public $timestamps = true;
 
     protected $fillable = [
         'ngay_nhap',
@@ -19,14 +23,12 @@ class PhieuNhap extends Model
         'so_dien_thoai_ncc',
         'email_ncc',
         'dia_chi_ncc',
-        'trang_thai', 
+        'trang_thai',
     ];
 
     protected $casts = [
         'ngay_nhap' => 'datetime',
     ];
-
-   
 
     public function nhanVien()
     {

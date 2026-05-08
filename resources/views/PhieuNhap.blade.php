@@ -7,7 +7,6 @@
     <title>Quản Lý Phiếu Nhập</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-   
 </head>
 <body>
 <div class="container py-4">
@@ -40,9 +39,6 @@
 
     {{-- =====================================================================
          Ô TRÊN: THÊM / SỬA PHIẾU NHẬP
-         - Chế độ THÊM (mặc định): header đen, action POST /phieu-nhap
-         - Chế độ SỬA: header xám, action PUT /phieu-nhap/{id}
-         Chuyển đổi bằng JS, không reload trang
     ===================================================================== --}}
     <div class="card mb-4" id="cardForm">
 
@@ -100,7 +96,6 @@
                         <input type="text" name="so_dien_thoai_ncc" id="inp_sdt_ncc"
                                class="form-control" value="{{ old('so_dien_thoai_ncc') }}"
                                placeholder="10 chữ số" maxlength="10">
-                        
                     </div>
 
                     {{-- Email NCC --}}
@@ -109,7 +104,6 @@
                         <input type="email" name="email_ncc" id="inp_email_ncc"
                                class="form-control" value="{{ old('email_ncc') }}"
                                placeholder="ncc@example.com">
-                       
                     </div>
 
                     {{-- Địa chỉ NCC --}}
@@ -123,13 +117,21 @@
                 </div>
 
                 {{-- ===== DANH SÁCH SẢN PHẨM NHẬP ===== --}}
-                <p class="tieu-de-chi-tiet mt-2"><i class="bi bi-box-seam me-1"></i>Chi tiết nhập hàng</p>
+                <p class="tieu-de-chi-tiet mt-2">
+                    <i class="bi bi-box-seam me-1"></i>Chi tiết nhập hàng
+                    <small class="text-muted fw-normal ms-2" style="font-size:0.8rem;">
+                        <i class="bi bi-info-circle me-1"></i>
+                        Giá bán: để trống → hệ thống tự tính = Giá nhập + 50%
+                    </small>
+                </p>
 
                 <div id="danhSachDongChiTiet">
-                    {{-- Dòng đầu tiên mặc định (không xóa được) --}}
+                    {{-- Dòng sản phẩm đầu tiên (không xóa được) --}}
                     <div class="dong-chi-tiet" id="dong_0">
                         <div class="row g-2 align-items-end">
-                            <div class="col-md-5">
+
+                            {{-- Chọn sản phẩm --}}
+                            <div class="col-md-4">
                                 <label class="form-label">Sản phẩm <span class="text-danger">*</span></label>
                                 <select name="san_pham[]" class="form-select" required>
                                     <option value="">-- Chọn sản phẩm --</option>
@@ -140,18 +142,36 @@
                                     @endforeach
                                 </select>
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Số lượng nhập <span class="text-danger">*</span></label>
+
+                            {{-- Số lượng --}}
+                            <div class="col-md-2">
+                                <label class="form-label">Số lượng <span class="text-danger">*</span></label>
                                 <input type="number" name="so_luong[]" class="form-control"
                                        min="1" placeholder="0" required>
                             </div>
-                            <div class="col-md-3">
-                                <label class="form-label">Giá nhập (VNĐ) <span class="text-danger">*</span></label>
-                                <input type="number" name="gia_nhap[]" class="form-control"
+
+                            {{-- Giá nhập --}}
+                            <div class="col-md-2">
+                                <label class="form-label">Giá nhập (₫) <span class="text-danger">*</span></label>
+                                <input type="number" name="gia_nhap[]" class="form-control inp-gia-nhap"
                                        min="0" placeholder="0" required>
                             </div>
-                            {{-- Cột trống để canh đều với các dòng khác có nút X --}}
+
+                            {{-- Giá bán (không bắt buộc, tự tính nếu trống) --}}
+                            <div class="col-md-3">
+                                <label class="form-label">
+                                    Giá bán (₫)
+                                    <span class="text-muted" style="font-size:0.75rem; font-weight:normal;">
+                                        — để trống = +50%
+                                    </span>
+                                </label>
+                                <input type="number" name="gia_ban[]" class="form-control inp-gia-ban"
+                                       min="0" placeholder="Tự tính nếu để trống">
+                            </div>
+
+                            {{-- Cột trống để canh nút X của các dòng sau --}}
                             <div class="col-md-1"></div>
+
                         </div>
                     </div>
                 </div>
@@ -221,13 +241,12 @@
                                        value="{{ request('den_ngay') }}">
                             </div>
 
-                            {{-- Tìm nhà cung cấp --}}
+                            {{-- Tìm nhà cung cấp (tìm mờ: gõ 1 phần cũng ra) --}}
                             <div class="col-md-4">
                                 <label class="form-label">Tên nhà cung cấp</label>
                                 <input type="text" name="tim_ncc" class="form-control form-control-sm"
                                        value="{{ request('tim_ncc') }}"
                                        placeholder="Nhập tên hoặc 1 phần tên NCC...">
-                               
                             </div>
 
                             {{-- Nút lọc --}}
@@ -310,7 +329,7 @@
                                         {{-- NÚT XÁC NHẬN (chỉ hiện khi DRAFT) --}}
                                         <form action="{{ route('phieu-nhap.confirm', $pn->ma_phieu_nhap) }}"
                                               method="POST" class="d-inline"
-                                              onsubmit="return confirm('Xác nhận phiếu nhập #{{ $pn->ma_phieu_nhap }}? Số lượng kho sẽ được cập nhật và không thể hoàn tác!')">
+                                              onsubmit="return confirm('Xác nhận phiếu nhập #{{ $pn->ma_phieu_nhap }}?\nSố lượng kho sẽ được cập nhật và không thể hoàn tác!')">
                                             @csrf
                                             <button type="submit" class="btn btn-xacnhan btn-sm" title="Xác nhận nhập kho">
                                                 <i class="bi bi-check2-circle me-1"></i>Xác nhận
@@ -351,7 +370,6 @@
 
 {{-- =====================================================================
      MODAL XEM CHI TIẾT NHẬP
-     Hiện danh sách sản phẩm trong phiếu nhập dưới dạng màn hình nhỏ
 ===================================================================== --}}
 <div class="modal fade" id="modalChiTiet" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -365,7 +383,6 @@
             </div>
 
             <div class="modal-body" id="noiDungModal">
-                {{-- JS sẽ điền nội dung vào đây --}}
                 <div class="text-center py-3 text-muted">Đang tải...</div>
             </div>
 
@@ -380,13 +397,14 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
 
-    
+  
     const danhSachSanPham = @json($danhSachSanPham);
 
   
     let demDong = 1;
 
 
+    
     function themDongSanPham() {
         const id = 'dong_' + demDong++;
         const container = document.getElementById('danhSachDongChiTiet');
@@ -402,19 +420,26 @@
                     <i class="bi bi-x-circle-fill"></i>
                 </button>
                 <div class="row g-2 align-items-end">
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <label class="form-label">Sản phẩm <span class="text-danger">*</span></label>
                         <select name="san_pham[]" class="form-select" required>
                             ${optionsSanPham}
                         </select>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Số lượng nhập <span class="text-danger">*</span></label>
+                    <div class="col-md-2">
+                        <label class="form-label">Số lượng <span class="text-danger">*</span></label>
                         <input type="number" name="so_luong[]" class="form-control" min="1" placeholder="0" required>
                     </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Giá nhập (₫) <span class="text-danger">*</span></label>
+                        <input type="number" name="gia_nhap[]" class="form-control inp-gia-nhap" min="0" placeholder="0" required>
+                    </div>
                     <div class="col-md-3">
-                        <label class="form-label">Giá nhập (VNĐ) <span class="text-danger">*</span></label>
-                        <input type="number" name="gia_nhap[]" class="form-control" min="0" placeholder="0" required>
+                        <label class="form-label">
+                            Giá bán (₫)
+                            <span class="text-muted" style="font-size:0.75rem; font-weight:normal;">— để trống = +50%</span>
+                        </label>
+                        <input type="number" name="gia_ban[]" class="form-control inp-gia-ban" min="0" placeholder="Tự tính nếu để trống">
                     </div>
                     <div class="col-md-1"></div>
                 </div>
@@ -422,75 +447,67 @@
 
         container.insertAdjacentHTML('beforeend', dongHtml);
     }
-
-
-   
     function xoaDong(id) {
         const dong = document.getElementById(id);
         if (dong) dong.remove();
     }
 
-
-   
     function chuyenCheDeSua(id) {
         fetch(`/phieu-nhap/${id}/edit-data`)
             .then(res => res.json())
             .then(pn => {
 
-                
-                document.getElementById('inp_ngay_nhap').value  = pn.ngay_nhap
+                document.getElementById('inp_ngay_nhap').value   = pn.ngay_nhap
                     ? pn.ngay_nhap.replace(' ', 'T').substring(0, 16) : '';
-                document.getElementById('inp_nhan_vien').value  = pn.ma_nhan_vien ?? '';
-                document.getElementById('inp_ncc').value        = pn.ten_nha_cung_cap ?? '';
-                document.getElementById('inp_sdt_ncc').value    = pn.so_dien_thoai_ncc ?? '';
-                document.getElementById('inp_email_ncc').value  = pn.email_ncc ?? '';
+                document.getElementById('inp_nhan_vien').value   = pn.ma_nhan_vien ?? '';
+                document.getElementById('inp_ncc').value         = pn.ten_nha_cung_cap ?? '';
+                document.getElementById('inp_sdt_ncc').value     = pn.so_dien_thoai_ncc ?? '';
+                document.getElementById('inp_email_ncc').value   = pn.email_ncc ?? '';
                 document.getElementById('inp_dia_chi_ncc').value = pn.dia_chi_ncc ?? '';
 
-               
                 const container = document.getElementById('danhSachDongChiTiet');
                 container.innerHTML = '';
                 demDong = 0;
 
-               
-                let optionsSanPham = '<option value="">-- Chọn sản phẩm --</option>';
-                danhSachSanPham.forEach(sp => {
-                    optionsSanPham += `<option value="${sp.ma_san_pham}">${sp.ten_san_pham} (Tồn: ${sp.so_luong})</option>`;
-                });
-
-               
                 if (pn.chi_tiet_nhaps && pn.chi_tiet_nhaps.length > 0) {
                     pn.chi_tiet_nhaps.forEach((ct, index) => {
                         const dongId = 'dong_' + demDong++;
 
-                      
                         let opts = '<option value="">-- Chọn sản phẩm --</option>';
                         danhSachSanPham.forEach(sp => {
                             const sel = sp.ma_san_pham == ct.ma_san_pham ? 'selected' : '';
                             opts += `<option value="${sp.ma_san_pham}" ${sel}>${sp.ten_san_pham} (Tồn: ${sp.so_luong})</option>`;
                         });
 
-                       
-                        const nuutXoa = index > 0
+                        const nutXoa = index > 0
                             ? `<button type="button" class="btn-xoa-dong" onclick="xoaDong('${dongId}')"><i class="bi bi-x-circle-fill"></i></button>`
                             : '';
 
                         const dongHtml = `
                             <div class="dong-chi-tiet" id="${dongId}">
-                                ${nuutXoa}
+                                ${nutXoa}
                                 <div class="row g-2 align-items-end">
-                                    <div class="col-md-5">
+                                    <div class="col-md-4">
                                         <label class="form-label">Sản phẩm <span class="text-danger">*</span></label>
                                         <select name="san_pham[]" class="form-select" required>${opts}</select>
                                     </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label">Số lượng nhập <span class="text-danger">*</span></label>
+                                    <div class="col-md-2">
+                                        <label class="form-label">Số lượng <span class="text-danger">*</span></label>
                                         <input type="number" name="so_luong[]" class="form-control"
                                                min="1" value="${ct.so_luong}" required>
                                     </div>
-                                    <div class="col-md-3">
-                                        <label class="form-label">Giá nhập (VNĐ) <span class="text-danger">*</span></label>
-                                        <input type="number" name="gia_nhap[]" class="form-control"
+                                    <div class="col-md-2">
+                                        <label class="form-label">Giá nhập (₫) <span class="text-danger">*</span></label>
+                                        <input type="number" name="gia_nhap[]" class="form-control inp-gia-nhap"
                                                min="0" value="${ct.gia_nhap}" required>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <label class="form-label">
+                                            Giá bán (₫)
+                                            <span class="text-muted" style="font-size:0.75rem; font-weight:normal;">— để trống = +50%</span>
+                                        </label>
+                                        <input type="number" name="gia_ban[]" class="form-control inp-gia-ban"
+                                               min="0" value="${ct.gia_ban ?? ''}" placeholder="Tự tính nếu để trống">
                                     </div>
                                     <div class="col-md-1"></div>
                                 </div>
@@ -499,12 +516,10 @@
                     });
                 }
 
-               
                 document.getElementById('formChung').action = `/phieu-nhap/${id}`;
                 document.getElementById('methodField').innerHTML =
                     '<input type="hidden" name="_method" value="PUT">';
 
-                
                 const header = document.getElementById('cardFormHeader');
                 header.className = 'card-header header-sua d-flex justify-content-between align-items-center';
                 document.getElementById('tieuDeForm').innerHTML =
@@ -521,9 +536,8 @@
     }
 
 
-   
+    
     function chuyenVeCheDoDaThem() {
-        
         const container = document.getElementById('danhSachDongChiTiet');
         demDong = 0;
 
@@ -532,32 +546,38 @@
             optionsSanPham += `<option value="${sp.ma_san_pham}">${sp.ten_san_pham} (Tồn: ${sp.so_luong})</option>`;
         });
 
+        
         container.innerHTML = `
             <div class="dong-chi-tiet" id="dong_0">
                 <div class="row g-2 align-items-end">
-                    <div class="col-md-5">
+                    <div class="col-md-4">
                         <label class="form-label">Sản phẩm <span class="text-danger">*</span></label>
                         <select name="san_pham[]" class="form-select" required>${optionsSanPham}</select>
                     </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Số lượng nhập <span class="text-danger">*</span></label>
+                    <div class="col-md-2">
+                        <label class="form-label">Số lượng <span class="text-danger">*</span></label>
                         <input type="number" name="so_luong[]" class="form-control" min="1" placeholder="0" required>
                     </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Giá nhập (₫) <span class="text-danger">*</span></label>
+                        <input type="number" name="gia_nhap[]" class="form-control inp-gia-nhap" min="0" placeholder="0" required>
+                    </div>
                     <div class="col-md-3">
-                        <label class="form-label">Giá nhập (VNĐ) <span class="text-danger">*</span></label>
-                        <input type="number" name="gia_nhap[]" class="form-control" min="0" placeholder="0" required>
+                        <label class="form-label">
+                            Giá bán (₫)
+                            <span class="text-muted" style="font-size:0.75rem; font-weight:normal;">— để trống = +50%</span>
+                        </label>
+                        <input type="number" name="gia_ban[]" class="form-control inp-gia-ban" min="0" placeholder="Tự tính nếu để trống">
                     </div>
                     <div class="col-md-1"></div>
                 </div>
             </div>`;
         demDong = 1;
 
-        
         document.getElementById('formChung').reset();
         document.getElementById('formChung').action = '{{ route('phieu-nhap.store') }}';
         document.getElementById('methodField').innerHTML = '';
 
-      
         const header = document.getElementById('cardFormHeader');
         header.className = 'card-header header-them d-flex justify-content-between align-items-center';
         document.getElementById('tieuDeForm').innerHTML =
@@ -570,9 +590,8 @@
     }
 
 
-    
+   
     function xemChiTiet(id) {
-        
         document.getElementById('tieuDeModal').innerHTML =
             `<i class="bi bi-file-earmark-text me-2"></i>Chi tiết phiếu nhập #${id}`;
         document.getElementById('noiDungModal').innerHTML =
@@ -581,29 +600,35 @@
         const modal = new bootstrap.Modal(document.getElementById('modalChiTiet'));
         modal.show();
 
-       
         fetch(`/phieu-nhap/${id}/edit-data`)
             .then(res => res.json())
             .then(pn => {
-               
-                let tongTien = 0;
+                let tongTienNhap = 0;
                 let rowsSanPham = '';
 
                 if (pn.chi_tiet_nhaps && pn.chi_tiet_nhaps.length > 0) {
                     pn.chi_tiet_nhaps.forEach(ct => {
-                        const thanh_tien = ct.so_luong * ct.gia_nhap;
-                        tongTien += thanh_tien;
+                        const thanhTien = ct.so_luong * ct.gia_nhap;
+                        tongTienNhap += thanhTien;
                         const tenSP = ct.san_pham ? ct.san_pham.ten_san_pham : `SP #${ct.ma_san_pham}`;
+
+                        
+                        const giaBanTuDong = ct.gia_ban == null || ct.gia_ban == (ct.gia_nhap * 1.5);
+                        const giaBanHtml = giaBanTuDong
+                            ? `${Number(ct.gia_ban).toLocaleString('vi-VN')} ₫ <small class="text-muted">(tự tính)</small>`
+                            : `${Number(ct.gia_ban).toLocaleString('vi-VN')} ₫`;
+
                         rowsSanPham += `
                             <tr>
                                 <td>${tenSP}</td>
                                 <td class="text-center">${ct.so_luong}</td>
                                 <td class="text-end">${Number(ct.gia_nhap).toLocaleString('vi-VN')} ₫</td>
-                                <td class="text-end fw-semibold">${thanh_tien.toLocaleString('vi-VN')} ₫</td>
+                                <td class="text-end">${giaBanHtml}</td>
+                                <td class="text-end fw-semibold">${thanhTien.toLocaleString('vi-VN')} ₫</td>
                             </tr>`;
                     });
                 } else {
-                    rowsSanPham = '<tr><td colspan="4" class="text-center text-muted">Không có sản phẩm nào</td></tr>';
+                    rowsSanPham = '<tr><td colspan="5" class="text-center text-muted">Không có sản phẩm nào</td></tr>';
                 }
 
                 const trangThaiHtml = pn.trang_thai === 'DRAFT'
@@ -638,14 +663,15 @@
                                     <th>Tên sản phẩm</th>
                                     <th class="text-center">Số lượng</th>
                                     <th class="text-end">Giá nhập</th>
-                                    <th class="text-end">Thành tiền</th>
+                                    <th class="text-end">Giá bán</th>
+                                    <th class="text-end">Thành tiền (nhập)</th>
                                 </tr>
                             </thead>
                             <tbody>${rowsSanPham}</tbody>
                             <tfoot>
                                 <tr style="background:#f0f0f0; font-weight:600;">
-                                    <td colspan="3" class="text-end">Tổng cộng:</td>
-                                    <td class="text-end">${tongTien.toLocaleString('vi-VN')} ₫</td>
+                                    <td colspan="4" class="text-end">Tổng tiền nhập:</td>
+                                    <td class="text-end">${tongTienNhap.toLocaleString('vi-VN')} ₫</td>
                                 </tr>
                             </tfoot>
                         </table>

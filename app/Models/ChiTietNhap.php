@@ -11,20 +11,27 @@ class ChiTietNhap extends Model
 
     protected $table = 'chi_tiet_nhap';
     protected $primaryKey = 'ma_chi_tiet_nhap';
+    public $incrementing = true;
+    protected $keyType = 'int';
+
+    
+    public $timestamps = true;
 
     protected $fillable = [
         'ma_phieu_nhap',
         'ma_san_pham',
         'so_luong',
         'gia_nhap',
+        'gia_ban',          
+        'so_luong_con_lai', 
     ];
 
     protected $casts = [
         'so_luong' => 'integer',
         'gia_nhap' => 'decimal:2',
+        'gia_ban' => 'decimal:2',
+        'so_luong_con_lai' => 'integer',
     ];
-
-    
 
     public function phieuNhap()
     {
