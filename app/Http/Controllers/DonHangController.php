@@ -15,11 +15,6 @@ class DonHangController extends Controller
         $query = HoaDon::with(['khachHang', 'chiTietHoaDon.sanPham'])
             ->where('trang_thai', 'PENDING');
 
-        
-        if ($request->filled('ma_khach_hang')) {
-            $query->where('ma_khach_hang', $request->ma_khach_hang);
-        }
-
        
         if ($request->filled('trang_thai_thanh_toan')) {
             $query->where('trang_thai_thanh_toan', $request->trang_thai_thanh_toan);
@@ -27,13 +22,13 @@ class DonHangController extends Controller
 
         
         if ($request->filled('tu_tien')) {
-            $query->where('tong_tien', '>=', $request->tu_tien);
+            $query->where('tong_tien', '>=', (float) $request->tu_tien);
         }
         if ($request->filled('den_tien')) {
-            $query->where('tong_tien', '<=', $request->den_tien);
+            $query->where('tong_tien', '<=', (float) $request->den_tien);
         }
 
-        
+       
         if ($request->filled('tu_ngay')) {
             $query->where('ngay_dat', '>=', Carbon::parse($request->tu_ngay)->startOfDay());
         }
@@ -44,20 +39,18 @@ class DonHangController extends Controller
         $donHangs = $query->orderByDesc('ngay_dat')->paginate(15)->withQueryString();
 
         
-        $shippers = NhanVien::whereHas('nguoiDung', function ($q) {
-            $q->where('vai_tro', 'SHIPPER');
-        })->orWhere('chuc_vu', 'SHIPPER')->get();
+        $shippers = NhanVien::where('chuc_vu', 'SHIPPER')->get();
 
         return view('DonHang', compact('donHangs', 'shippers'));
     }
 
-   
+    
     public function confirm(Request $request, $id)
     {
         $request->validate([
             'ma_nhan_vien_giao' => 'required|exists:nhan_vien,ma_nhan_vien',
         ], [
-            'ma_nhan_vien_giao.required' => 'Vui lòng chọn shipper trước khi xác nhận.',
+            'ma_nhan_vien_giao.required' => 'Vui lòng chọn shipper trước khi xác nhận đơn hàng.',
             'ma_nhan_vien_giao.exists'   => 'Shipper không hợp lệ.',
         ]);
 
@@ -71,18 +64,17 @@ class DonHangController extends Controller
         }
 
         $hoaDon->update([
-            'trang_thai'         => 'CONFIRMED',
-            'ma_nhan_vien_giao'  => $request->ma_nhan_vien_giao,
-           
+            'trang_thai'        => 'CONFIRMED',
+            'ma_nhan_vien_giao' => $request->ma_nhan_vien_giao,
         ]);
 
         return response()->json([
             'success' => true,
-            'message' => "Đã xác nhận đơn hàng #HD-" . str_pad($id, 4, '0', STR_PAD_LEFT) . " thành công.",
+            'message' => 'Đã xác nhận đơn hàng #HD-' . str_pad($id, 4, '0', STR_PAD_LEFT) . ' thành công.',
         ]);
     }
 
-  
+    
     public function cancel($id)
     {
         $hoaDon = HoaDon::findOrFail($id);
@@ -100,7 +92,7 @@ class DonHangController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => "Đã từ chối đơn hàng #HD-" . str_pad($id, 4, '0', STR_PAD_LEFT) . ".",
+            'message' => 'Đã từ chối đơn hàng #HD-' . str_pad($id, 4, '0', STR_PAD_LEFT) . '.',
         ]);
     }
 }
