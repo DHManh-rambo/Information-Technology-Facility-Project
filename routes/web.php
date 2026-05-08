@@ -30,13 +30,23 @@ Route::prefix('nhan-vien')->name('nhan-vien.')->controller(NhanVienController::c
     Route::put('/{ma_nhan_vien}', 'update')->name('update');
     Route::delete('/{ma_nhan_vien}', 'destroy')->name('destroy');
 });
-Route::prefix('san-pham')->name('san-pham.')->controller(SanPhamController::class)->group(function () {
-    Route::get('/', 'index')->name('index');
-    Route::post('/', 'store')->name('store');
-    Route::get('/{id}/edit-data', 'editData')->name('edit-data');
-    Route::put('/{id}', 'update')->name('update');
-    Route::patch('/{id}/toggle', 'toggleTrangThai')->name('toggle');
-});
+Route::get('/san-pham', [SanPhamController::class, 'index'])
+    ->name('san-pham.index');
+ 
+
+Route::post('/san-pham', [SanPhamController::class, 'store'])
+    ->name('san-pham.store');
+ 
+
+Route::get('/san-pham/{id}/edit-data', [SanPhamController::class, 'editData'])
+    ->name('san-pham.editData');
+ 
+
+Route::put('/san-pham/{id}', [SanPhamController::class, 'update'])
+    ->name('san-pham.update');
+
+Route::patch('/san-pham/{id}/toggle', [SanPhamController::class, 'toggleTrangThai'])
+    ->name('san-pham.toggle');
 
 Route::prefix('hoa-don')->name('hoa-don.')->controller(HoaDonController::class)->group(function () {
     Route::get('/', 'index')->name('index');

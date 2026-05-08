@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 
 class SanPhamController extends Controller
 {
+   
     private $danhSachLoai = [
         'HOA_TUOI'         => 'Hoa Tươi',
         'HOA_GIA'          => 'Hoa Giả',
@@ -21,40 +22,46 @@ class SanPhamController extends Controller
         'QUA_TANG'         => 'Quà Tặng',
     ];
 
-
+    
     public function index(Request $request)
     {
         $query = SanPham::query();
 
+       
         if ($request->filled('loai_san_pham')) {
             $query->where('loai_san_pham', $request->loai_san_pham);
         }
 
-        $danhSachSanPham = $query->orderBy('ma_san_pham', 'desc')->get();
-        $danhSachLoai    = $this->danhSachLoai;
+       
+        $danhSachSanPham = $query
+            ->with('chiTietNhaps')
+            ->orderBy('ma_san_pham', 'desc')
+            ->get();
+
+        $danhSachLoai = $this->danhSachLoai;
 
         return view('SanPham', compact('danhSachSanPham', 'danhSachLoai'));
     }
 
-
+    
     public function store(Request $request)
     {
+       
         $request->validate([
             'ten_san_pham'  => 'required|string|max:100',
-            'gia'           => 'required|numeric|min:0',
-           
             'loai_san_pham' => 'required|in:' . implode(',', array_keys($this->danhSachLoai)),
             'mo_ta'         => 'nullable|string',
             'hinh_anh'      => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
         ], [
             'ten_san_pham.required'  => 'Vui lòng nhập tên sản phẩm.',
-            'gia.required'           => 'Vui lòng nhập giá.',
-            'gia.numeric'            => 'Giá phải là số.',
             'loai_san_pham.required' => 'Vui lòng chọn loại sản phẩm.',
+            'loai_san_pham.in'       => 'Loại sản phẩm không hợp lệ.',
             'hinh_anh.image'         => 'File tải lên phải là hình ảnh.',
+            'hinh_anh.mimes'         => 'Chỉ chấp nhận JPG, PNG, GIF, WEBP.',
             'hinh_anh.max'           => 'Ảnh không được vượt quá 2MB.',
         ]);
 
+        
         $duongDanAnh = null;
         if ($request->hasFile('hinh_anh')) {
             $file    = $request->file('hinh_anh');
@@ -63,49 +70,48 @@ class SanPhamController extends Controller
             $duongDanAnh = 'img/' . $tenFile;
         }
 
+        
         SanPham::create([
             'ten_san_pham'  => $request->ten_san_pham,
-            'gia'           => $request->gia,
             'so_luong'      => 0,           
             'loai_san_pham' => $request->loai_san_pham,
             'mo_ta'         => $request->mo_ta,
             'hinh_anh'      => $duongDanAnh,
-            'trang_thai'    => 'DANG_BAN',
+            'trang_thai'    => 'NGUNG_BAN', 
         ]);
 
         return redirect()->route('san-pham.index')
-                         ->with('success', 'Thêm sản phẩm thành công! Số lượng ban đầu là 0, hãy tạo phiếu nhập để thêm hàng vào kho.');
+            ->with('success', 'Thêm sản phẩm thành công! Trạng thái mặc định là Ngừng bán. Hãy nhập hàng rồi bật lại để bán.');
     }
 
-
+    
     public function editData($id)
     {
         $sanPham = SanPham::findOrFail($id);
         return response()->json($sanPham);
     }
 
-
+    
     public function update(Request $request, $id)
     {
         $sanPham = SanPham::findOrFail($id);
 
+      
         $request->validate([
-            'ten_san_pham'  => 'required|string|max:100',
-            'gia'           => 'required|numeric|min:0',
-            
-            'loai_san_pham' => 'required|in:' . implode(',', array_keys($this->danhSachLoai)),
-            'mo_ta'         => 'nullable|string',
-            'hinh_anh'      => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
+            'ten_san_pham' => 'required|string|max:100',
+            'mo_ta'        => 'nullable|string',
+            'hinh_anh'     => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
         ], [
-            'ten_san_pham.required'  => 'Vui lòng nhập tên sản phẩm.',
-            'gia.required'           => 'Vui lòng nhập giá.',
-            'loai_san_pham.required' => 'Vui lòng chọn loại sản phẩm.',
-            'hinh_anh.image'         => 'File tải lên phải là hình ảnh.',
-            'hinh_anh.max'           => 'Ảnh không được vượt quá 2MB.',
+            'ten_san_pham.required' => 'Vui lòng nhập tên sản phẩm.',
+            'hinh_anh.image'        => 'File tải lên phải là hình ảnh.',
+            'hinh_anh.mimes'        => 'Chỉ chấp nhận JPG, PNG, GIF, WEBP.',
+            'hinh_anh.max'          => 'Ảnh không được vượt quá 2MB.',
         ]);
 
-        $duongDanAnh = $sanPham->hinh_anh;
+        
+        $duongDanAnh = $sanPham->hinh_anh; 
         if ($request->hasFile('hinh_anh')) {
+           
             if ($sanPham->hinh_anh && file_exists(public_path($sanPham->hinh_anh))) {
                 unlink(public_path($sanPham->hinh_anh));
             }
@@ -115,30 +121,28 @@ class SanPhamController extends Controller
             $duongDanAnh = 'img/' . $tenFile;
         }
 
+        
         $sanPham->update([
-            'ten_san_pham'  => $request->ten_san_pham,
-            'gia'           => $request->gia,
-           
-            'loai_san_pham' => $request->loai_san_pham,
-            'mo_ta'         => $request->mo_ta,
-            'hinh_anh'      => $duongDanAnh,
+            'ten_san_pham' => $request->ten_san_pham,
+            'mo_ta'        => $request->mo_ta,
+            'hinh_anh'     => $duongDanAnh,
         ]);
 
         return redirect()->route('san-pham.index')
-                         ->with('success', 'Cập nhật sản phẩm thành công!');
+            ->with('success', 'Cập nhật sản phẩm "' . $sanPham->ten_san_pham . '" thành công!');
     }
 
-
+    
     public function toggleTrangThai($id)
     {
         $sanPham = SanPham::findOrFail($id);
 
         if ($sanPham->trang_thai === 'DANG_BAN') {
             $sanPham->trang_thai = 'NGUNG_BAN';
-            $thongBao = 'Đã ẩn sản phẩm "' . $sanPham->ten_san_pham . '"!';
+            $thongBao = 'Đã ẩn sản phẩm "' . $sanPham->ten_san_pham . '"! Khách hàng sẽ không thể mua.';
         } else {
             $sanPham->trang_thai = 'DANG_BAN';
-            $thongBao = 'Đã hiện lại sản phẩm "' . $sanPham->ten_san_pham . '"!';
+            $thongBao = 'Đã hiện lại sản phẩm "' . $sanPham->ten_san_pham . '"! Khách hàng có thể mua.';
         }
 
         $sanPham->save();

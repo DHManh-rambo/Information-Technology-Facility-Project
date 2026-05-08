@@ -13,24 +13,23 @@ class SanPham extends Model
     protected $primaryKey = 'ma_san_pham';
     public $incrementing = true;
     protected $keyType = 'int';
-    public $timestamps = false;
+    public $timestamps = true; 
 
     protected $fillable = [
         'ten_san_pham',
-        'gia',
         'so_luong',
         'loai_san_pham',
         'mo_ta',
         'hinh_anh',
-        'trang_thai', 
+        'trang_thai',
     ];
 
     protected $casts = [
-        'gia' => 'decimal:2',
-        'so_luong' => 'integer',
+        'so_luong'     => 'integer',
+        'loai_san_pham' => 'string',
+        'trang_thai'   => 'string',
     ];
 
-    
 
     public function chiTietHoaDons()
     {
@@ -42,15 +41,24 @@ class SanPham extends Model
         return $this->hasMany(ChiTietNhap::class, 'ma_san_pham', 'ma_san_pham');
     }
 
-
-
-    public function getAnhAttribute()
+    public function getAnhAttribute(): string
     {
         return asset($this->hinh_anh ?? 'img/default.jpg');
     }
 
+
     public function scopeDangBan($query)
     {
         return $query->where('trang_thai', 'DANG_BAN');
+    }
+
+    public function scopeNgungBan($query)
+    {
+        return $query->where('trang_thai', 'NGUNG_BAN');
+    }
+
+    public function scopeTheoLoai($query, string $loai)
+    {
+        return $query->where('loai_san_pham', $loai);
     }
 }
