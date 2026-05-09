@@ -8,6 +8,7 @@ use App\Http\Controllers\SanPhamController;
 use App\Http\Controllers\HoaDonController;
 use App\Http\Controllers\DonHangController;
 use App\Http\Controllers\PhieuNhapController;
+use App\Http\Controllers\BaoCaoController;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -77,3 +78,9 @@ Route::prefix('phieu-nhap')->name('phieu-nhap.')->controller(PhieuNhapController
  
     Route::post('/{id}/confirm', 'confirm')->name('confirm');
 });
+Route::get('/bao-cao',               [BaoCaoController::class, 'index'])->name('bao-cao.index');
+Route::get('/bao-cao/doanh-thu',     [BaoCaoController::class, 'doanhThu'])->name('bao-cao.doanh-thu');
+Route::get('/bao-cao/loi-nhuan',     [BaoCaoController::class, 'loiNhuan'])->name('bao-cao.loi-nhuan');
+Route::get('/bao-cao/san-pham',      [BaoCaoController::class, 'sanPhamBanChay'])->name('bao-cao.san-pham');
+Route::get('/bao-cao/ton-kho',       [BaoCaoController::class, 'tonKho'])->name('bao-cao.ton-kho');
+Route::get('/bao-cao/khach-hang',    [BaoCaoController::class, 'khachHang'])->name('bao-cao.khach-hang');
