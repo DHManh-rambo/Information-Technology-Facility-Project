@@ -9,6 +9,7 @@ use App\Http\Controllers\HoaDonController;
 use App\Http\Controllers\DonHangController;
 use App\Http\Controllers\PhieuNhapController;
 use App\Http\Controllers\BaoCaoController;
+use App\Http\Controllers\ShipperController;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -27,10 +28,15 @@ Route::prefix('khach-hang')->name('khach-hang.')->group(function () {
     Route::delete('/{id}', [KhachHangController::class, 'destroy'])->name('destroy');
 });
 Route::prefix('nhan-vien')->name('nhan-vien.')->controller(NhanVienController::class)->group(function () {
-    Route::get('/', 'index')->name('index');
-    Route::put('/{ma_nhan_vien}', 'update')->name('update');
-    Route::delete('/{ma_nhan_vien}', 'destroy')->name('destroy');
-});
+
+        Route::get('/', 'index')->name('index');
+
+        Route::put('/{ma_nhan_vien}', 'update')->name('update');
+
+        Route::delete('/{ma_nhan_vien}', 'destroy')->name('destroy');
+
+        Route::post('/{ma}/tra-tien', 'payback')->name('payback');
+    });
 Route::get('/san-pham', [SanPhamController::class, 'index'])
     ->name('san-pham.index');
  
@@ -85,3 +91,7 @@ Route::get('/bao-cao/san-pham',      [BaoCaoController::class, 'sanPhamBanChay']
 Route::get('/bao-cao/ton-kho',       [BaoCaoController::class, 'tonKho'])->name('bao-cao.ton-kho');
 Route::get('/bao-cao/khach-hang',    [BaoCaoController::class, 'khachHang'])->name('bao-cao.khach-hang');
 Route::post('/bao-cao/hang-hong',    [BaoCaoController::class, 'baoHangHong'])->name('bao-cao.bao-hang-hong');
+
+
+Route::get('/shipper/dashboard', [ShipperController::class, 'dashboard'])->name('shipper.dashboard');
+Route::patch('/shipper/don-hang/{id}/cap-nhat', [ShipperController::class, 'updateStatus'])->name('shipper.update-status');

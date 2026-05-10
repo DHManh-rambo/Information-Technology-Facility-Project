@@ -3,16 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('css/NhanVien.css') }}">
     <title>Quản lý nhân viên</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
 </head>
 <body>
 <div class="container mt-4">
-    <h2> Quản lý nhân viên</h2>
+    <h2>Quản lý nhân viên</h2>
 
-    {{-- Hiển thị thông báo --}}
+    {{-- Thông báo --}}
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
@@ -92,7 +94,7 @@
                 </select>
             </form>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <label class="form-label">Sắp xếp theo lương</label>
             <div>
                 <a href="{{ request()->fullUrlWithQuery(['sort' => 'luong_desc']) }}" class="btn btn-sm btn-outline-primary {{ request('sort') == 'luong_desc' ? 'active' : '' }}">
@@ -120,12 +122,13 @@
                 <th>Chức vụ</th>
                 <th>Lương (VNĐ)</th>
                 <th>Công việc</th>
-                <th width="100">Thao tác</th>
+                <th>Tiền cần nộp</th>
+                <th width="160">Thao tác</th>
             </tr>
             </thead>
             <tbody>
             @forelse($nhanViens as $nv)
-                <tr>
+                <tr id="nv-row-{{ $nv->ma_nhan_vien }}">
                     <td>{{ $nv->ma_nhan_vien }}</td>
                     <td>{{ $nv->ten_nhan_vien }}</td>
                     <td>{{ $nv->email }}</td>
@@ -133,7 +136,21 @@
                     <td>{{ $chucVus[$nv->chuc_vu] ?? $nv->chuc_vu }}</td>
                     <td class="text-end">{{ number_format($nv->luong, 0, ',', '.') }}</td>
                     <td>{{ $nv->cong_viec }}</td>
+
+                    {{-- ── CỘT TIỀN CẦN NỘP (chỉ hiện với SHIPPER) ── --}}
+                    <td class="text-center">
+                        @if($nv->chuc_vu === 'SHIPPER')
+                            @php $no = $shipperDebts[$nv->ma_nhan_vien] ?? 0; @endphp
+                            <span class="debt-badge {{ $no == 0 ? 'zero' : '' }}" id="debt-{{ $nv->ma_nhan_vien }}">
+                                {{ $no == 0 ? '✓ 0 đ' : number_format($no, 0, ',', '.') . ' đ' }}
+                            </span>
+                        @else
+                            <span class="text-muted">—</span>
+                        @endif
+                    </td>
+
                     <td>
+                        {{-- Nút Sửa --}}
                         <button type="button" class="btn btn-sm btn-warning btn-edit"
                                 data-id="{{ $nv->ma_nhan_vien }}"
                                 data-ten="{{ $nv->ten_nhan_vien }}"
@@ -142,21 +159,36 @@
                                 data-chucvu="{{ $nv->chuc_vu }}"
                                 data-congviec="{{ $nv->cong_viec }}"
                                 data-luong="{{ $nv->luong }}">
-                            <i class="fas fa-edit"></i> Sửa
+                            <i class="fas fa-edit"></i>
                         </button>
 
+                        {{-- Nút Xóa --}}
                         <form action="{{ route('nhan-vien.destroy', $nv->ma_nhan_vien) }}" method="POST" class="d-inline delete-form">
                             @csrf
                             @method('DELETE')
                             <button type="button" class="btn btn-sm btn-danger btn-delete">
-                                <i class="fas fa-trash-alt"></i> Xóa
+                                <i class="fas fa-trash-alt"></i>
                             </button>
                         </form>
+
+                        {{-- Nút Trả tiền (chỉ shipper) --}}
+                        @if($nv->chuc_vu === 'SHIPPER')
+                            @php $no = $shipperDebts[$nv->ma_nhan_vien] ?? 0; @endphp
+                            <button type="button"
+                                    class="btn btn-sm btn-success btn-payback"
+                                    id="payback-btn-{{ $nv->ma_nhan_vien }}"
+                                    data-id="{{ $nv->ma_nhan_vien }}"
+                                    data-ten="{{ $nv->ten_nhan_vien }}"
+                                    title="Xác nhận shipper đã nộp tiền COD"
+                                    {{ $no == 0 ? 'disabled' : '' }}>
+                                <i class="fas fa-hand-holding-usd"></i> Trả tiền
+                            </button>
+                        @endif
                     </td>
                 </tr>
             @empty
                 <tr>
-                    <td colspan="8" class="text-center">Không có nhân viên nào.</td>
+                    <td colspan="9" class="text-center">Không có nhân viên nào.</td>
                 </tr>
             @endforelse
             </tbody>
@@ -169,32 +201,46 @@
     </div>
 </div>
 
+{{-- Modal xác nhận trả tiền --}}
+<div class="modal fade" id="paybackModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-success text-white">
+                <h5 class="modal-title"><i class="fas fa-hand-holding-usd"></i> Xác nhận nhận tiền từ Shipper</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" id="paybackModalBody">
+                Shipper <strong id="payback-name"></strong> đã nộp tiền COD về công ty?
+                <br><br>
+                Thao tác này sẽ đánh dấu tất cả đơn COD đã giao của shipper này là <strong>Đã thanh toán</strong>.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-success" id="confirmPayback">
+                    <i class="fas fa-check"></i> Xác nhận đã nhận tiền
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+   
     const editFormContainer = document.getElementById('editFormContainer');
-    const editForm = document.getElementById('editForm');
-    const closeEditBtn = document.getElementById('closeEditForm');
-    const cancelEditBtn = document.getElementById('cancelEdit');
+    const editForm          = document.getElementById('editForm');
 
     document.querySelectorAll('.btn-edit').forEach(btn => {
         btn.addEventListener('click', function () {
-            const id = this.dataset.id;
-            const ten = this.dataset.ten;
-            const email = this.dataset.email;
-            const sdt = this.dataset.sdt;
-            const chucvu = this.dataset.chucvu;
-            const congviec = this.dataset.congviec;
-            const luong = this.dataset.luong;
+            document.getElementById('edit_ma_nhan_vien').value  = this.dataset.id;
+            document.getElementById('edit_ten_nhan_vien').value = this.dataset.ten;
+            document.getElementById('edit_email').value         = this.dataset.email  || '';
+            document.getElementById('edit_so_dien_thoai').value = this.dataset.sdt    || '';
+            document.getElementById('edit_chuc_vu').value       = this.dataset.chucvu;
+            document.getElementById('edit_cong_viec').value     = this.dataset.congviec || '';
+            document.getElementById('edit_luong').value         = this.dataset.luong  || '';
 
-            document.getElementById('edit_ma_nhan_vien').value = id;
-            document.getElementById('edit_ten_nhan_vien').value = ten;
-            document.getElementById('edit_email').value = email || '';
-            document.getElementById('edit_so_dien_thoai').value = sdt || '';
-            document.getElementById('edit_chuc_vu').value = chucvu;
-            document.getElementById('edit_cong_viec').value = congviec || '';
-            document.getElementById('edit_luong').value = luong || '';
-
-            editForm.action = `/nhan-vien/${id}`;
+            editForm.action = `/nhan-vien/${this.dataset.id}`;
             editFormContainer.classList.remove('d-none');
             editFormContainer.scrollIntoView({ behavior: 'smooth' });
         });
@@ -202,18 +248,84 @@
 
     function closeEditForm() {
         editFormContainer.classList.add('d-none');
-        editForm.reset(); 
+        editForm.reset();
     }
-    closeEditBtn.addEventListener('click', closeEditForm);
-    cancelEditBtn.addEventListener('click', closeEditForm);
+    document.getElementById('closeEditForm').addEventListener('click', closeEditForm);
+    document.getElementById('cancelEdit').addEventListener('click', closeEditForm);
 
+    
     document.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', function (e) {
-            if (confirm('Bạn có chắc chắn muốn xóa nhân viên này không? Hành động không thể hoàn tác.')) {
+        btn.addEventListener('click', function () {
+            if (confirm('Bạn có chắc chắn muốn xóa nhân viên này? Hành động không thể hoàn tác.')) {
                 this.closest('form.delete-form').submit();
             }
         });
     });
+
+  
+    const paybackModal = new bootstrap.Modal(document.getElementById('paybackModal'));
+    let   pendingPaybackId = null;
+
+    document.querySelectorAll('.btn-payback').forEach(btn => {
+        btn.addEventListener('click', function () {
+            pendingPaybackId = this.dataset.id;
+            document.getElementById('payback-name').textContent = this.dataset.ten;
+            paybackModal.show();
+        });
+    });
+
+    document.getElementById('confirmPayback').addEventListener('click', function () {
+        if (!pendingPaybackId) return;
+
+        const btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Đang xử lý...';
+
+        fetch(`/nhan-vien/${pendingPaybackId}/tra-tien`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+                'Content-Type': 'application/json',
+            },
+        })
+        .then(r => r.json())
+        .then(data => {
+            paybackModal.hide();
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> Xác nhận đã nhận tiền';
+
+            if (data.success) {
+               
+                const debtBadge = document.getElementById('debt-' + pendingPaybackId);
+                if (debtBadge) {
+                    debtBadge.className = 'debt-badge zero';
+                    debtBadge.textContent = '✓ 0 đ';
+                }
+                
+                const payBtn = document.getElementById('payback-btn-' + pendingPaybackId);
+                if (payBtn) payBtn.disabled = true;
+
+                
+                showAlert(data.message, 'success');
+            } else {
+                showAlert(data.message, 'danger');
+            }
+        })
+        .catch(() => {
+            paybackModal.hide();
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> Xác nhận đã nhận tiền';
+            showAlert('Có lỗi xảy ra, vui lòng thử lại.', 'danger');
+        });
+    });
+
+    function showAlert(msg, type) {
+        const div = document.createElement('div');
+        div.className = `alert alert-${type} alert-dismissible fade show`;
+        div.innerHTML = msg + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
+        document.querySelector('.container').prepend(div);
+        setTimeout(() => div.remove(), 4000);
+    }
 </script>
 </body>
 </html>
