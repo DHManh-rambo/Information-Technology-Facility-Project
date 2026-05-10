@@ -1,12 +1,12 @@
-@extends('layouts.admin')
-
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/KhachHang.css') }}">
-@endpush
-
-@section('admin_content')
-<div id="ajax-content">
-
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ asset('css/KhachHang.css') }}">
+    <title>Quản lý khách hàng</title>
+</head>
+<body>
 <div class="container">
     <h1>DANH SÁCH KHÁCH HÀNG</h1>
 
@@ -61,6 +61,5 @@
         </tbody>
     </table>
 </div>
-
-</div>
-@endsection
+</body>
+</html>

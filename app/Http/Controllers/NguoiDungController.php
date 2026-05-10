@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\NguoiDung;
 use App\Models\KhachHang;
 use App\Models\NhanVien;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -36,35 +35,37 @@ class NguoiDungController extends Controller
         $request->validate([
             'ten_dang_nhap' => 'required|unique:nguoi_dung',
             'mat_khau' => 'required|min:4',
-            'vai_tro' => 'required|in:NHAN_VIEN,SHIPPER,ADMIN',
+            'vai_tro' => 'required|in:KHACH_HANG,NHAN_VIEN,SHIPPER,ADMIN',
         ]);
 
         DB::beginTransaction();
         try {
-            $nguoiDung = NguoiDung::create([
+            $user = NguoiDung::create([
                 'ten_dang_nhap' => $request->ten_dang_nhap,
                 'mat_khau' => $request->mat_khau,
                 'vai_tro' => $request->vai_tro,
             ]);
 
-            if (in_array($request->vai_tro, ['NHAN_VIEN', 'SHIPPER'])) {
+            if ($request->vai_tro == 'KHACH_HANG') {
+                $this->validateKhachHang($request);
+                KhachHang::create([
+                    'ma_khach_hang' => $user->ma_nguoi_dung,
+                    'ten_khach_hang' => $request->ten_khach_hang,
+                    'so_dien_thoai' => $request->so_dien_thoai,
+                    'email' => $request->email,
+                    'dia_chi' => $request->dia_chi,
+                    'diem_tich_luy' => $request->diem_tich_luy ?? 0,
+                ]);
+            } elseif (in_array($request->vai_tro, ['NHAN_VIEN', 'SHIPPER'])) {
                 $this->validateNhanVien($request);
                 NhanVien::create([
-                    'ma_nhan_vien' => $nguoiDung->ma_nguoi_dung,
+                    'ma_nhan_vien' => $user->ma_nguoi_dung,
                     'ten_nhan_vien' => $request->ten_nhan_vien,
                     'email' => $request->email_nv,
                     'so_dien_thoai' => $request->so_dien_thoai_nv,
                     'chuc_vu' => $request->chuc_vu,
                     'cong_viec' => $request->cong_viec,
                     'luong' => $request->luong,
-                ]);
-
-                $request->validate(['email_nv' => 'unique:users,email']);
-                User::create([
-                    'name' => $request->ten_nhan_vien,
-                    'email' => $request->email_nv,
-                    'password' => $request->mat_khau,
-                    'role' => strtolower($request->vai_tro),
                 ]);
             }
 
@@ -87,15 +88,25 @@ class NguoiDungController extends Controller
 
         DB::beginTransaction();
         try {
-            $oldEmail = $user->isNhanVien() ? optional($user->nhanVien)->email : null;
-
             $user->ten_dang_nhap = $request->ten_dang_nhap;
             if ($request->filled('mat_khau')) {
                 $user->mat_khau = $request->mat_khau;
             }
             $user->save();
 
-            if ($user->isNhanVien()) {
+            if ($user->isKhachHang()) {
+                $this->validateKhachHang($request);
+                KhachHang::updateOrCreate(
+                    ['ma_khach_hang' => $user->ma_nguoi_dung],
+                    [
+                        'ten_khach_hang' => $request->ten_khach_hang,
+                        'so_dien_thoai' => $request->so_dien_thoai,
+                        'email' => $request->email,
+                        'dia_chi' => $request->dia_chi,
+                        'diem_tich_luy' => $request->diem_tich_luy ?? 0,
+                    ]
+                );
+            } elseif ($user->isNhanVien()) {
                 $this->validateNhanVien($request);
                 NhanVien::updateOrCreate(
                     ['ma_nhan_vien' => $user->ma_nguoi_dung],
@@ -108,19 +119,8 @@ class NguoiDungController extends Controller
                         'luong' => $request->luong,
                     ]
                 );
-
-                if ($oldEmail) {
-                    $userAccount = User::where('email', $oldEmail)->first();
-                    if ($userAccount) {
-                        $userAccount->name = $request->ten_nhan_vien;
-                        $userAccount->email = $request->email_nv;
-                        if ($request->filled('mat_khau')) {
-                            $userAccount->password = $request->mat_khau;
-                        }
-                        $userAccount->save();
-                    }
-                }
             }
+            
 
             DB::commit();
             return redirect()->route('nguoi-dung.index')->with('success', 'Cập nhật thành công!');
@@ -135,14 +135,12 @@ class NguoiDungController extends Controller
         $user = NguoiDung::findOrFail($id);
         DB::beginTransaction();
         try {
-            if ($user->isNhanVien()) {
-                $nhanVien = NhanVien::find($id);
-                if ($nhanVien) {
-                    User::where('email', $nhanVien->email)->delete();
-                    $nhanVien->delete();
-                }
+            if ($user->isKhachHang()) {
+                KhachHang::where('ma_khach_hang', $id)->delete();
+            } elseif ($user->isNhanVien()) {
+                NhanVien::where('ma_nhan_vien', $id)->delete();
             }
-
+            
             $user->delete();
             DB::commit();
             return response()->json(['success' => true]);

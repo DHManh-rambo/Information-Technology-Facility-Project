@@ -1,7 +1,6 @@
- /* Scoped reset — only affects content area, not the admin shell */
- #ajax-content *,
- #ajax-content *::before,
- #ajax-content *::after {
+ *,
+ *::before,
+ *::after {
      box-sizing: border-box;
      margin: 0;
      padding: 0;
@@ -25,11 +24,13 @@
      --font-sans: system-ui, -apple-system, sans-serif;
  }
 
- #ajax-content {
+ body {
      font-family: var(--font-sans);
+     background: var(--paper);
      color: var(--ink);
      font-size: 14px;
      line-height: 1.5;
+     min-height: 100vh;
  }
 
  .page-header {

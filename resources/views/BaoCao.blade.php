@@ -1,17 +1,18 @@
-@extends('layouts.admin')
-
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/BaoCao.css') }}">
-@endpush
-
-@section('admin_content')
-<div id="ajax-content">
-
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Báo Cáo & Thống Kê</title>
+    <link rel="stylesheet" href="{{ asset('css/BaoCao.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
 <div class="wrapper">
 
     <div class="page-header">
         <div>
-            <h1>Báo Cáo &amp; Thống Kê</h1>
+            <h1> Báo Cáo & Thống Kê</h1>
             <p>Quản lý doanh thu, lợi nhuận, tồn kho và khách hàng</p>
         </div>
     </div>
@@ -478,6 +479,7 @@ function doiTab(tabId, btn) {
 const mauChinh = '#111111';
 const mauXam   = ['#111','#333','#555','#777','#999','#bbb','#ccc','#ddd','#eee','#f5f5f5'];
 
+// Chart: Doanh thu 7 ngày
 const ctx1 = document.getElementById('chartDoanhThu7Ngay');
 if (ctx1) {
     new Chart(ctx1, {
@@ -500,13 +502,17 @@ if (ctx1) {
             responsive: true,
             plugins: { legend: { display: false } },
             scales: {
-                y: { ticks: { callback: val => new Intl.NumberFormat('vi-VN').format(val) + 'đ' }, grid: { color: '#eee' } },
+                y: {
+                    ticks: { callback: val => new Intl.NumberFormat('vi-VN').format(val) + 'đ' },
+                    grid: { color: '#eee' }
+                },
                 x: { grid: { display: false } }
             }
         }
     });
 }
 
+// Chart: Trạng thái đơn hàng
 const ctx2 = document.getElementById('chartTrangThai');
 if (ctx2) {
     const nhanTrangThai = {
@@ -525,10 +531,14 @@ if (ctx2) {
                 borderColor: '#fff',
             }]
         },
-        options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } } }
+        options: {
+            responsive: true,
+            plugins: { legend: { position: 'bottom', labels: { font: { size: 11 } } } }
+        }
     });
 }
 
+// Chart: Top 5 sản phẩm (dashboard)
 const ctx3 = document.getElementById('chartTopSanPham');
 if (ctx3) {
     const spLabels = @json($topSanPhamDashboard->pluck('ten_san_pham'));
@@ -548,11 +558,15 @@ if (ctx3) {
         options: {
             responsive: true,
             plugins: { legend: { display: false } },
-            scales: { y: { grid: { color: '#eee' }, beginAtZero: true }, x: { grid: { display: false } } }
+            scales: {
+                y: { grid: { color: '#eee' }, beginAtZero: true },
+                x: { grid: { display: false } }
+            }
         }
     });
 }
 
+// Chart: Doanh thu theo khoảng ngày (tab doanh-thu)
 @isset($dtTheoNgay)
 @if(count($dtTheoNgay['labels']) > 0)
 const ctx4 = document.getElementById('chartDoanhThuRange');
@@ -576,7 +590,10 @@ if (ctx4) {
             responsive: true,
             plugins: { legend: { display: false } },
             scales: {
-                y: { ticks: { callback: val => new Intl.NumberFormat('vi-VN').format(val) + 'đ' }, grid: { color: '#eee' } },
+                y: {
+                    ticks: { callback: val => new Intl.NumberFormat('vi-VN').format(val) + 'đ' },
+                    grid: { color: '#eee' }
+                },
                 x: { grid: { display: false } }
             }
         }
@@ -585,6 +602,7 @@ if (ctx4) {
 @endif
 @endisset
 
+// Chart: Lợi nhuận theo ngày (tab loi-nhuan)
 @isset($lnLabels)
 @if(count($lnLabels) > 0)
 const ctx5 = document.getElementById('chartLoiNhuan');
@@ -608,7 +626,10 @@ if (ctx5) {
             responsive: true,
             plugins: { legend: { display: false } },
             scales: {
-                y: { ticks: { callback: val => new Intl.NumberFormat('vi-VN').format(val) + 'đ' }, grid: { color: '#eee' } },
+                y: {
+                    ticks: { callback: val => new Intl.NumberFormat('vi-VN').format(val) + 'đ' },
+                    grid: { color: '#eee' }
+                },
                 x: { grid: { display: false } }
             }
         }
@@ -617,6 +638,7 @@ if (ctx5) {
 @endif
 @endisset
 
+// Chart: Sản phẩm bán chạy (tab san-pham)
 @isset($spDanhSach)
 @if($spDanhSach->count() > 0)
 const ctx6 = document.getElementById('chartSanPham');
@@ -637,13 +659,17 @@ if (ctx6) {
             indexAxis: 'y',
             responsive: true,
             plugins: { legend: { display: false } },
-            scales: { x: { grid: { color: '#eee' }, beginAtZero: true }, y: { grid: { display: false } } }
+            scales: {
+                x: { grid: { color: '#eee' }, beginAtZero: true },
+                y: { grid: { display: false } }
+            }
         }
     });
 }
 @endif
 @endisset
 
+// Chart: Khách hàng (tab khach-hang)
 @isset($khDanhSach)
 @if($khDanhSach->count() > 0)
 const ctx7 = document.getElementById('chartKhachHang');
@@ -665,7 +691,10 @@ if (ctx7) {
             responsive: true,
             plugins: { legend: { display: false } },
             scales: {
-                x: { ticks: { callback: val => new Intl.NumberFormat('vi-VN').format(val) + 'đ' }, grid: { color: '#eee' } },
+                x: {
+                    ticks: { callback: val => new Intl.NumberFormat('vi-VN').format(val) + 'đ' },
+                    grid: { color: '#eee' }
+                },
                 y: { grid: { display: false } }
             }
         }
@@ -674,6 +703,5 @@ if (ctx7) {
 @endif
 @endisset
 </script>
-
-</div>
-@endsection
+</body>
+</html>

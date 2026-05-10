@@ -1,14 +1,15 @@
-@extends('layouts.admin')
-
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/NguoiDung.css') }}">
-@endpush
-
-@section('admin_content')
-<div id="ajax-content">
-
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="stylesheet" href="{{ asset('css/NguoiDung.css') }}">
+    <title>Quản lý người dùng</title>
+    
+</head>
+<body>
 <div class="container">
-    <h2>Quản lý người dùng</h2>
+    <h2> Quản lý người dùng</h2>
 
     @if(session('success'))
     <div class="alert alert-success" id="alert-success">
@@ -27,6 +28,7 @@
     </div>
     @endif
 
+    
     <div class="card">
         <div class="card-header" id="formTitle">Thêm người dùng</div>
         <div class="card-body">
@@ -59,15 +61,16 @@
                     </div>
                 </div>
 
+               
                 <div id="khachHangFields" style="display: none;">
                     <hr>
                     <h4>Thông tin khách hàng</h4>
                     <div class="form-row">
                         <div class="form-group"><label>Họ tên *</label><input type="text" name="ten_khach_hang" id="ten_khach_hang"></div>
-                        <div class="form-group"><label>Số điện thoại *</label><input type="text" name="so_dien_thoai" id="so_dien_thoai"
-                        maxlength="10"
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                        pattern="\d{10}"
+                        <div class="form-group"><label>Số điện thoại *</label><input type="text" name="so_dien_thoai" id="so_dien_thoai" 
+                        maxlength="10" 
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                        pattern="\d{10}" 
                         title="Vui lòng nhập đúng 10 chữ số"></div>
                         <div class="form-group"><label>Email *</label><input type="email" name="email" id="email"></div>
                     </div>
@@ -77,15 +80,16 @@
                     </div>
                 </div>
 
+                
                 <div id="nhanVienFields" style="display: none;">
                     <hr>
                     <h4>Thông tin nhân viên</h4>
                     <div class="form-row">
                         <div class="form-group"><label>Họ tên *</label><input type="text" name="ten_nhan_vien" id="ten_nhan_vien"></div>
-                        <div class="form-group"><label>Số điện thoại *</label><input type="text" name="so_dien_thoai_nv" id="so_dien_thoai_nv"
-                        maxlength="10"
-                        oninput="this.value = this.value.replace(/[^0-9]/g, '')"
-                        pattern="\d{10}"
+                        <div class="form-group"><label>Số điện thoại *</label><input type="text" name="so_dien_thoai_nv" id="so_dien_thoai_nv" 
+                        maxlength="10" 
+                        oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                        pattern="\d{10}" 
                         title="Vui lòng nhập đúng 10 chữ số"></div>
                         <div class="form-group"><label>Email *</label><input type="email" name="email_nv" id="email_nv"></div>
                     </div>
@@ -110,8 +114,9 @@
         </div>
     </div>
 
+
     <div class="card">
-        <div class="card-header">Danh sách người dùng</div>
+        <div class="card-header"> Danh sách người dùng</div>
         <div class="card-body" style="overflow-x: auto;">
             <table>
                 <thead>
@@ -134,7 +139,7 @@
                             @endif
                         </td>
                         <td class="action-buttons">
-                            @if($user->isNhanVien())
+                            @if(!$user->isKhachHang())
                                 <button class="btn btn-sm btn-secondary" onclick="editUser({{ $user->ma_nguoi_dung }})">Sửa</button>
                             @endif
                             <button class="btn btn-sm btn-danger" onclick="deleteUser({{ $user->ma_nguoi_dung }})">Xóa</button>
@@ -164,18 +169,19 @@
         else if (role === 'NHAN_VIEN' || role === 'SHIPPER') nhanVienDiv.style.display = 'block';
     }
     roleSelect.addEventListener('change', toggleRoleFields);
-    toggleRoleFields();
+    toggleRoleFields(); 
 
     function togglePassword(fieldId) {
         let field = document.getElementById(fieldId);
-        field.type = field.type === 'password' ? 'text' : 'password';
+        if (field.type === 'password') field.type = 'text';
+        else field.type = 'password';
     }
 
     window.resetForm = function() {
         form.reset();
         document.getElementById('formMethod').value = 'POST';
         form.action = "{{ route('nguoi-dung.store') }}";
-        formTitle.innerHTML = 'Thêm người dùng';
+        formTitle.innerHTML = ' Thêm người dùng';
         submitBtn.innerText = 'Thêm mới';
         cancelBtn.style.display = 'none';
         roleSelect.disabled = false;
@@ -187,14 +193,14 @@
         fetch(`/nguoi-dung/${id}/edit-data`)
             .then(res => res.json())
             .then(data => {
-                resetForm();
+                resetForm(); 
                 document.getElementById('userId').value = id;
                 document.getElementById('ten_dang_nhap').value = data.ten_dang_nhap;
                 document.getElementById('mat_khau').value = '';
                 roleSelect.value = data.vai_tro;
                 roleSelect.disabled = true;
                 toggleRoleFields();
-
+                
                 if (data.vai_tro === 'NHAN_VIEN' || data.vai_tro === 'SHIPPER') {
                     document.getElementById('ten_nhan_vien').value = data.ten_nhan_vien || '';
                     document.getElementById('so_dien_thoai_nv').value = data.so_dien_thoai || '';
@@ -205,7 +211,7 @@
                 }
                 form.action = `/nguoi-dung/${id}`;
                 document.getElementById('formMethod').value = 'PUT';
-                formTitle.innerHTML = 'Sửa người dùng';
+                formTitle.innerHTML = ' Sửa người dùng';
                 submitBtn.innerText = 'Cập nhật';
                 cancelBtn.style.display = 'inline-block';
             })
@@ -259,6 +265,5 @@
         }
     });
 </script>
-
-</div>
-@endsection
+</body>
+</html>

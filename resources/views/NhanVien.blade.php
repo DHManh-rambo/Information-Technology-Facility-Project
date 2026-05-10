@@ -1,15 +1,18 @@
-@extends('layouts.admin')
-
-@push('styles')
-<link rel="stylesheet" href="{{ asset('css/NhanVien.css') }}">
-@endpush
-
-@section('admin_content')
-<div id="ajax-content">
-
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ asset('css/NhanVien.css') }}">
+    <title>Quản lý nhân viên</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
 <div class="container mt-4">
-    <h2>Quản lý nhân viên</h2>
+    <h2> Quản lý nhân viên</h2>
 
+    {{-- Hiển thị thông báo --}}
     @if(session('success'))
         <div class="alert alert-success alert-dismissible fade show" role="alert">
             {{ session('success') }}
@@ -17,7 +20,9 @@
         </div>
     @endif
 
-    {{-- Form sửa nhân viên --}}
+    {{-- ================================================= --}}
+    {{-- 1. FORM SỬA (ẨN, HIỆN KHI NHẤN NÚT SỬA TRÊN DÒNG) --}}
+    {{-- ================================================= --}}
     <div id="editFormContainer" class="card mb-4 d-none">
         <div class="card-header bg-warning text-dark">
             <strong><i class="fas fa-edit"></i> Chỉnh sửa thông tin nhân viên</strong>
@@ -70,7 +75,9 @@
         </div>
     </div>
 
-    {{-- Bộ lọc --}}
+    {{-- ================================================= --}}
+    {{-- 2. TOOLBAR: LỌC + SẮP XẾP --}}
+    {{-- ================================================= --}}
     <div class="row mb-3 align-items-end">
         <div class="col-md-3">
             <form method="GET" action="{{ route('nhan-vien.index') }}" id="filterForm">
@@ -99,7 +106,9 @@
         </div>
     </div>
 
-    {{-- Bảng nhân viên --}}
+    {{-- ================================================= --}}
+    {{-- 3. DANH SÁCH NHÂN VIÊN (BẢNG) --}}
+    {{-- ================================================= --}}
     <div class="table-responsive">
         <table class="table table-bordered table-hover align-middle">
             <thead class="table-dark">
@@ -154,11 +163,13 @@
         </table>
     </div>
 
+    {{-- Phân trang --}}
     <div class="d-flex justify-content-center">
         {{ $nhanViens->links() }}
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     const editFormContainer = document.getElementById('editFormContainer');
     const editForm = document.getElementById('editForm');
@@ -167,15 +178,23 @@
 
     document.querySelectorAll('.btn-edit').forEach(btn => {
         btn.addEventListener('click', function () {
-            document.getElementById('edit_ma_nhan_vien').value = this.dataset.id;
-            document.getElementById('edit_ten_nhan_vien').value = this.dataset.ten;
-            document.getElementById('edit_email').value = this.dataset.email || '';
-            document.getElementById('edit_so_dien_thoai').value = this.dataset.sdt || '';
-            document.getElementById('edit_chuc_vu').value = this.dataset.chucvu;
-            document.getElementById('edit_cong_viec').value = this.dataset.congviec || '';
-            document.getElementById('edit_luong').value = this.dataset.luong || '';
+            const id = this.dataset.id;
+            const ten = this.dataset.ten;
+            const email = this.dataset.email;
+            const sdt = this.dataset.sdt;
+            const chucvu = this.dataset.chucvu;
+            const congviec = this.dataset.congviec;
+            const luong = this.dataset.luong;
 
-            editForm.action = `/nhan-vien/${this.dataset.id}`;
+            document.getElementById('edit_ma_nhan_vien').value = id;
+            document.getElementById('edit_ten_nhan_vien').value = ten;
+            document.getElementById('edit_email').value = email || '';
+            document.getElementById('edit_so_dien_thoai').value = sdt || '';
+            document.getElementById('edit_chuc_vu').value = chucvu;
+            document.getElementById('edit_cong_viec').value = congviec || '';
+            document.getElementById('edit_luong').value = luong || '';
+
+            editForm.action = `/nhan-vien/${id}`;
             editFormContainer.classList.remove('d-none');
             editFormContainer.scrollIntoView({ behavior: 'smooth' });
         });
@@ -183,19 +202,18 @@
 
     function closeEditForm() {
         editFormContainer.classList.add('d-none');
-        editForm.reset();
+        editForm.reset(); 
     }
     closeEditBtn.addEventListener('click', closeEditForm);
     cancelEditBtn.addEventListener('click', closeEditForm);
 
     document.querySelectorAll('.btn-delete').forEach(btn => {
-        btn.addEventListener('click', function () {
+        btn.addEventListener('click', function (e) {
             if (confirm('Bạn có chắc chắn muốn xóa nhân viên này không? Hành động không thể hoàn tác.')) {
                 this.closest('form.delete-form').submit();
             }
         });
     });
 </script>
-
-</div>
-@endsection
+</body>
+</html>
