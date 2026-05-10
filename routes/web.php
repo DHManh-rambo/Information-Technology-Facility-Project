@@ -9,7 +9,7 @@ use App\Http\Controllers\HoaDonController;
 use App\Http\Controllers\DonHangController;
 use App\Http\Controllers\PhieuNhapController;
 use App\Http\Controllers\BaoCaoController;
-use App\Http\Controllers\ShipperController;
+use App\Http\Controllers\Shipper\ShipperController;
 Route::get('/', function () {
     return view('welcome');
 });
