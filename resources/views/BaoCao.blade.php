@@ -18,12 +18,13 @@
     </div>
 
     <div class="tabs">
-        <button class="tab-btn {{ $tab === 'dashboard'  ? 'active' : '' }}" onclick="doiTab('dashboard', this)">🏠 Tổng Quan</button>
-        <button class="tab-btn {{ $tab === 'doanh-thu'  ? 'active' : '' }}" onclick="doiTab('doanh-thu', this)">💰 Doanh Thu</button>
-        <button class="tab-btn {{ $tab === 'loi-nhuan'  ? 'active' : '' }}" onclick="doiTab('loi-nhuan', this)">📈 Lợi Nhuận</button>
-        <button class="tab-btn {{ $tab === 'san-pham'   ? 'active' : '' }}" onclick="doiTab('san-pham', this)">🛒 Sản Phẩm Bán Chạy</button>
-        <button class="tab-btn {{ $tab === 'ton-kho'    ? 'active' : '' }}" onclick="doiTab('ton-kho', this)">📦 Tồn Kho</button>
-        <button class="tab-btn {{ $tab === 'khach-hang' ? 'active' : '' }}" onclick="doiTab('khach-hang', this)">👥 Khách Hàng</button>
+        <button class="tab-btn {{ $tab === 'dashboard'  ? 'active' : '' }}" onclick="doiTab('dashboard', this)"> Tổng Quan</button>
+        <button class="tab-btn {{ $tab === 'doanh-thu'  ? 'active' : '' }}" onclick="doiTab('doanh-thu', this)"> Doanh Thu</button>
+        <button class="tab-btn {{ $tab === 'loi-nhuan'  ? 'active' : '' }}" onclick="doiTab('loi-nhuan', this)"> Lợi Nhuận</button>
+        <button class="tab-btn {{ $tab === 'san-pham'   ? 'active' : '' }}" onclick="doiTab('san-pham', this)"> Sản Phẩm Bán Chạy</button>
+        <button class="tab-btn {{ $tab === 'ton-kho'    ? 'active' : '' }}" onclick="doiTab('ton-kho', this)"> Tồn Kho</button>
+        <button class="tab-btn {{ $tab === 'khach-hang' ? 'active' : '' }}" onclick="doiTab('khach-hang', this)"> Khách Hàng</button>
+        <button class="tab-btn {{ $tab === 'hang-hong'  ? 'active' : '' }}" onclick="doiTab('hang-hong', this)" style="color:#dc3545;"> Hàng Hỏng</button>
     </div>
 
     {{-- ==================== TỔNG QUAN ==================== --}}
@@ -68,21 +69,28 @@
                 <div class="value">{{ $sanPhamSapHetSo }}</div>
                 <div class="sub">Sản phẩm dưới 5 cái</div>
             </div>
+            {{-- Mini card hàng hỏng --}}
+            <div class="stat-card {{ $tongHangHongHomNay > 0 ? 'warn' : '' }}"
+                 style="cursor:pointer" onclick="chuyenTabHangHong()">
+                <div class="label"> Hàng Hỏng Hôm Nay</div>
+                <div class="value" style="color:#dc3545">{{ $tongHangHongHomNay }}</div>
+                <div class="sub">Click để xem chi tiết</div>
+            </div>
         </div>
 
         <div class="chart-grid">
             <div class="chart-box" style="flex:2">
-                <div class="chart-title">📉 Doanh Thu 7 Ngày Gần Nhất</div>
+                <div class="chart-title"> Doanh Thu 7 Ngày Gần Nhất</div>
                 <canvas id="chartDoanhThu7Ngay"></canvas>
             </div>
             <div class="chart-box">
-                <div class="chart-title">🍩 Trạng Thái Đơn Hàng</div>
+                <div class="chart-title"> Trạng Thái Đơn Hàng</div>
                 <canvas id="chartTrangThai"></canvas>
             </div>
         </div>
 
         <div class="card">
-            <div class="card-title">🏆 Top 5 Sản Phẩm Bán Chạy</div>
+            <div class="card-title"> Top 5 Sản Phẩm Bán Chạy</div>
             <div class="chart-box" style="border:none;padding:0">
                 <canvas id="chartTopSanPham"></canvas>
             </div>
@@ -128,13 +136,13 @@
 
             @if(count($dtTheoNgay['labels']) > 0)
             <div class="card">
-                <div class="card-title">📈 Biểu Đồ Doanh Thu Theo Ngày</div>
+                <div class="card-title"> Biểu Đồ Doanh Thu Theo Ngày</div>
                 <canvas id="chartDoanhThuRange" style="max-height:280px"></canvas>
             </div>
             @endif
 
             <div class="card">
-                <div class="card-title">📋 Chi Tiết Doanh Thu Từng Ngày</div>
+                <div class="card-title"> Chi Tiết Doanh Thu Từng Ngày</div>
                 <div class="table-wrap">
                     <table>
                         <thead>
@@ -204,13 +212,13 @@
 
             @if($lnTheoNgay->count() > 0)
             <div class="card">
-                <div class="card-title">📈 Biểu Đồ Lợi Nhuận Theo Ngày</div>
+                <div class="card-title"> Biểu Đồ Lợi Nhuận Theo Ngày</div>
                 <canvas id="chartLoiNhuan" style="max-height:280px"></canvas>
             </div>
             @endif
 
             <div class="card">
-                <div class="card-title">📋 Chi Tiết Lợi Nhuận Từng Ngày</div>
+                <div class="card-title"> Chi Tiết Lợi Nhuận Từng Ngày</div>
                 <div class="table-wrap">
                     <table>
                         <thead>
@@ -256,14 +264,14 @@
         @isset($spDanhSach)
             @if($spDanhSach->count() > 0)
             <div class="card">
-                <div class="card-title">📊 Biểu Đồ Sản Phẩm Bán Chạy</div>
+                <div class="card-title"> Biểu Đồ Sản Phẩm Bán Chạy</div>
                 <canvas id="chartSanPham" style="max-height:300px"></canvas>
             </div>
             @endif
 
             <div class="card">
                 <div class="card-title flex-between">
-                    <span>🏆 Danh Sách Sản Phẩm Bán Chạy</span>
+                    <span> Danh Sách Sản Phẩm Bán Chạy</span>
                     <span style="font-size:12px;color:#888;font-weight:400">Tổng đã bán: <strong>{{ number_format($spTongBan) }}</strong> sản phẩm</span>
                 </div>
                 <div class="table-wrap">
@@ -313,7 +321,7 @@
         @isset($tkSapHet)
             @if($tkSapHet->count() > 0)
             <div class="card" style="border-left:4px solid #e00">
-                <div class="card-title" style="color:#e00">⚠️ Sản Phẩm Sắp Hết Hàng (dưới {{ $tkNguong }} cái)</div>
+                <div class="card-title" style="color:#e00"> Sản Phẩm Sắp Hết Hàng (dưới {{ $tkNguong }} cái)</div>
                 <div class="table-wrap">
                     <table>
                         <thead>
@@ -338,7 +346,7 @@
             @endif
 
             <div class="card">
-                <div class="card-title">🔄 Kiểm Tra Nhập Xuất Kho</div>
+                <div class="card-title"> Kiểm Tra Nhập Xuất Kho</div>
                 <div class="table-wrap">
                     <table>
                         <thead>
@@ -369,7 +377,7 @@
 
             @if($tkLoHang->count() > 0)
             <div class="card">
-                <div class="card-title">📋 Theo Dõi Từng Lô Hàng (Còn Tồn)</div>
+                <div class="card-title"> Theo Dõi Từng Lô Hàng (Còn Tồn)</div>
                 <div class="table-wrap">
                     <table>
                         <thead>
@@ -431,12 +439,12 @@
         @isset($khDanhSach)
             @if($khDanhSach->count() > 0)
             <div class="card">
-                <div class="card-title">📊 Biểu Đồ Khách Hàng Mua Nhiều Nhất</div>
+                <div class="card-title"> Biểu Đồ Khách Hàng Mua Nhiều Nhất</div>
                 <canvas id="chartKhachHang" style="max-height:280px"></canvas>
             </div>
 
             <div class="card">
-                <div class="card-title">🏆 Top Khách Hàng Tiềm Năng</div>
+                <div class="card-title"> Top Khách Hàng Tiềm Năng</div>
                 <div class="table-wrap">
                     <table>
                         <thead>
@@ -466,6 +474,163 @@
         @endisset
     </div>
 
+    {{-- ==================== HÀNG HỎNG ==================== --}}
+    <div id="tab-hang-hong" class="tab-content {{ $tab === 'hang-hong' ? 'active' : '' }}">
+
+        {{-- Nút load data nếu chưa có --}}
+        @if($tab !== 'hang-hong')
+        <div class="card" style="text-align:center;padding:32px">
+            <a href="{{ route('bao-cao.index', ['tab' => 'hang-hong']) }}" class="btn btn-dark">
+                 Tải Báo Cáo Hàng Hỏng
+            </a>
+        </div>
+        @else
+
+        {{-- ---- THỐNG KÊ TỔNG ---- --}}
+        <div class="stats-grid">
+            <div class="stat-card" style="border-left:4px solid #dc3545">
+                <div class="label">Tổng Hàng Hỏng</div>
+                <div class="value" style="color:#dc3545">{{ number_format($hhTongSoLuong) }}</div>
+                <div class="sub">Tổng số lượng đã hỏng</div>
+            </div>
+            <div class="stat-card">
+                <div class="label">Số Lần Báo Cáo</div>
+                <div class="value">{{ number_format($hhTongLanBaoCao) }}</div>
+                <div class="sub">Tổng lần ghi nhận</div>
+            </div>
+            <div class="stat-card">
+                <div class="label"> Hoa Tươi Hỏng</div>
+                <div class="value" style="color:#e67e22">{{ number_format($hhTongTuoi) }}</div>
+                <div class="sub">HOA_TUOI, CHAU_HOA_TUOI</div>
+            </div>
+            <div class="stat-card">
+                <div class="label"> Hàng Khác Hỏng</div>
+                <div class="value" style="color:#8e44ad">{{ number_format($hhTongKhacTuoi) }}</div>
+                <div class="sub">Hoa giả, cây cảnh, quà tặng...</div>
+            </div>
+        </div>
+
+        {{-- ---- TOP SẢN PHẨM HỎNG NHIỀU NHẤT ---- --}}
+        @if($hhTopHong->count() > 0)
+        <div class="card">
+            <div class="card-title"> Top Sản Phẩm Hỏng Nhiều Nhất</div>
+            <div class="chart-box" style="border:none;padding:0;max-height:220px">
+                <canvas id="chartTopHangHong"></canvas>
+            </div>
+        </div>
+        @endif
+
+        {{-- ================================================================ --}}
+        {{-- NHÓM 1: HOA TƯƠI                                                 --}}
+        {{-- ================================================================ --}}
+        <div class="card" style="border-top:3px solid #e67e22">
+            <div class="card-title" style="color:#e67e22">
+                 Danh Sách Hàng Hỏng — Hoa Tươi
+                <span style="font-size:12px;color:#888;font-weight:400;margin-left:8px">
+                    (HOA_TUOI, CHAU_HOA_TUOI)
+                </span>
+                <span style="font-size:13px;background:#fde8d8;color:#e67e22;
+                             padding:2px 10px;border-radius:20px;margin-left:8px;font-weight:600">
+                    Tổng hỏng: {{ $hhTongTuoi }}
+                </span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Sản Phẩm</th>
+                            <th class="text-right">SL Hỏng</th>
+                            <th>Lý Do</th>
+                            <th>Ghi Chú</th>
+                            <th>Nhân Viên</th>
+                            <th>Thời Gian</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($hhDanhSachTuoi as $i => $bc)
+                            <tr>
+                                <td class="bold" style="color:#e67e22">{{ $i + 1 }}</td>
+                                <td class="bold">{{ $bc->ten_san_pham }}</td>
+                                <td class="text-right bold" style="color:#dc3545">
+                                    -{{ number_format($bc->so_luong_hong) }}
+                                </td>
+                                <td>{{ $bc->ly_do ?: '—' }}</td>
+                                <td style="font-size:12px;color:#888">
+                                    {{ $bc->ghi_chu ? \Illuminate\Support\Str::limit($bc->ghi_chu, 40) : '—' }}
+                                </td>
+                                <td>{{ $bc->ten_nhan_vien }}</td>
+                                <td style="white-space:nowrap;font-size:12px">
+                                    {{ \Carbon\Carbon::parse($bc->thoi_gian_bao_cao)->format('d/m/Y H:i') }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr class="empty-row">
+                                <td colspan="7">Chưa có báo cáo hỏng cho nhóm hoa tươi.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        {{-- ================================================================ --}}
+        {{-- NHÓM 2: HÀNG KHÔNG TƯƠI (hoa giả, cây cảnh, quà tặng…)         --}}
+        {{-- ================================================================ --}}
+        <div class="card" style="border-top:3px solid #8e44ad">
+            <div class="card-title" style="color:#8e44ad">
+                 Danh Sách Hàng Hỏng — Hàng Không Tươi
+                <span style="font-size:12px;color:#888;font-weight:400;margin-left:8px">
+                    (Hoa giả, Terrarium, Cây cảnh, Quà tặng...)
+                </span>
+                <span style="font-size:13px;background:#f0e6f8;color:#8e44ad;
+                             padding:2px 10px;border-radius:20px;margin-left:8px;font-weight:600">
+                    Tổng hỏng: {{ $hhTongKhacTuoi }}
+                </span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Sản Phẩm</th>
+                            <th class="text-right">SL Hỏng</th>
+                            <th>Lý Do</th>
+                            <th>Ghi Chú</th>
+                            <th>Nhân Viên</th>
+                            <th>Thời Gian</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($hhDanhSachKhacTuoi as $i => $bc)
+                            <tr>
+                                <td class="bold" style="color:#8e44ad">{{ $i + 1 }}</td>
+                                <td class="bold">{{ $bc->ten_san_pham }}</td>
+                                <td class="text-right bold" style="color:#dc3545">
+                                    -{{ number_format($bc->so_luong_hong) }}
+                                </td>
+                                <td>{{ $bc->ly_do ?: '—' }}</td>
+                                <td style="font-size:12px;color:#888">
+                                    {{ $bc->ghi_chu ? \Illuminate\Support\Str::limit($bc->ghi_chu, 40) : '—' }}
+                                </td>
+                                <td>{{ $bc->ten_nhan_vien }}</td>
+                                <td style="white-space:nowrap;font-size:12px">
+                                    {{ \Carbon\Carbon::parse($bc->thoi_gian_bao_cao)->format('d/m/Y H:i') }}
+                                </td>
+                            </tr>
+                        @empty
+                            <tr class="empty-row">
+                                <td colspan="7">Chưa có báo cáo hỏng cho nhóm này.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        @endif {{-- end if tab === hang-hong --}}
+    </div>
+
 </div>
 
 <script>
@@ -474,6 +639,11 @@ function doiTab(tabId, btn) {
     document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
     document.getElementById('tab-' + tabId).classList.add('active');
     btn.classList.add('active');
+}
+
+// Hàm click từ dashboard card
+function chuyenTabHangHong() {
+    window.location.href = '{{ route('bao-cao.index', ['tab' => 'hang-hong']) }}';
 }
 
 const mauChinh = '#111111';
@@ -695,6 +865,37 @@ if (ctx7) {
                     ticks: { callback: val => new Intl.NumberFormat('vi-VN').format(val) + 'đ' },
                     grid: { color: '#eee' }
                 },
+                y: { grid: { display: false } }
+            }
+        }
+    });
+}
+@endif
+@endisset
+
+// Chart: Top hàng hỏng (tab hang-hong)
+@isset($hhTopHong)
+@if($hhTopHong->count() > 0)
+const ctx8 = document.getElementById('chartTopHangHong');
+if (ctx8) {
+    new Chart(ctx8, {
+        type: 'bar',
+        data: {
+            labels: @json($hhTopHong->pluck('ten_san_pham')),
+            datasets: [{
+                label: 'Tổng hỏng',
+                data: @json($hhTopHong->pluck('tong_hong')),
+                backgroundColor: ['#dc3545','#e74c3c','#c0392b','#922b21','#7b241c'],
+                borderWidth: 0,
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: '#eee' }, beginAtZero: true },
                 y: { grid: { display: false } }
             }
         }

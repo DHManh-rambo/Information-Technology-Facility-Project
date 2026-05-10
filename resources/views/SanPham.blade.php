@@ -4,20 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Quản Lý Sản Phẩm</title>
+    <link rel="stylesheet" href="{{ asset('css/SanPham.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        body { background: #f5f6fa; }
-        .card { border: none; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); }
-        .card-header { border-radius: 12px 12px 0 0 !important; font-weight: 600; }
-        .badge-dang-ban  { background: #d1f5d3; color: #1a7f37; }
-        .badge-ngung-ban { background: #fde8e8; color: #c0392b; }
-        table img { border-radius: 8px; object-fit: cover; }
-        .btn-sm { border-radius: 6px; }
-        .preview-img { max-height: 120px; border-radius: 8px; display: none; margin-top: 8px; }
-       
-        #cardForm.che-do-sua { outline: 2px solid #ffc107; }
-    </style>
+    
 </head>
 <body>
 <div class="container py-4">
@@ -44,19 +34,12 @@
 
 
     {{-- ===== Ô TRÊN: THÊM / SỬA SẢN PHẨM ===== --}}
-    {{--
-        2 chế độ:
-        - THÊM (mặc định): header xanh lá, action POST /san-pham
-        - SỬA: header vàng, action PUT /san-pham/{id}, điền sẵn dữ liệu bằng JS
-        Chuyển đổi bằng JS khi bấm nút Sửa ở bảng bên dưới
-    --}}
     <div class="card mb-4" id="cardForm">
 
         <div class="card-header bg-success text-white d-flex justify-content-between align-items-center" id="cardFormHeader">
             <span id="tieuDeForm">
                 <i class="bi bi-plus-circle me-2"></i>Thêm Sản Phẩm Mới
             </span>
-            {{-- Nút Hủy chỉ hiện khi đang ở chế độ Sửa --}}
             <button type="button" id="btnHuy" class="btn btn-light btn-sm"
                     onclick="chuyenVeCheDoDaThem()" style="display:none;">
                 <i class="bi bi-x-lg me-1"></i>Hủy sửa
@@ -66,7 +49,6 @@
         <div class="card-body">
             <form id="formChung" action="{{ route('san-pham.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                {{-- JS sẽ chèn @method('PUT') vào đây khi cần --}}
                 <div id="methodField"></div>
 
                 <div class="row g-3">
@@ -81,12 +63,11 @@
                                placeholder="Ví dụ: Hoa hồng đỏ" required>
                     </div>
 
-                    {{-- Loại sản phẩm (chỉ hiện khi THÊM, ẩn + readonly khi SỬA) --}}
+                    {{-- Loại sản phẩm --}}
                     <div class="col-md-4" id="khuVucLoai">
                         <label class="form-label fw-semibold">
                             Loại sản phẩm <span class="text-danger" id="loaiRequired">*</span>
                         </label>
-                        {{-- Select khi THÊM --}}
                         <select name="loai_san_pham" id="inp_loai" class="form-select" required>
                             <option value="">-- Chọn loại sản phẩm --</option>
                             @foreach($danhSachLoai as $value => $label)
@@ -95,14 +76,13 @@
                                 </option>
                             @endforeach
                         </select>
-                        {{-- Text hiển thị loại khi SỬA (không cho đổi) --}}
                         <div id="loaiHienThi" style="display:none;">
                             <input type="text" id="inp_loai_text" class="form-control bg-light" readonly>
                             <small class="text-muted"><i class="bi bi-lock-fill me-1"></i>Không thể thay đổi loại sản phẩm</small>
                         </div>
                     </div>
 
-                    {{-- Số lượng: chỉ hiện khi SỬA (chỉ đọc, không chỉnh được) --}}
+                    {{-- Số lượng (chỉ đọc khi SỬA) --}}
                     <div class="col-md-3" id="khuVucSoLuong" style="display:none;">
                         <label class="form-label fw-semibold">Số lượng trong kho</label>
                         <input type="text" id="inp_so_luong" class="form-control bg-light" readonly>
@@ -116,25 +96,20 @@
                                   placeholder="Nhập mô tả sản phẩm...">{{ old('mo_ta') }}</textarea>
                     </div>
 
-                    {{-- Hình ảnh (upload từ máy) --}}
+                    {{-- Hình ảnh --}}
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold" id="labelAnh">
-                            Hình ảnh
-                        </label>
+                        <label class="form-label fw-semibold" id="labelAnh">Hình ảnh</label>
                         <input type="file" name="hinh_anh" id="inp_anh" class="form-control"
                                accept="image/jpg,image/jpeg,image/png,image/gif,image/webp"
                                onchange="xemTruocAnh(this)">
                         <small class="text-muted">
                             Chọn ảnh từ máy tính. JPG, PNG, GIF, WEBP — tối đa 2MB.
-                            Ảnh sẽ lưu vào <code>public/img</code>
                         </small>
-                        {{-- Ảnh hiện tại khi đang Sửa --}}
                         <div id="khuVucAnhHienTai" style="display:none; margin-top:6px;">
                             <small class="text-muted d-block mb-1">Ảnh hiện tại:</small>
                             <img id="anhHienTai" src="" alt="Ảnh hiện tại"
                                  style="max-height:80px; border-radius:8px;">
                         </div>
-                        {{-- Xem trước ảnh mới chọn --}}
                         <img id="xemTruocAnh" class="preview-img" alt="Xem trước ảnh mới">
                     </div>
 
@@ -222,10 +197,9 @@
                                 </span>
                             </td>
 
-                            {{-- Giá bán: lấy từ các phiếu nhập liên quan --}}
+                            {{-- Giá bán --}}
                             <td>
                                 @if($sp->chiTietNhaps->isNotEmpty())
-                                    {{-- Hiển thị tất cả các mức giá bán từ phiếu nhập --}}
                                     @foreach($sp->chiTietNhaps->unique('gia_ban') as $ct)
                                         <span class="badge bg-success mb-1">
                                             {{ number_format($ct->gia_ban, 0, ',', '.') }} đ
@@ -238,7 +212,7 @@
 
                             {{-- Số lượng --}}
                             <td>
-                                <span class="{{ $sp->so_luong == 0 ? 'text-danger fw-bold' : '' }}">
+                                <span class="{{ $sp->so_luong == 0 ? 'text-danger fw-bold' : ($sp->so_luong < 5 ? 'text-warning fw-bold' : '') }}">
                                     {{ $sp->so_luong }}
                                 </span>
                             </td>
@@ -267,7 +241,7 @@
                             <td>
                                 <div class="d-flex gap-1 flex-wrap">
 
-                                    {{-- Nút SỬA: điền dữ liệu lên form ô trên --}}
+                                    {{-- Nút SỬA --}}
                                     <button class="btn btn-warning btn-sm"
                                             onclick="chuyenCheDeSua({{ $sp->ma_san_pham }})"
                                             title="Sửa sản phẩm">
@@ -291,6 +265,17 @@
                                         @endif
                                     </form>
 
+                                    {{-- ===== NÚT BÁO CÁO HỎNG ===== --}}
+                                    <button class="btn btn-danger btn-sm"
+                                            onclick="moModalHangHong(
+                                                {{ $sp->ma_san_pham }},
+                                                '{{ addslashes($sp->ten_san_pham) }}',
+                                                {{ $sp->so_luong }}
+                                            )"
+                                            title="Báo cáo hàng hỏng">
+                                        <i class="bi bi-exclamation-triangle-fill"></i> Hỏng
+                                    </button>
+
                                 </div>
                             </td>
                         </tr>
@@ -311,12 +296,92 @@
 </div>
 
 
+
+{{-- MODAL: BÁO CÁO HÀNG HỎNG  --}}
+
+<div class="modal fade modal-hong" id="modalHangHong" tabindex="-1" aria-labelledby="labelModalHangHong" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title" id="labelModalHangHong">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Báo Cáo Hàng Hỏng
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form action="{{ route('bao-cao.bao-hang-hong') }}" method="POST">
+                @csrf
+                <input type="hidden" name="ma_san_pham" id="modal_ma_sp">
+
+                <div class="modal-body">
+
+                    {{-- Thông tin sản phẩm --}}
+                    <div class="info-sp-hong">
+                        <div class="text-muted mb-1" style="font-size:12px;">Sản phẩm được báo cáo</div>
+                        <strong id="modal_ten_sp">—</strong>
+                        <div class="mt-1">
+                            Tồn kho hiện tại:
+                            <span class="badge bg-secondary" id="modal_so_luong_badge">0</span>
+                        </div>
+                    </div>
+
+                    {{-- Số lượng hỏng --}}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            Số lượng hỏng <span class="text-danger">*</span>
+                        </label>
+                        <input type="number" name="so_luong_hong" id="modal_so_luong_hong"
+                               class="form-control" min="1" required
+                               placeholder="Nhập số lượng hỏng">
+                        <div class="form-text text-danger" id="modal_sl_error" style="display:none;">
+                            Số lượng hỏng không được vượt tồn kho!
+                        </div>
+                    </div>
+
+                    {{-- Lý do --}}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Lý do hỏng</label>
+                        <input type="text" name="ly_do" class="form-control"
+                               maxlength="255"
+                               placeholder="VD: Hoa héo, Vỡ bình, Hết hạn...">
+                    </div>
+
+                    {{-- Ghi chú --}}
+                    <div class="mb-2">
+                        <label class="form-label fw-semibold">Ghi chú thêm</label>
+                        <textarea name="ghi_chu" class="form-control" rows="2"
+                                  placeholder="Ghi chú thêm nếu cần..."></textarea>
+                    </div>
+
+                    <div class="text-muted" style="font-size:12px;">
+                        <i class="bi bi-person-fill me-1"></i>
+                        Nhân viên báo cáo: <strong>Nhân Viên 2</strong>
+                        &nbsp;|&nbsp;
+                        <i class="bi bi-clock me-1"></i>Thời gian: lúc gửi form
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="bi bi-x-lg me-1"></i>Hủy
+                    </button>
+                    <button type="submit" class="btn btn-danger" id="btnGuiBaoCao">
+                        <i class="bi bi-send-fill me-1"></i>Xác nhận báo cáo
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-   
     const danhSachLoai = @json($danhSachLoai);
 
-    
     function xemTruocAnh(input) {
         const imgEl = document.getElementById('xemTruocAnh');
         if (input.files && input.files[0]) {
@@ -329,28 +394,22 @@
         }
     }
 
-   
     function chuyenCheDeSua(id) {
         fetch('/san-pham/' + id + '/edit-data')
             .then(function(res) { return res.json(); })
             .then(function(sp) {
-
-               
                 document.getElementById('inp_ten').value   = sp.ten_san_pham;
                 document.getElementById('inp_mo_ta').value = sp.mo_ta ?? '';
 
-                
                 document.getElementById('khuVucSoLuong').style.display = 'block';
                 document.getElementById('inp_so_luong').value = sp.so_luong;
 
-                
                 document.getElementById('inp_loai').style.display = 'none';
                 document.getElementById('inp_loai').removeAttribute('required');
                 document.getElementById('loaiHienThi').style.display = 'block';
                 document.getElementById('inp_loai_text').value = danhSachLoai[sp.loai_san_pham] ?? sp.loai_san_pham;
                 document.getElementById('loaiRequired').style.display = 'none';
 
-                
                 if (sp.hinh_anh) {
                     document.getElementById('anhHienTai').src = '/' + sp.hinh_anh;
                     document.getElementById('khuVucAnhHienTai').style.display = 'block';
@@ -358,35 +417,24 @@
                     document.getElementById('khuVucAnhHienTai').style.display = 'none';
                 }
 
-               
                 document.getElementById('xemTruocAnh').style.display = 'none';
                 document.getElementById('inp_anh').value = '';
 
-               
                 document.getElementById('formChung').action = '/san-pham/' + id;
                 document.getElementById('methodField').innerHTML =
                     '<input type="hidden" name="_method" value="PUT">';
 
-                
                 const header = document.getElementById('cardFormHeader');
                 header.className = 'card-header bg-warning text-dark d-flex justify-content-between align-items-center';
 
-                
                 document.getElementById('tieuDeForm').innerHTML =
                     '<i class="bi bi-pencil-fill me-2"></i>Sửa Sản Phẩm: <strong>' + sp.ten_san_pham + '</strong>';
 
-               
                 document.getElementById('btnHuy').style.display = 'inline-block';
-
-               
                 document.getElementById('btnSubmit').className = 'btn btn-warning';
                 document.getElementById('iconSubmit').className = 'bi bi-save me-1';
                 document.getElementById('textSubmit').textContent = 'Lưu thay đổi';
-
-                
                 document.getElementById('labelAnh').textContent = 'Hình ảnh mới (để trống nếu không đổi)';
-
-               
                 document.getElementById('cardForm').scrollIntoView({ behavior: 'smooth' });
             })
             .catch(function() {
@@ -394,45 +442,61 @@
             });
     }
 
-    
+   
     function chuyenVeCheDoDaThem() {
-       
         document.getElementById('formChung').reset();
         document.getElementById('formChung').action = '{{ route('san-pham.store') }}';
         document.getElementById('methodField').innerHTML = '';
 
-       
         document.getElementById('inp_loai').style.display = 'block';
         document.getElementById('inp_loai').setAttribute('required', 'required');
         document.getElementById('loaiHienThi').style.display = 'none';
         document.getElementById('loaiRequired').style.display = 'inline';
-
-      
         document.getElementById('khuVucSoLuong').style.display = 'none';
-
-        
         document.getElementById('khuVucAnhHienTai').style.display = 'none';
         document.getElementById('xemTruocAnh').style.display = 'none';
 
-        
         const header = document.getElementById('cardFormHeader');
         header.className = 'card-header bg-success text-white d-flex justify-content-between align-items-center';
-
-        
         document.getElementById('tieuDeForm').innerHTML =
             '<i class="bi bi-plus-circle me-2"></i>Thêm Sản Phẩm Mới';
-
-       
         document.getElementById('btnHuy').style.display = 'none';
-
-        
         document.getElementById('btnSubmit').className = 'btn btn-success';
         document.getElementById('iconSubmit').className = 'bi bi-plus-lg me-1';
         document.getElementById('textSubmit').textContent = 'Thêm sản phẩm';
-
-        
         document.getElementById('labelAnh').textContent = 'Hình ảnh';
     }
+
+    
+    let _soLuongKho = 0;
+
+    function moModalHangHong(maSP, tenSP, soLuong) {
+        _soLuongKho = soLuong;
+
+        document.getElementById('modal_ma_sp').value      = maSP;
+        document.getElementById('modal_ten_sp').textContent = tenSP;
+        document.getElementById('modal_so_luong_badge').textContent = soLuong;
+        document.getElementById('modal_so_luong_hong').value = '';
+        document.getElementById('modal_so_luong_hong').max   = soLuong;
+        document.getElementById('modal_sl_error').style.display = 'none';
+
+        const modal = new bootstrap.Modal(document.getElementById('modalHangHong'));
+        modal.show();
+    }
+
+    document.getElementById('modal_so_luong_hong').addEventListener('input', function () {
+        const val     = parseInt(this.value) || 0;
+        const errEl   = document.getElementById('modal_sl_error');
+        const btnGui  = document.getElementById('btnGuiBaoCao');
+
+        if (val > _soLuongKho) {
+            errEl.style.display = 'block';
+            btnGui.disabled = true;
+        } else {
+            errEl.style.display = 'none';
+            btnGui.disabled = false;
+        }
+    });
 </script>
 </body>
 </html>

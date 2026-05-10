@@ -84,3 +84,4 @@ Route::get('/bao-cao/loi-nhuan',     [BaoCaoController::class, 'loiNhuan'])->nam
 Route::get('/bao-cao/san-pham',      [BaoCaoController::class, 'sanPhamBanChay'])->name('bao-cao.san-pham');
 Route::get('/bao-cao/ton-kho',       [BaoCaoController::class, 'tonKho'])->name('bao-cao.ton-kho');
 Route::get('/bao-cao/khach-hang',    [BaoCaoController::class, 'khachHang'])->name('bao-cao.khach-hang');
+Route::post('/bao-cao/hang-hong',    [BaoCaoController::class, 'baoHangHong'])->name('bao-cao.bao-hang-hong');

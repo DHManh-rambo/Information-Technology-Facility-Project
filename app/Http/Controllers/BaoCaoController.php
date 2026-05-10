@@ -5,12 +5,17 @@ namespace App\Http\Controllers;
 use App\Models\HoaDon;
 use App\Models\SanPham;
 use App\Models\KhachHang;
+use App\Models\BaoCaoHangHong;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class BaoCaoController extends Controller
 {
+    private const LOAI_TUOI = ['HOA_TUOI', 'CHAU_HOA_TUOI'];
+
+    private const MA_NHAN_VIEN_MAC_DINH = 7;
+
     public function index(Request $request)
     {
         $tab = $request->get('tab', 'dashboard');
@@ -43,9 +48,12 @@ class BaoCaoController extends Controller
             ->where('trang_thai', 'DANG_BAN')
             ->count();
 
+        $tongHangHongHomNay = BaoCaoHangHong::whereDate('thoi_gian_bao_cao', Carbon::today())
+            ->sum('so_luong_hong');
+
         $doanhThu7Ngay = $this->layDoanhThuTheoNgay(
-            Carbon::today()->subDays(6),
-            Carbon::today()
+             Carbon::today()->subDays(6)->startOfDay(),
+            Carbon::today()->endOfDay()
         );
 
         $trangThaiDonHang = HoaDon::selectRaw('trang_thai, COUNT(*) as so_luong')
@@ -58,7 +66,7 @@ class BaoCaoController extends Controller
         $data = compact(
             'tab',
             'tongDoanhThu', 'tongLoiNhuan', 'tongHoaDon', 'tongSanPhamBan',
-            'donHangHomNay', 'doanhThuHomNay', 'sanPhamSapHetSo',
+            'donHangHomNay', 'doanhThuHomNay', 'sanPhamSapHetSo', 'tongHangHongHomNay',
             'doanhThu7Ngay', 'trangThaiDonHang', 'topSanPhamDashboard'
         );
 
@@ -72,11 +80,125 @@ class BaoCaoController extends Controller
             $data = array_merge($data, $this->dataTonKho($request));
         } elseif ($tab === 'khach-hang') {
             $data = array_merge($data, $this->dataKhachHang($request));
+        } elseif ($tab === 'hang-hong') {
+            $data = array_merge($data, $this->dataHangHong($request));
         }
 
         return view('BaoCao', $data);
     }
 
+    
+    public function baoHangHong(Request $request)
+    {
+        $request->validate([
+            'ma_san_pham'   => 'required|exists:san_pham,ma_san_pham',
+            'so_luong_hong' => 'required|integer|min:1',
+            'ly_do'         => 'nullable|string|max:255',
+            'ghi_chu'       => 'nullable|string',
+        ], [
+            'so_luong_hong.required' => 'Vui lòng nhập số lượng hỏng.',
+            'so_luong_hong.min'      => 'Số lượng hỏng phải lớn hơn 0.',
+        ]);
+
+        $sanPham = SanPham::findOrFail($request->ma_san_pham);
+
+        
+        if ($request->so_luong_hong > $sanPham->so_luong) {
+            return redirect()->back()
+                ->withErrors(['so_luong_hong' => "Số lượng hỏng ({$request->so_luong_hong}) vượt quá tồn kho ({$sanPham->so_luong})."])
+                ->withInput();
+        }
+
+        DB::transaction(function () use ($request, $sanPham) {
+            
+            $sanPham->decrement('so_luong', $request->so_luong_hong);
+
+            
+            if ($sanPham->fresh()->so_luong <= 0) {
+                $sanPham->update(['trang_thai' => 'NGUNG_BAN']);
+            }
+
+            
+            BaoCaoHangHong::create([
+                'ma_san_pham'       => $request->ma_san_pham,
+                'ma_nhan_vien'      => self::MA_NHAN_VIEN_MAC_DINH,
+                'so_luong_hong'     => $request->so_luong_hong,
+                'ly_do'             => $request->ly_do,
+                'ghi_chu'           => $request->ghi_chu,
+                'thoi_gian_bao_cao' => now(),
+            ]);
+        });
+
+        $tenSp      = $sanPham->ten_san_pham;
+        $slHong     = $request->so_luong_hong;
+        $slConLai   = $sanPham->fresh()->so_luong;
+
+        return redirect()->route('san-pham.index')
+            ->with('success', "Đã báo cáo {$slHong} sp hỏng của \"{$tenSp}\". Tồn kho còn lại: {$slConLai}.");
+    }
+
+    
+    private function dataHangHong(Request $request): array
+    {
+        
+        $hhTongSoLuong = BaoCaoHangHong::sum('so_luong_hong');
+
+        
+        $hhTongLanBaoCao = BaoCaoHangHong::count();
+
+       
+        $hhDanhSachTuoi = DB::table('bao_cao_hang_hong as bc')
+            ->join('san_pham as sp', 'bc.ma_san_pham', '=', 'sp.ma_san_pham')
+            ->join('nhan_vien as nv', 'bc.ma_nhan_vien', '=', 'nv.ma_nhan_vien')
+            ->whereIn('sp.loai_san_pham', self::LOAI_TUOI)
+            ->select(
+                'sp.ten_san_pham',
+                'bc.so_luong_hong',
+                'bc.thoi_gian_bao_cao',
+                'bc.ly_do',
+                'bc.ghi_chu',
+                'nv.ten_nhan_vien'
+            )
+            ->orderBy('bc.thoi_gian_bao_cao', 'desc')
+            ->get();
+
+        $hhTongTuoi = $hhDanhSachTuoi->sum('so_luong_hong');
+
+        
+        $hhDanhSachKhacTuoi = DB::table('bao_cao_hang_hong as bc')
+            ->join('san_pham as sp', 'bc.ma_san_pham', '=', 'sp.ma_san_pham')
+            ->join('nhan_vien as nv', 'bc.ma_nhan_vien', '=', 'nv.ma_nhan_vien')
+            ->whereNotIn('sp.loai_san_pham', self::LOAI_TUOI)
+            ->select(
+                'sp.ten_san_pham',
+                'bc.so_luong_hong',
+                'bc.thoi_gian_bao_cao',
+                'bc.ly_do',
+                'bc.ghi_chu',
+                'nv.ten_nhan_vien'
+            )
+            ->orderBy('bc.thoi_gian_bao_cao', 'desc')
+            ->get();
+
+        $hhTongKhacTuoi = $hhDanhSachKhacTuoi->sum('so_luong_hong');
+
+        $hhTopHong = DB::table('bao_cao_hang_hong as bc')
+            ->join('san_pham as sp', 'bc.ma_san_pham', '=', 'sp.ma_san_pham')
+            ->select('sp.ten_san_pham', DB::raw('SUM(bc.so_luong_hong) as tong_hong'))
+            ->groupBy('bc.ma_san_pham', 'sp.ten_san_pham')
+            ->orderBy('tong_hong', 'desc')
+            ->limit(5)
+            ->get();
+
+        return compact(
+            'hhTongSoLuong', 'hhTongLanBaoCao',
+            'hhDanhSachTuoi', 'hhTongTuoi',
+            'hhDanhSachKhacTuoi', 'hhTongKhacTuoi',
+            'hhTopHong'
+        );
+    }
+
+    
     private function dataDoanhThu(Request $request): array
     {
         $tuNgay = $request->filled('tu_ngay')
@@ -93,10 +215,9 @@ class BaoCaoController extends Controller
             });
 
         $dtTongDoanhThu = (clone $query)->sum('tong_tien');
-        $dtTongDonHang = (clone $query)->count();
-        $dtTrungBinh = $dtTongDonHang > 0 ? round($dtTongDoanhThu / $dtTongDonHang) : 0;
-
-        $dtTheoNgay = $this->layDoanhThuTheoNgay($tuNgay, $denNgay);
+        $dtTongDonHang  = (clone $query)->count();
+        $dtTrungBinh    = $dtTongDonHang > 0 ? round($dtTongDoanhThu / $dtTongDonHang) : 0;
+        $dtTheoNgay     = $this->layDoanhThuTheoNgay($tuNgay, $denNgay);
 
         $dtBang = (clone $query)
             ->selectRaw('DATE(ngay_dat) as ngay, SUM(tong_tien) as doanh_thu, COUNT(*) as so_don')
@@ -137,16 +258,16 @@ class BaoCaoController extends Controller
             ->get();
 
         $lnLabels = $lnTheoNgay->pluck('ngay')->toArray();
-        $lnData = $lnTheoNgay->pluck('loi_nhuan')->toArray();
+        $lnData   = $lnTheoNgay->pluck('loi_nhuan')->toArray();
 
         return compact('tuNgay', 'denNgay', 'lnTongLoiNhuan', 'lnTongDoanhThu', 'lnTheoNgay', 'lnLabels', 'lnData');
     }
 
     private function dataSanPham(Request $request): array
     {
-        $spTop = (int) $request->get('top', 10);
+        $spTop      = (int) $request->get('top', 10);
         $spDanhSach = $this->layTopSanPham($spTop);
-        $spTongBan = DB::table('chi_tiet_hoa_don as ct')
+        $spTongBan  = DB::table('chi_tiet_hoa_don as ct')
             ->join('hoa_don as hd', 'ct.ma_hoa_don', '=', 'hd.ma_hoa_don')
             ->where('hd.trang_thai', 'DELIVERED')
             ->sum('ct.so_luong') ?? 0;
@@ -230,15 +351,15 @@ class BaoCaoController extends Controller
             ->get()
             ->keyBy('ngay');
 
-        $labels = [];
-        $data = [];
+        $labels  = [];
+        $data    = [];
         $current = Carbon::parse($tuNgay)->copy();
-        $end = Carbon::parse($denNgay)->copy();
+        $end     = Carbon::parse($denNgay)->copy();
 
         while ($current->lte($end)) {
-            $key = $current->format('Y-m-d');
+            $key      = $current->format('Y-m-d');
             $labels[] = $current->format('d/m');
-            $data[] = isset($rawData[$key]) ? (float) $rawData[$key]->doanh_thu : 0;
+            $data[]   = isset($rawData[$key]) ? (float) $rawData[$key]->doanh_thu : 0;
             $current->addDay();
         }
 
