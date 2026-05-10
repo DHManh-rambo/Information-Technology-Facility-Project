@@ -17,17 +17,15 @@
     --transition: 0.28s cubic-bezier(.4, 0, .2, 1);
 }
 
-*,
-*::before,
-*::after {
+#ajax-content *,
+#ajax-content *::before,
+#ajax-content *::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
 }
 
-html,
-body {
-    height: 100%;
+#ajax-content {
     background: var(--white);
     color: var(--black);
     font-family: var(--font-mono);

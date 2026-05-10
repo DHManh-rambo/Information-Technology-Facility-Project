@@ -1,31 +1,12 @@
 {{-- resources/views/DonHang.blade.php --}}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="stylesheet" href="{{ asset('css/DonHang.css') }}">
-    <title>Quản Lý Đơn Hàng – Flower Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=IM+Fell+English:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+@extends('layouts.admin')
 
-    
-</head>
-<body>
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/DonHang.css') }}">
+@endpush
 
-{{-- ════════ HEADER ════════ --}}
-<header class="page-header">
-    <div>
-        <h1>Flower Store</h1>
-        <span class="sub">Admin Panel</span>
-    </div>
-    <nav class="header-nav">
-        <a href="{{ route('hoa-don.index') }}">Hóa Đơn</a>
-        <a href="{{ route('don-hang.index') }}" class="active">Đơn Hàng</a>
-    </nav>
-</header>
-
-<div class="page-body">
+@section('admin_content')
+<div id="ajax-content">
 
     {{-- ════════ Ô 1: BỘ LỌC & TÌM KIẾM ════════ --}}
     <div>
@@ -122,48 +103,28 @@
                     <tbody>
                         @forelse($donHangs as $index => $dh)
                         <tr id="row-{{ $dh->ma_hoa_don }}">
-                            {{-- STT --}}
                             <td class="td-mono" style="color:var(--ink-muted)">
                                 {{ $donHangs->firstItem() + $index }}
                             </td>
-
-                            {{-- Mã đơn hàng --}}
                             <td class="td-mono">
                                 HD-{{ str_pad($dh->ma_hoa_don, 4, '0', STR_PAD_LEFT) }}
                             </td>
-
-                            {{-- Tên khách hàng --}}
                             <td>{{ $dh->khachHang?->ten_khach_hang ?? '—' }}</td>
-
-                            {{-- Ngày đặt --}}
                             <td class="td-mono">
                                 {{ $dh->ngay_dat?->format('d/m/Y H:i') ?? '—' }}
                             </td>
-
-                            {{-- Tổng tiền --}}
                             <td class="td-mono" style="font-weight:700">
                                 {{ number_format($dh->tong_tien, 0, ',', '.') }}₫
                             </td>
-
-                            {{-- Trạng thái thanh toán --}}
                             <td>
                                 <span class="badge {{ $dh->trang_thai_thanh_toan === 'DA_THANH_TOAN' ? 'badge-paid' : 'badge-unpaid' }}">
                                     {{ $dh->trang_thai_thanh_toan === 'DA_THANH_TOAN' ? 'Đã TT' : 'Chưa TT' }}
                                 </span>
                             </td>
-
-                            {{-- Địa chỉ giao (rút gọn, hover xem đầy đủ) --}}
                             <td title="{{ $dh->dia_chi_giao }}" style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
                                 {{ $dh->dia_chi_giao ?? '—' }}
                             </td>
-
-                            {{-- Số điện thoại --}}
                             <td class="td-mono">{{ $dh->so_dien_thoai ?? '—' }}</td>
-
-                            {{-- Dropdown chọn shipper ──────────────────────────────
-                                 Bắt buộc phải chọn trước khi ấn "Xác nhận".
-                                 ngay_giao sẽ null cho đến khi shipper hoàn tất giao.
-                            --}}
                             <td>
                                 <select class="shipper-select"
                                         id="shipper-{{ $dh->ma_hoa_don }}"
@@ -176,8 +137,6 @@
                                     @endforeach
                                 </select>
                             </td>
-
-                            {{-- Hành động --}}
                             <td>
                                 <div class="td-actions">
                                     <button class="btn btn-success"
@@ -235,9 +194,6 @@
         </div>
     </div>
 
-</div>{{-- /page-body --}}
-
-
 {{-- ════════ DIALOG XÁC NHẬN TỪ CHỐI ════════ --}}
 <div class="overlay" id="cancelOverlay">
     <div class="dialog">
@@ -256,12 +212,10 @@
 {{-- ════════ TOAST NOTIFICATION ════════ --}}
 <div class="toast" id="toast"></div>
 
-
 <script>
     const CSRF = document.querySelector('meta[name="csrf-token"]').content;
     let currentCancelId = null;
 
-   
     function showToast(msg, type = 'success') {
         const t = document.getElementById('toast');
         t.textContent = msg;
@@ -270,7 +224,6 @@
         t._t = setTimeout(() => t.classList.remove('show'), 3500);
     }
 
-    
     function removeRow(id) {
         const row = document.getElementById('row-' + id);
         if (!row) return;
@@ -280,10 +233,8 @@
         setTimeout(() => row.remove(), 370);
     }
 
-    
     function confirmOrder(id) {
         const sel = document.getElementById('shipper-' + id);
-
         if (!sel || !sel.value) {
             sel && sel.classList.add('error');
             showToast('Vui lòng chọn shipper trước khi xác nhận!', 'error');
@@ -321,7 +272,6 @@
         });
     }
 
-   
     function openCancelDialog(id, label) {
         currentCancelId = id;
         document.getElementById('cancelMsg').innerHTML =
@@ -336,7 +286,6 @@
         currentCancelId = null;
     }
 
-    
     document.getElementById('cancelOkBtn').addEventListener('click', function () {
         if (!currentCancelId) return;
         const id  = currentCancelId;
@@ -356,7 +305,6 @@
             closeCancelDialog();
             this.disabled    = false;
             this.textContent = '✕ Xác nhận từ chối';
-
             if (res.success) {
                 removeRow(id);
                 showToast(res.message, 'success');
@@ -380,5 +328,6 @@
         sel.addEventListener('change', () => sel.classList.remove('error'));
     });
 </script>
-</body>
-</html>
+
+</div>
+@endsection

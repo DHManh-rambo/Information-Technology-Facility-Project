@@ -1,21 +1,11 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-        <link rel="stylesheet" href="{{ asset('css/HoaDon.css') }}">
+@extends('layouts.admin')
 
-    <title>Quản Lý Hóa Đơn</title>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=IM+Fell+English:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-</head>
-<body>
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/HoaDon.css') }}">
+@endpush
 
-<header class="page-header">
-    <h1>Quản Lý Hóa Đơn</h1>
-    <span class="sub">Flower Store · Admin</span>
-</header>
+@section('admin_content')
+<div id="ajax-content">
 
 <div class="page-body" id="page-body">
 
@@ -133,14 +123,11 @@
                         <td>{{ $hd->shipper->ten_nhan_vien ?? '—' }}</td>
                         <td>
                             <div style="display:flex;gap:6px;align-items:center;">
-                                {{-- Nút Chi Tiết --}}
                                 <button class="btn btn-detail"
                                         data-id="{{ $hd->ma_hoa_don }}"
                                         onclick="openDetail({{ $hd->ma_hoa_don }}, this)">
                                     Chi Tiết
                                 </button>
-
-                                {{-- Nút Xóa: chỉ enabled khi chưa thanh toán hoặc đã hủy --}}
                                 @php
                                     $canDelete = $hd->trang_thai_thanh_toan === 'CHUA_THANH_TOAN'
                                               || $hd->trang_thai === 'CANCELLED';
@@ -168,14 +155,12 @@
         <div class="pagination-wrap">
             <span>Hiển thị {{ $hoaDons->firstItem() }}–{{ $hoaDons->lastItem() }} / {{ $hoaDons->total() }} hóa đơn</span>
             <div class="pages">
-                {{-- Prev --}}
                 @if ($hoaDons->onFirstPage())
                     <span class="disabled">‹ Trước</span>
                 @else
                     <a href="{{ $hoaDons->previousPageUrl() }}">‹ Trước</a>
                 @endif
 
-                {{-- Page numbers --}}
                 @foreach ($hoaDons->getUrlRange(max(1, $hoaDons->currentPage()-2), min($hoaDons->lastPage(), $hoaDons->currentPage()+2)) as $page => $url)
                     @if ($page == $hoaDons->currentPage())
                         <span class="active-page">{{ $page }}</span>
@@ -184,7 +169,6 @@
                     @endif
                 @endforeach
 
-                {{-- Next --}}
                 @if ($hoaDons->hasMorePages())
                     <a href="{{ $hoaDons->nextPageUrl() }}">Sau ›</a>
                 @else
@@ -303,21 +287,18 @@
             <div class="info-row"><span class="info-label">Phương thức</span><span class="info-value">${d.phuong_thuc_thanh_toan ?? '—'}</span></div>
             <div class="info-row"><span class="info-label">Tổng tiền</span><span class="info-value">${fmt(d.tong_tien)}</span></div>
         </div>
-
         <div class="panel-section">
             <div class="panel-section-title">Thông Tin Khách Hàng</div>
             <div class="info-row"><span class="info-label">Tên KH</span><span class="info-value">${d.khach_hang?.ten_khach_hang ?? '—'}</span></div>
             <div class="info-row"><span class="info-label">SĐT KH</span><span class="info-value">${d.khach_hang?.so_dien_thoai ?? '—'}</span></div>
             <div class="info-row"><span class="info-label">Email</span><span class="info-value">${d.khach_hang?.email ?? '—'}</span></div>
         </div>
-
         <div class="panel-section">
             <div class="panel-section-title">Thông Tin Giao Hàng</div>
             <div class="info-row"><span class="info-label">Địa chỉ giao</span><span class="info-value" style="max-width:240px;text-align:right;white-space:normal">${d.dia_chi_giao ?? '—'}</span></div>
             <div class="info-row"><span class="info-label">SĐT nhận</span><span class="info-value">${d.so_dien_thoai ?? '—'}</span></div>
             <div class="info-row"><span class="info-label">NV giao</span><span class="info-value">${d.nhan_vien_giao?.ten_nhan_vien ?? '—'}</span></div>
         </div>
-
         <div class="panel-section">
             <div class="panel-section-title">Chi Tiết Sản Phẩm</div>
             <table class="product-table">
@@ -353,7 +334,6 @@
         .then(res => {
             if (res.success) {
                 if (activeDetailId === id) closeDetail();
-
                 const row = document.getElementById('row-' + id);
                 if (row) {
                     row.style.transition = 'opacity .3s';
@@ -374,5 +354,6 @@
         });
     }
 </script>
-</body>
-</html>
+
+</div>
+@endsection
