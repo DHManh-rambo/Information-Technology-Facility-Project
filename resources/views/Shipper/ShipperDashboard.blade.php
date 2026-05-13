@@ -3,32 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('css/Shipper/ShipperDashboard.css') }}">
     <title>Shipper Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
 </head>
 <body>
 
-
 <div class="topbar">
     <span class="topbar-brand">🌸 FlowerStore · Shipper</span>
-    <span class="topbar-status">
-        <span class="dot-green"></span>
-        Đang hoạt động
-    </span>
+    <div style="display: flex; align-items: center; gap: 20px;">
+        <span class="topbar-status">
+            <span class="dot-green"></span>
+            Đang hoạt động
+        </span>
+        {{-- Nút đăng xuất --}}
+        <form method="POST" action="{{ route('logout') }}" style="margin:0;">
+            @csrf
+            <button type="submit" style="background:none; border:none; color:#6c757d; cursor:pointer; font-size:14px; display:flex; align-items:center; gap:6px;">
+                <i class="fas fa-sign-out-alt"></i> Đăng xuất
+            </button>
+        </form>
+    </div>
 </div>
 
 <div class="layout">
 
-    
-    {{-- LEFT PANEL: Profile + Tiền + Lịch sử       --}}
-    
+    {{-- LEFT PANEL: Profile + Tiền + Lịch sử --}}
     <aside class="left-panel">
-
-        {{-- Profile Header --}}
+        {{-- ... giữ nguyên nội dung phần left panel ... --}}
         <div class="profile-header">
             <div class="profile-avatar">
                 {{ mb_strtoupper(mb_substr($shipper->ten_nhan_vien, 0, 1)) }}
@@ -45,7 +50,6 @@
             </div>
         </div>
 
-        {{-- Thông tin cá nhân --}}
         <div class="info-section">
             <div class="section-label">Thông tin cá nhân</div>
             <div class="info-grid">
@@ -66,7 +70,6 @@
             </div>
         </div>
 
-        {{-- Tiền cần nộp --}}
         <div class="money-section">
             <div class="section-label">
                 Tiền cần nộp công ty
@@ -113,7 +116,6 @@
             </div>
         </div>
 
-        {{-- Lịch sử đơn hàng --}}
         <div class="history-section">
             <div class="section-label">
                 Lịch sử đơn hàng
@@ -155,12 +157,9 @@
                 @endif
             </div>
         </div>
-
     </aside>
 
-   
-    {{-- RIGHT PANEL: Đơn hàng cần giao             --}}
-    
+    {{-- RIGHT PANEL: Đơn hàng cần giao --}}
     <main class="right-panel">
         <div class="right-header">
             <div class="right-title">
@@ -175,7 +174,6 @@
         <div class="orders-scroll">
             @forelse($donHangCanShip as $dh)
                 <div class="order-card" id="order-row-{{ $dh->ma_hoa_don }}">
-
                     <div class="order-left">
                         <div class="order-num">#HD-{{ str_pad($dh->ma_hoa_don, 4, '0', STR_PAD_LEFT) }}</div>
                         <span class="badge {{ strtolower($dh->trang_thai) == 'confirmed' ? 'badge-wait' : 'badge-ship' }}"
@@ -229,7 +227,6 @@
 
 </div>
 
-{{-- TOAST --}}
 <div id="toast"></div>
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">

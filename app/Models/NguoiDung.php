@@ -16,6 +16,7 @@ class NguoiDung extends Authenticatable
     protected $keyType = 'int';
 
     public $timestamps = false;
+
     protected $fillable = [
         'ten_dang_nhap',
         'mat_khau',
@@ -30,7 +31,15 @@ class NguoiDung extends Authenticatable
         'vai_tro' => 'string',
     ];
 
-   
+    public function getAuthIdentifierName()
+    {
+        return 'ten_dang_nhap';   
+    }
+    public function getAuthPassword()
+    {
+        return $this->mat_khau;
+    }
+
     public function khachHang()
     {
         return $this->hasOne(KhachHang::class, 'ma_khach_hang', 'ma_nguoi_dung');
@@ -41,7 +50,6 @@ class NguoiDung extends Authenticatable
         return $this->hasOne(NhanVien::class, 'ma_nhan_vien', 'ma_nguoi_dung');
     }
 
-    
     public function isKhachHang()
     {
         return $this->vai_tro === 'KHACH_HANG';
@@ -57,10 +65,8 @@ class NguoiDung extends Authenticatable
         return $this->vai_tro === 'ADMIN';
     }
 
-    
     public function setMatKhauAttribute($value)
     {
         $this->attributes['mat_khau'] = bcrypt($value);
     }
-        
 }
