@@ -118,6 +118,8 @@ Route::middleware(['auth', 'role:SHIPPER'])->group(function () {
         [ShipperController::class, 'dashboard'])->name('shipper.dashboard');
     Route::patch('/shipper/don-hang/{id}/cap-nhat',
         [ShipperController::class, 'updateStatus'])->name('shipper.update-status');
+        Route::get('/shipper/don-hang/{id}/chi-tiet',
+        [App\Http\Controllers\Shipper\NhanDonController::class, 'show'])->name('shipper.don-hang.chi-tiet');
 });
 
 // ─── KHÁCH HÀNG ───────────────────────────────────────────────────────────────

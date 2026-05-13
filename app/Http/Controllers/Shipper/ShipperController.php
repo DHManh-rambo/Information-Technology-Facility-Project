@@ -8,48 +8,40 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-
-
-
 class ShipperController extends Controller
 {
-    
     public function dashboard()
     {
-        $maNhanVien = request('id', 9);
+        $user = Auth::user();
+        // ma_nhan_vien chính là ma_nguoi_dung (do quan hệ 1-1)
+        $maNhanVien = $user->ma_nguoi_dung;
 
-       
         $shipper = NhanVien::findOrFail($maNhanVien);
 
-       
         $tienCanTra = HoaDon::where('ma_nhan_vien_giao', $maNhanVien)
             ->where('trang_thai', 'DELIVERED')
             ->where('trang_thai_thanh_toan', 'CHUA_THANH_TOAN')
             ->where('phuong_thuc_thanh_toan', 'COD')
             ->sum('tong_tien');
 
-        
         $soDonConNo = HoaDon::where('ma_nhan_vien_giao', $maNhanVien)
             ->where('trang_thai', 'DELIVERED')
             ->where('trang_thai_thanh_toan', 'CHUA_THANH_TOAN')
             ->where('phuong_thuc_thanh_toan', 'COD')
             ->count();
 
-        
         $donHangCanShip = HoaDon::with('khachHang')
             ->where('ma_nhan_vien_giao', $maNhanVien)
             ->whereIn('trang_thai', ['CONFIRMED', 'SHIPPING'])
             ->orderByDesc('ngay_dat')
             ->get();
 
-        
         $lichSuDonHang = HoaDon::with('khachHang')
             ->where('ma_nhan_vien_giao', $maNhanVien)
             ->where('trang_thai', 'DELIVERED')
             ->orderByDesc('ngay_giao')
             ->paginate(10);
 
-        
         $tongDoanhThu = HoaDon::where('ma_nhan_vien_giao', $maNhanVien)
             ->where('trang_thai', 'DELIVERED')
             ->sum('tong_tien');
@@ -64,13 +56,13 @@ class ShipperController extends Controller
         ));
     }
 
-    
     public function updateStatus(Request $request, $id)
     {
-        $maNhanVien = request('id', 9);
-        $hoaDon     = HoaDon::findOrFail($id);
+        $user = Auth::user();
+        $maNhanVien = $user->ma_nguoi_dung;
 
-        
+        $hoaDon = HoaDon::findOrFail($id);
+
         if ((int) $hoaDon->ma_nhan_vien_giao !== (int) $maNhanVien) {
             return response()->json([
                 'success' => false,
@@ -83,7 +75,7 @@ class ShipperController extends Controller
             'SHIPPING'  => 'DELIVERED',
         ];
 
-        if (! isset($map[$hoaDon->trang_thai])) {
+        if (!isset($map[$hoaDon->trang_thai])) {
             return response()->json([
                 'success' => false,
                 'message' => 'Trạng thái hiện tại không thể cập nhật.',

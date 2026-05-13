@@ -202,19 +202,13 @@
                     </div>
 
                     <div class="order-right">
-                        <div class="order-price">{{ number_format($dh->tong_tien, 0, ',', '.') }}&thinsp;đ</div>
-                        @if($dh->trang_thai === 'CONFIRMED')
-                            <button class="btn-action btn-start"
-                                    onclick="updateStatus({{ $dh->ma_hoa_don }}, 'CONFIRMED')">
-                                <i class="fas fa-play"></i> Lấy hàng
-                            </button>
-                        @else
-                            <button class="btn-action btn-done"
-                                    onclick="updateStatus({{ $dh->ma_hoa_don }}, 'SHIPPING')">
-                                <i class="fas fa-check"></i> Đã giao
-                            </button>
-                        @endif
-                    </div>
+    <div class="order-price">{{ number_format($dh->tong_tien, 0, ',', '.') }}&thinsp;đ</div>
+    <a href="{{ route('shipper.don-hang.chi-tiet', $dh->ma_hoa_don) }}" 
+       class="btn-action btn-detail"
+       style="background:#6c757d; color:white; text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:40px; font-size:13px; font-weight:500;">
+        <i class="fas fa-info-circle"></i> Chi tiết
+    </a>
+</div>
                 </div>
             @empty
                 <div class="empty-state" style="padding:80px 28px">
