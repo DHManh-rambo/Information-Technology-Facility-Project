@@ -70,10 +70,10 @@ Route::middleware(['auth', 'role:ADMIN'])->group(function () {
     Route::prefix('bao-cao')->name('bao-cao.')->group(function () {
         Route::get('/',             [BaoCaoController::class, 'index'])->name('index');
         Route::get('/doanh-thu',    [BaoCaoController::class, 'doanhThu'])->name('doanh-thu');
-        Route::get('/loi-nhuan',    [BaoCaoController::class, 'loiNhuan'])->name('loi-nhuan');
-        Route::get('/san-pham',     [BaoCaoController::class, 'sanPhamBanChay'])->name('san-pham');
-        Route::get('/ton-kho',      [BaoCaoController::class, 'tonKho'])->name('ton-kho');
-        Route::get('/khach-hang',   [BaoCaoController::class, 'khachHang'])->name('khach-hang');
+        Route::get('/loi-nhuan',    [BaoCaoController::class, 'index'])->name('loi-nhuan');
+        Route::get('/san-pham',     [BaoCaoController::class, 'baoCaoSanPham'])->name('san-pham');
+        Route::get('/ton-kho',      [BaoCaoController::class, 'index'])->name('ton-kho');
+        Route::get('/khach-hang',   [BaoCaoController::class, 'index'])->name('khach-hang');
         Route::post('/hang-hong',   [BaoCaoController::class, 'baoHangHong'])->name('bao-hang-hong');
     });
 });
@@ -104,30 +104,41 @@ Route::middleware(['auth', 'role:ADMIN,NHAN_VIEN'])->group(function () {
         Route::delete('/{id}','destroy')->name('destroy');
     });
 
-    // Đơn hàng
-    Route::prefix('don-hang')->name('don-hang.')->controller(DonHangController::class)->group(function () {
-        Route::get('/',              'index')->name('index');
-        Route::post('/{id}/confirm', 'confirm')->name('confirm');
-        Route::post('/{id}/cancel',  'cancel')->name('cancel');
-    });
-});
 
-// ─── SHIPPER ──────────────────────────────────────────────────────────────────
-Route::middleware(['auth', 'role:SHIPPER'])->group(function () {
-    Route::get('/shipper/dashboard',
-        [ShipperController::class, 'dashboard'])->name('shipper.dashboard');
-    Route::patch('/shipper/don-hang/{id}/cap-nhat',
-        [ShipperController::class, 'updateStatus'])->name('shipper.update-status');
-        Route::get('/shipper/don-hang/{id}/chi-tiet',
-        [App\Http\Controllers\Shipper\NhanDonController::class, 'show'])->name('shipper.don-hang.chi-tiet');
+Route::prefix('don-hang')->name('don-hang.')->controller(\App\Http\Controllers\DonHangController::class)->group(function () {
+    
+    Route::get('/', 'index')->name('index');
+  
+    Route::post('/{id}/confirm', 'confirm')->name('confirm');
+   
+    Route::post('/{id}/cancel', 'cancel')->name('cancel');
 });
+Route::prefix('phieu-nhap')->name('phieu-nhap.')->controller(PhieuNhapController::class)->group(function () {
+ 
+    Route::get('/', 'index')->name('index');
+ 
+    Route::post('/', 'store')->name('store');
+ 
+    Route::get('/{id}/edit-data', 'editData')->name('edit-data');
+ 
+    Route::put('/{id}', 'update')->name('update');
+ 
+    Route::delete('/{id}', 'destroy')->name('destroy');
+ 
+    Route::post('/{id}/confirm', 'confirm')->name('confirm');
+});
+Route::get('/bao-cao',               [BaoCaoController::class, 'index'])->name('bao-cao.index');
+Route::get('/bao-cao/doanh-thu',     [BaoCaoController::class, 'doanhThu'])->name('bao-cao.doanh-thu');
+Route::get('/bao-cao/loi-nhuan',     [BaoCaoController::class, 'index'])->name('bao-cao.loi-nhuan');
+Route::get('/bao-cao/san-pham',              [BaoCaoController::class, 'baoCaoSanPham'])->name('bao-cao.san-pham');
+Route::get('/bao-cao/san-pham/export',         [BaoCaoController::class, 'exportBaoCaoSanPham'])->name('bao-cao.san-pham.export');
+Route::get('/bao-cao/san-pham/{id}/hang-hong', [BaoCaoController::class, 'chiTietHangHong'])->name('bao-cao.san-pham.hang-hong');
+Route::get('/bao-cao/san-pham/{id}/chi-tiet',  [BaoCaoController::class, 'chiTietSanPham'])->name('bao-cao.san-pham.chi-tiet');
+Route::get('/bao-cao/ton-kho',       [BaoCaoController::class, 'index'])->name('bao-cao.ton-kho');
+Route::get('/bao-cao/khach-hang',    [BaoCaoController::class, 'index'])->name('bao-cao.khach-hang');
+Route::post('/bao-cao/hang-hong',    [BaoCaoController::class, 'baoHangHong'])->name('bao-cao.bao-hang-hong');
 
-// ─── KHÁCH HÀNG ───────────────────────────────────────────────────────────────
-Route::middleware(['auth', 'role:KHACH_HANG'])->group(function () {
-    Route::get('/customer/dashboard',
-        [CustomerController::class, 'dashboard'])->name('customer.dashboard');
-});
-Route::middleware('guest')->group(function () {
-    Route::get('/register',  [RegisteredUserController::class, 'create'])->name('register');
-    Route::post('/register', [RegisteredUserController::class, 'store']);
+
+Route::get('/shipper/dashboard', [ShipperController::class, 'dashboard'])->name('shipper.dashboard');
+Route::patch('/shipper/don-hang/{id}/cap-nhat', [ShipperController::class, 'updateStatus'])->name('shipper.update-status');
 });

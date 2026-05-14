@@ -13,7 +13,7 @@ class SanPham extends Model
     protected $primaryKey = 'ma_san_pham';
     public $incrementing = true;
     protected $keyType = 'int';
-    public $timestamps = false; 
+    public $timestamps = true; 
 
     protected $fillable = [
         'ten_san_pham',
