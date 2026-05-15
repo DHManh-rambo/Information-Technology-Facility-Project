@@ -12,7 +12,8 @@ use App\Http\Controllers\Shipper\ShipperController;
 use App\Http\Controllers\Shipper\NhanDonController;
 use App\Http\Controllers\Shipper\ShipperProfileController;
 use App\Http\Controllers\AdminController;
-use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\Customer\CustomerController;
+use App\Http\Controllers\Customer\CustomerProfileController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 
@@ -150,4 +151,16 @@ Route::middleware(['auth', 'role:SHIPPER'])->group(function () {
     Route::get('/shipper/profile',[ShipperProfileController::class, 'edit'])->name('shipper.profile.edit');
     Route::patch('/shipper/profile',[ShipperProfileController::class, 'update'])->name('shipper.profile.update');
     Route::patch('/shipper/profile/password', [ShipperProfileController::class, 'updatePassword']) ->name('shipper.profile.password');
+});
+Route::middleware(['auth', 'role:KHACH_HANG'])->group(function () {
+    Route::get('/customer/dashboard', [CustomerController::class, 'dashboard'])
+        ->name('customer.dashboard');
+ 
+    
+    Route::get('/customer/profile',              [CustomerProfileController::class, 'edit'])
+        ->name('customer.profile.edit');
+    Route::patch('/customer/profile',            [CustomerProfileController::class, 'update'])
+        ->name('customer.profile.update');
+    Route::patch('/customer/profile/password',   [CustomerProfileController::class, 'updatePassword'])
+        ->name('customer.profile.password');
 });
