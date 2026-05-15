@@ -10,6 +10,7 @@ use App\Http\Controllers\PhieuNhapController;
 use App\Http\Controllers\BaoCaoController;
 use App\Http\Controllers\Shipper\ShipperController;
 use App\Http\Controllers\Shipper\NhanDonController;
+use App\Http\Controllers\Shipper\ShipperProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -146,4 +147,7 @@ Route::middleware(['auth', 'role:SHIPPER'])->group(function () {
     Route::get('/shipper/dashboard', [ShipperController::class, 'dashboard'])->name('shipper.dashboard');
     Route::patch('/shipper/don-hang/{id}/cap-nhat', [ShipperController::class, 'updateStatus'])->name('shipper.update-status');
     Route::get('/shipper/don-hang/{id}/chi-tiet', [NhanDonController::class, 'show'])->name('shipper.don-hang.chi-tiet');
+    Route::get('/shipper/profile',[ShipperProfileController::class, 'edit'])->name('shipper.profile.edit');
+    Route::patch('/shipper/profile',[ShipperProfileController::class, 'update'])->name('shipper.profile.update');
+    Route::patch('/shipper/profile/password', [ShipperProfileController::class, 'updatePassword']) ->name('shipper.profile.password');
 });

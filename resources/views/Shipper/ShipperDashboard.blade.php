@@ -19,7 +19,15 @@
             <span class="dot-green"></span>
             Đang hoạt động
         </span>
-        {{-- Nút đăng xuất --}}
+ 
+        {{-- ── Link hồ sơ (THÊM MỚI) ── --}}
+        <a href="{{ route('shipper.profile.edit') }}"
+           style="color:#6c757d; font-size:14px; text-decoration:none; display:flex; align-items:center; gap:6px; transition:color .2s;"
+           onmouseover="this.style.color='#e83e8c'" onmouseout="this.style.color='#6c757d'">
+            <i class="fas fa-user-circle"></i> Hồ sơ
+        </a>
+ 
+        {{-- Nút đăng xuất (giữ nguyên) --}}
         <form method="POST" action="{{ route('logout') }}" style="margin:0;">
             @csrf
             <button type="submit" style="background:none; border:none; color:#6c757d; cursor:pointer; font-size:14px; display:flex; align-items:center; gap:6px;">
@@ -28,6 +36,7 @@
         </form>
     </div>
 </div>
+ 
 
 <div class="layout">
 
