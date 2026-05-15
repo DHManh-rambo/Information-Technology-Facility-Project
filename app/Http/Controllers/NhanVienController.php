@@ -36,11 +36,10 @@ class NhanVienController extends Controller
             'KHAC'     => 'Khác',
         ];
 
-       
         $shipperDebts = HoaDon::query()
             ->select('ma_nhan_vien_giao', DB::raw('SUM(tong_tien) as tong_can_tra'))
             ->where('trang_thai', 'DELIVERED')
-            ->where('trang_thai_thanh_toan', 'CHUA_THANH_TOAN')
+            ->where('trang_thai_thanh_toan', 'DA_THANH_TOAN')
             ->where('phuong_thuc_thanh_toan', 'COD')
             ->groupBy('ma_nhan_vien_giao')
             ->pluck('tong_can_tra', 'ma_nhan_vien_giao');
@@ -82,7 +81,6 @@ class NhanVienController extends Controller
                          ->with('success', 'Xóa nhân viên thành công!');
     }
 
-    
     public function payback($ma_nhan_vien)
     {
         $nhanVien = NhanVien::findOrFail($ma_nhan_vien);
@@ -96,7 +94,7 @@ class NhanVienController extends Controller
 
         $soTienDaTra = HoaDon::where('ma_nhan_vien_giao', $ma_nhan_vien)
             ->where('trang_thai', 'DELIVERED')
-            ->where('trang_thai_thanh_toan', 'CHUA_THANH_TOAN')
+            ->where('trang_thai_thanh_toan', 'DA_THANH_TOAN')
             ->where('phuong_thuc_thanh_toan', 'COD')
             ->sum('tong_tien');
 
@@ -109,9 +107,9 @@ class NhanVienController extends Controller
 
         $updated = HoaDon::where('ma_nhan_vien_giao', $ma_nhan_vien)
             ->where('trang_thai', 'DELIVERED')
-            ->where('trang_thai_thanh_toan', 'CHUA_THANH_TOAN')
+            ->where('trang_thai_thanh_toan', 'DA_THANH_TOAN')
             ->where('phuong_thuc_thanh_toan', 'COD')
-            ->update(['trang_thai_thanh_toan' => 'DA_THANH_TOAN']);
+            ->update(['trang_thai_thanh_toan' => 'DA_NOP']);
 
         return response()->json([
             'success'      => true,

@@ -13,20 +13,19 @@ class ShipperController extends Controller
     public function dashboard()
     {
         $user = Auth::user();
-        // ma_nhan_vien chính là ma_nguoi_dung (do quan hệ 1-1)
         $maNhanVien = $user->ma_nguoi_dung;
 
         $shipper = NhanVien::findOrFail($maNhanVien);
 
         $tienCanTra = HoaDon::where('ma_nhan_vien_giao', $maNhanVien)
             ->where('trang_thai', 'DELIVERED')
-            ->where('trang_thai_thanh_toan', 'CHUA_THANH_TOAN')
+            ->where('trang_thai_thanh_toan', 'DA_THANH_TOAN')
             ->where('phuong_thuc_thanh_toan', 'COD')
             ->sum('tong_tien');
 
         $soDonConNo = HoaDon::where('ma_nhan_vien_giao', $maNhanVien)
             ->where('trang_thai', 'DELIVERED')
-            ->where('trang_thai_thanh_toan', 'CHUA_THANH_TOAN')
+            ->where('trang_thai_thanh_toan', 'DA_THANH_TOAN')
             ->where('phuong_thuc_thanh_toan', 'COD')
             ->count();
 
@@ -87,6 +86,7 @@ class ShipperController extends Controller
 
         if ($newStatus === 'DELIVERED') {
             $updateData['ngay_giao'] = now();
+            $updateData['trang_thai_thanh_toan'] = 'DA_THANH_TOAN';
         }
 
         $hoaDon->update($updateData);

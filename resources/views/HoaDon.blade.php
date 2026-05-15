@@ -122,9 +122,9 @@
                             </span>
                         </td>
                         <td>
-                            <span class="badge {{ $hd->trang_thai_thanh_toan === 'DA_THANH_TOAN' ? 'badge-paid' : 'badge-unpaid' }}">
-                                {{ $hd->trang_thai_thanh_toan === 'DA_THANH_TOAN' ? 'Đã TT' : 'Chưa TT' }}
-                            </span>
+                            <span class="badge {{ in_array($hd->trang_thai_thanh_toan, ['DA_THANH_TOAN','DA_NOP']) ? 'badge-paid' : 'badge-unpaid' }}">
+                                        {{ in_array($hd->trang_thai_thanh_toan, ['DA_THANH_TOAN','DA_NOP']) ? 'Đã TT' : 'Chưa TT' }}
+                        </span>
                         </td>
                         <td>{{ $hd->phuong_thuc_thanh_toan ?? '—' }}</td>
                         <td class="wrap">{{ $hd->dia_chi_giao ?? '—' }}</td>
@@ -299,7 +299,7 @@
             <div class="info-row"><span class="info-label">Ngày đặt</span><span class="info-value">${d.ngay_dat ?? '—'}</span></div>
             <div class="info-row"><span class="info-label">Ngày giao</span><span class="info-value">${d.ngay_giao ?? '—'}</span></div>
             <div class="info-row"><span class="info-label">Trạng thái</span><span class="info-value">${statusLabel[d.trang_thai] ?? d.trang_thai}</span></div>
-            <div class="info-row"><span class="info-label">Thanh toán</span><span class="info-value">${d.trang_thai_thanh_toan === 'DA_THANH_TOAN' ? 'Đã thanh toán' : 'Chưa thanh toán'}</span></div>
+            <div class="info-row"><span class="info-label">Thanh toán</span><span class="info-value">${['DA_THANH_TOAN','DA_NOP'].includes(d.trang_thai_thanh_toan) ? 'Đã thanh toán' : 'Chưa thanh toán'}</span></div>
             <div class="info-row"><span class="info-label">Phương thức</span><span class="info-value">${d.phuong_thuc_thanh_toan ?? '—'}</span></div>
             <div class="info-row"><span class="info-label">Tổng tiền</span><span class="info-value">${fmt(d.tong_tien)}</span></div>
         </div>

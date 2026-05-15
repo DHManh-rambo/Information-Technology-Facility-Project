@@ -9,6 +9,7 @@ use App\Http\Controllers\DonHangController;
 use App\Http\Controllers\PhieuNhapController;
 use App\Http\Controllers\BaoCaoController;
 use App\Http\Controllers\Shipper\ShipperController;
+use App\Http\Controllers\Shipper\NhanDonController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\Auth\RegisteredUserController;
@@ -139,6 +140,10 @@ Route::get('/bao-cao/khach-hang',    [BaoCaoController::class, 'index'])->name('
 Route::post('/bao-cao/hang-hong',    [BaoCaoController::class, 'baoHangHong'])->name('bao-cao.bao-hang-hong');
 
 
-Route::get('/shipper/dashboard', [ShipperController::class, 'dashboard'])->name('shipper.dashboard');
-Route::patch('/shipper/don-hang/{id}/cap-nhat', [ShipperController::class, 'updateStatus'])->name('shipper.update-status');
+
+});
+Route::middleware(['auth', 'role:SHIPPER'])->group(function () {
+    Route::get('/shipper/dashboard', [ShipperController::class, 'dashboard'])->name('shipper.dashboard');
+    Route::patch('/shipper/don-hang/{id}/cap-nhat', [ShipperController::class, 'updateStatus'])->name('shipper.update-status');
+    Route::get('/shipper/don-hang/{id}/chi-tiet', [NhanDonController::class, 'show'])->name('shipper.don-hang.chi-tiet');
 });

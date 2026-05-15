@@ -27,7 +27,8 @@ return new class extends Migration {
 
             $table->enum('trang_thai_thanh_toan', [
                 'CHUA_THANH_TOAN',
-                'DA_THANH_TOAN'
+                'DA_THANH_TOAN',
+                'DA_NOP'
             ])->default('CHUA_THANH_TOAN');
 
             $table->enum('phuong_thuc_thanh_toan', [

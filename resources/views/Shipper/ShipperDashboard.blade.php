@@ -133,13 +133,15 @@
                             <div class="history-date">{{ $dh->phuong_thuc_thanh_toan }}</div>
                         </div>
                         <div class="history-right">
-                            <div class="history-price {{ $dh->trang_thai_thanh_toan === 'CHUA_THANH_TOAN' && $dh->phuong_thuc_thanh_toan === 'COD' ? 'cod-pending' : 'paid' }}">
+                            <div class="history-price {{ $dh->trang_thai_thanh_toan === 'DA_THANH_TOAN' && $dh->phuong_thuc_thanh_toan === 'COD' ? 'cod-pending' : 'paid' }}">
                                 {{ number_format($dh->tong_tien, 0, ',', '.') }}&thinsp;đ
                             </div>
-                            @if($dh->trang_thai_thanh_toan === 'CHUA_THANH_TOAN' && $dh->phuong_thuc_thanh_toan === 'COD')
-                                <div class="history-tag unpaid">Chưa nộp</div>
-                            @else
-                                <div class="history-tag done">Đã nộp</div>
+                            @if($dh->trang_thai_thanh_toan === 'DA_NOP')
+                                     <div class="history-tag done">Đã nộp</div>
+                        @elseif($dh->trang_thai_thanh_toan === 'DA_THANH_TOAN' && $dh->phuong_thuc_thanh_toan === 'COD')
+                                 <div class="history-tag unpaid">Chưa nộp</div>
+                                    @else
+                             <div class="history-tag done">Đã nộp</div>
                             @endif
                         </div>
                     </div>
