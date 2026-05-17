@@ -24,24 +24,34 @@ class CustomerProfileController extends Controller
         $khachHang = KhachHang::findOrFail($user->ma_nguoi_dung);
 
         $request->validate([
-            'ten_khach_hang' => 'required|string|max:100',
-            'so_dien_thoai'  => 'required|string|size:10|regex:/^\d{10}$/',
-            'email'          => 'required|email|max:100',
-            'dia_chi'        => 'nullable|string|max:255',
+            'ten_khach_hang'   => 'required|string|max:100',
+            'so_dien_thoai'    => 'required|string|size:10|regex:/^\d{10}$/',
+            'email'            => 'required|email|max:100',
+            'quan_huyen'       => 'required|string|max:100',
+            'xa_phuong'        => 'required|string|max:100',
+            'dia_chi_chi_tiet' => 'required|string|max:255',
         ], [
-            'ten_khach_hang.required' => 'Vui lòng nhập họ tên.',
-            'so_dien_thoai.required'  => 'Vui lòng nhập số điện thoại.',
-            'so_dien_thoai.size'      => 'Số điện thoại phải đúng 10 chữ số.',
-            'so_dien_thoai.regex'     => 'Số điện thoại chỉ được chứa chữ số.',
-            'email.required'          => 'Vui lòng nhập email.',
-            'email.email'             => 'Email không đúng định dạng.',
+            'ten_khach_hang.required'   => 'Vui lòng nhập họ tên.',
+            'so_dien_thoai.required'    => 'Vui lòng nhập số điện thoại.',
+            'so_dien_thoai.size'        => 'Số điện thoại phải đúng 10 chữ số.',
+            'so_dien_thoai.regex'       => 'Số điện thoại chỉ được chứa chữ số.',
+            'email.required'            => 'Vui lòng nhập email.',
+            'email.email'               => 'Email không đúng định dạng.',
+            'quan_huyen.required'       => 'Vui lòng chọn quận/huyện.',
+            'xa_phuong.required'        => 'Vui lòng chọn xã/phường.',
+            'dia_chi_chi_tiet.required' => 'Vui lòng nhập địa chỉ chi tiết.',
         ]);
+
+        $diaChiDayDu = $request->dia_chi_chi_tiet
+            . ', ' . $request->xa_phuong
+            . ', ' . $request->quan_huyen
+            . ', Hà Nội';
 
         $khachHang->update([
             'ten_khach_hang' => $request->ten_khach_hang,
             'so_dien_thoai'  => $request->so_dien_thoai,
             'email'          => $request->email,
-            'dia_chi'        => $request->dia_chi,
+            'dia_chi'        => $diaChiDayDu,
         ]);
 
         return redirect()

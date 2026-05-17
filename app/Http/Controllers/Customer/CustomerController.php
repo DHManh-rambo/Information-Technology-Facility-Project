@@ -10,14 +10,13 @@ use Illuminate\Support\Facades\Auth;
 class CustomerController extends Controller
 {
     public function dashboard()
-    {
-        $user = Auth::user()->load('khachHang');
+{
+    $user = auth()->check() ? Auth::user()->load('khachHang') : null;
 
-        
-        $sanPhams = SanPham::where('trang_thai', 'DANG_BAN')
-            ->orderBy('ma_san_pham', 'desc')
-            ->get();
+    $sanPhams = SanPham::where('trang_thai', 'DANG_BAN')
+        ->orderBy('ma_san_pham', 'desc')
+        ->get();
 
-        return view('customer.Dashboard', compact('user', 'sanPhams'));
-    }
+    return view('customer.Dashboard', compact('user', 'sanPhams'));
+}
 }

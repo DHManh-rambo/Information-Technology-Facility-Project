@@ -3,474 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ asset('css/Customer/Dashboard.css') }}">
     <title>🌸 Cửa Hàng Hoa Tươi</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --primary:   #e8436a;
-            --primary-dark: #c0294e;
-            --accent:    #f97316;
-            --gold:      #f59e0b;
-            --soft-pink: #fdf2f5;
-            --light:     #fff7f9;
-            --gray:      #6b7280;
-            --dark:      #1f2937;
-            --green:     #16a34a;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Be Vietnam Pro', sans-serif;
-            background: var(--light);
-            color: var(--dark);
-        }
-
-        /* ── TOP BAR ── */
-        .topbar {
-            background: var(--primary);
-            color: #fff;
-            font-size: 0.78rem;
-            padding: 6px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-        .topbar a { color: #ffe0e8; text-decoration: none; }
-        .topbar a:hover { color: #fff; text-decoration: underline; }
-        .topbar-left, .topbar-right { display: flex; align-items: center; gap: 16px; }
-
-        /* ── HEADER ── */
-        header {
-            background: #fff;
-            box-shadow: 0 2px 12px rgba(232,67,106,.10);
-            padding: 14px 24px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-decoration: none;
-        }
-        .logo-icon { font-size: 2rem; }
-        .logo-text { line-height: 1.1; }
-        .logo-text span:first-child {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.45rem;
-            color: var(--primary);
-            display: block;
-        }
-        .logo-text span:last-child {
-            font-size: 0.68rem;
-            color: var(--gray);
-            letter-spacing: .06em;
-            text-transform: uppercase;
-        }
-
-        /* Search bar */
-        .search-wrap {
-            flex: 1;
-            max-width: 520px;
-            display: flex;
-            align-items: center;
-            background: #f3f4f6;
-            border: 2px solid transparent;
-            border-radius: 999px;
-            overflow: hidden;
-            transition: border-color .2s;
-        }
-        .search-wrap:focus-within { border-color: var(--primary); background: #fff; }
-        #searchInput {
-            flex: 1;
-            border: none;
-            background: transparent;
-            padding: 10px 18px;
-            font-size: 0.9rem;
-            font-family: inherit;
-            outline: none;
-        }
-        .search-btn {
-            background: var(--primary);
-            border: none;
-            color: #fff;
-            padding: 10px 22px;
-            font-size: 0.88rem;
-            font-family: inherit;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background .2s;
-        }
-        .search-btn:hover { background: var(--primary-dark); }
-
-        /* Header right */
-        .header-right {
-            display: flex;
-            align-items: center;
-            gap: 18px;
-        }
-        .header-icon {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 0.72rem;
-            color: var(--gray);
-            cursor: pointer;
-            text-decoration: none;
-            gap: 2px;
-        }
-        .header-icon:hover { color: var(--primary); }
-        .header-icon .icon { font-size: 1.4rem; }
-        .user-greeting {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            font-size: 0.72rem;
-            color: var(--gray);
-        }
-        .user-greeting strong { color: var(--primary); font-size: 0.82rem; }
-
-        .logout-btn {
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            padding: 7px 16px;
-            border-radius: 999px;
-            font-size: 0.78rem;
-            font-family: inherit;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background .2s;
-        }
-        .logout-btn:hover { background: var(--primary-dark); }
-
-        /* ── CATEGORY NAV ── */
-        .cat-nav {
-            background: #fff;
-            border-top: 1px solid #f0e0e5;
-            border-bottom: 3px solid var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-wrap: wrap;
-            gap: 0;
-            padding: 0 12px;
-        }
-        .cat-btn {
-            background: none;
-            border: none;
-            font-family: inherit;
-            font-size: 0.82rem;
-            font-weight: 600;
-            color: var(--dark);
-            cursor: pointer;
-            padding: 12px 14px;
-            position: relative;
-            transition: color .2s;
-            white-space: nowrap;
-            letter-spacing: .02em;
-            text-transform: uppercase;
-        }
-        .cat-btn::after {
-            content: '';
-            position: absolute;
-            bottom: -3px;
-            left: 0; right: 0;
-            height: 3px;
-            background: var(--primary);
-            transform: scaleX(0);
-            transition: transform .2s;
-        }
-        .cat-btn:hover, .cat-btn.active { color: var(--primary); }
-        .cat-btn:hover::after, .cat-btn.active::after { transform: scaleX(1); }
-
-        /* ── MAIN ── */
-        .main-wrap {
-            max-width: 1280px;
-            margin: 0 auto;
-            padding: 28px 20px;
-        }
-
-        /* Welcome card */
-        .welcome-card {
-            background: linear-gradient(135deg, #fff0f3 0%, #fff7ee 100%);
-            border: 1px solid #fcd5de;
-            border-radius: 20px;
-            padding: 24px 30px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 20px;
-            margin-bottom: 32px;
-            flex-wrap: wrap;
-        }
-        .welcome-left { display: flex; align-items: center; gap: 18px; }
-        .welcome-avatar {
-            width: 62px; height: 62px;
-            background: var(--primary);
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.8rem;
-            box-shadow: 0 4px 14px rgba(232,67,106,.35);
-        }
-        .welcome-info h2 {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.25rem;
-            color: var(--primary-dark);
-        }
-        .welcome-info p { font-size: 0.83rem; color: var(--gray); margin-top: 2px; }
-        .welcome-stats {
-            display: flex;
-            gap: 24px;
-            flex-wrap: wrap;
-        }
-        .stat-item {
-            text-align: center;
-            background: #fff;
-            border-radius: 14px;
-            padding: 12px 20px;
-            box-shadow: 0 2px 8px rgba(0,0,0,.07);
-        }
-        .stat-item .stat-val {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.35rem;
-            color: var(--gold);
-            font-weight: 700;
-        }
-        .stat-item .stat-label { font-size: 0.72rem; color: var(--gray); margin-top: 2px; }
-
-        /* Section header */
-        .section-head {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        .section-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.35rem;
-            color: var(--primary-dark);
-            position: relative;
-            padding-left: 16px;
-        }
-        .section-title::before {
-            content: '';
-            position: absolute;
-            left: 0; top: 4px; bottom: 4px;
-            width: 4px;
-            background: var(--primary);
-            border-radius: 4px;
-        }
-        .result-count {
-            font-size: 0.8rem;
-            color: var(--gray);
-            background: #f3f4f6;
-            padding: 5px 14px;
-            border-radius: 999px;
-        }
-
-        /* ── PRODUCT GRID ── */
-        #productGrid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-            gap: 22px;
-        }
-
-        .product-card {
-            background: #fff;
-            border-radius: 18px;
-            overflow: hidden;
-            box-shadow: 0 2px 10px rgba(0,0,0,.07);
-            transition: transform .25s, box-shadow .25s;
-            cursor: pointer;
-            position: relative;
-        }
-        .product-card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 12px 28px rgba(232,67,106,.18);
-        }
-
-        .card-img-wrap {
-            position: relative;
-            aspect-ratio: 1 / 1;
-            background: #f9eef1;
-            overflow: hidden;
-        }
-        .card-img-wrap img {
-            width: 100%; height: 100%;
-            object-fit: cover;
-            transition: transform .4s;
-        }
-        .product-card:hover .card-img-wrap img { transform: scale(1.07); }
-
-        .card-img-placeholder {
-            width: 100%; height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 3.5rem;
-        }
-
-        .badge-status {
-            position: absolute;
-            top: 10px; left: 10px;
-            padding: 3px 10px;
-            border-radius: 999px;
-            font-size: 0.68rem;
-            font-weight: 700;
-            letter-spacing: .04em;
-        }
-        .badge-status.on-sale {
-            background: var(--accent);
-            color: #fff;
-        }
-        .badge-status.sold-out {
-            background: #9ca3af;
-            color: #fff;
-        }
-
-        .badge-type {
-            position: absolute;
-            top: 10px; right: 10px;
-            background: rgba(255,255,255,.9);
-            color: var(--primary-dark);
-            padding: 3px 9px;
-            border-radius: 999px;
-            font-size: 0.65rem;
-            font-weight: 600;
-            backdrop-filter: blur(4px);
-        }
-
-        .card-body {
-            padding: 14px 16px 16px;
-        }
-        .card-name {
-            font-weight: 600;
-            font-size: 0.92rem;
-            color: var(--dark);
-            margin-bottom: 6px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-            line-height: 1.4;
-        }
-        .card-desc {
-            font-size: 0.75rem;
-            color: var(--gray);
-            margin-bottom: 10px;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .card-footer {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-        }
-        .card-stock {
-            font-size: 0.75rem;
-            color: var(--green);
-            font-weight: 600;
-        }
-        .card-stock.low { color: var(--accent); }
-        .card-stock.out { color: #9ca3af; }
-
-        .add-btn {
-            background: var(--primary);
-            color: #fff;
-            border: none;
-            border-radius: 999px;
-            padding: 6px 14px;
-            font-size: 0.75rem;
-            font-family: inherit;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background .2s, transform .15s;
-        }
-        .add-btn:hover { background: var(--primary-dark); transform: scale(1.05); }
-        .add-btn:disabled {
-            background: #d1d5db;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Empty state */
-        #emptyState {
-            display: none;
-            grid-column: 1/-1;
-            text-align: center;
-            padding: 60px 20px;
-        }
-        #emptyState .empty-icon { font-size: 4rem; margin-bottom: 14px; }
-        #emptyState p { color: var(--gray); font-size: 0.95rem; }
-
-        /* ── FOOTER ── */
-        footer {
-            background: var(--dark);
-            color: #d1d5db;
-            margin-top: 60px;
-            padding: 36px 24px 24px;
-        }
-        .footer-inner {
-            max-width: 1280px;
-            margin: 0 auto;
-            display: flex;
-            gap: 40px;
-            flex-wrap: wrap;
-            justify-content: space-between;
-        }
-        .footer-brand .logo-text span:first-child { color: #f9a8b8; }
-        .footer-brand p { font-size: 0.8rem; margin-top: 8px; line-height: 1.7; max-width: 260px; }
-
-        .footer-col h4 {
-            font-size: 0.82rem;
-            text-transform: uppercase;
-            letter-spacing: .08em;
-            color: #fff;
-            margin-bottom: 14px;
-            font-weight: 700;
-        }
-        .footer-col ul { list-style: none; }
-        .footer-col li { margin-bottom: 8px; font-size: 0.8rem; }
-        .footer-col a { color: #d1d5db; text-decoration: none; transition: color .2s; }
-        .footer-col a:hover { color: #f9a8b8; }
-
-        .footer-divider { border: none; border-top: 1px solid #374151; margin: 28px 0 14px; }
-        .footer-bottom {
-            max-width: 1280px;
-            margin: 0 auto;
-            font-size: 0.75rem;
-            color: #6b7280;
-            text-align: center;
-        }
-
-        /* Responsive */
-        @media (max-width: 640px) {
-            .cat-btn { font-size: 0.72rem; padding: 10px 9px; }
-            header { gap: 10px; }
-            .search-wrap { max-width: 100%; }
-        }
-
-        /* Loading pulse */
-        .pulse {
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-        @keyframes pulse {
-            0%,100% { opacity: 1; }
-            50% { opacity: .4; }
-        }
-    </style>
+    
 </head>
 <body>
 
@@ -488,7 +24,7 @@
 
 {{-- HEADER --}}
 <header>
-    <a href="#" class="logo">
+    <a href="{{ route('customer.dashboard') }}" class="logo">
         <span class="logo-icon">🌸</span>
         <div class="logo-text">
             <span>Hoa Tươi Shop</span>
@@ -510,18 +46,28 @@
             <span class="icon">💬</span>
             <span>Zalo</span>
         </a>
-        <a href="{{ route('customer.profile.edit') }}" class="header-icon">
-            <span class="icon">👤</span>
-            <span>Hồ sơ</span>
-        </a>
-        <div class="user-greeting">
-            <span>Xin chào,</span>
-            <strong>{{ $user->ten_dang_nhap }}</strong>
-        </div>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit" class="logout-btn">Đăng xuất</button>
-        </form>
+
+        @auth
+            {{-- Đã đăng nhập: hiện hồ sơ + tên + đăng xuất --}}
+            <a href="{{ route('customer.profile.edit') }}" class="header-icon">
+                <span class="icon">👤</span>
+                <span>Hồ sơ</span>
+            </a>
+            <div class="user-greeting">
+                <span>Xin chào,</span>
+                <strong>{{ $user->ten_dang_nhap }}</strong>
+            </div>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit" class="logout-btn">Đăng xuất</button>
+            </form>
+        @else
+            {{-- Chưa đăng nhập: hiện nút Đăng nhập / Đăng ký --}}
+            <div class="auth-btns">
+                <a href="{{ route('login') }}" class="btn-login">Đăng nhập</a>
+                <a href="{{ route('register') }}" class="btn-register">Đăng ký</a>
+            </div>
+        @endauth
     </div>
 </header>
 
@@ -544,7 +90,8 @@
 {{-- MAIN --}}
 <div class="main-wrap">
 
-    {{-- Welcome Card --}}
+    {{-- Welcome Card: hiện khi đã đăng nhập --}}
+    @auth
     <div class="welcome-card">
         <div class="welcome-left">
             <div class="welcome-avatar">🌸</div>
@@ -568,6 +115,22 @@
         </div>
         @endif
     </div>
+    @else
+    {{-- Banner mời đăng nhập khi là khách --}}
+    <div class="guest-banner">
+        <div class="guest-banner-left">
+            <div class="welcome-avatar">🌸</div>
+            <div>
+                <h2>Chào mừng đến Hoa Tươi Shop!</h2>
+                <p>Đăng nhập để đặt hoa và theo dõi đơn hàng của bạn 💐</p>
+            </div>
+        </div>
+        <div class="guest-banner-actions">
+            <a href="{{ route('login') }}" class="btn-primary">Đăng nhập</a>
+            <a href="{{ route('register') }}" class="btn-outline">Đăng ký ngay</a>
+        </div>
+    </div>
+    @endauth
 
     {{-- Products Section --}}
     <div class="section-head">
@@ -625,6 +188,9 @@
 </footer>
 
 <script>
+    {{-- Truyền trạng thái đăng nhập xuống JS để xử lý nút "Đặt hoa" --}}
+    const isLoggedIn = {{ auth()->check() ? 'true' : 'false' }};
+    const loginUrl   = "{{ route('login') }}";
 
     const categoryLabels = {
         'HOA_TUOI':         'Hoa Tươi',
@@ -682,6 +248,12 @@
             const stockClass = stock === 0 ? 'out' : stock <= 5 ? 'low' : '';
             const stockText  = stock === 0 ? 'Hết hàng' : `Còn ${stock} sp`;
 
+            // Nếu chưa đăng nhập thì nút "Đặt hoa" sẽ chuyển sang trang login
+            const btnDisabled = !isOnSale || stock === 0;
+            const btnLabel    = stock === 0 ? 'Hết hàng' : '🛒 Đặt hoa';
+            const btnOnClick  = (!btnDisabled && !isLoggedIn)
+                ? `onclick="window.location.href='${loginUrl}'"` : '';
+
             const card = document.createElement('div');
             card.className = 'product-card';
             card.innerHTML = `
@@ -701,8 +273,8 @@
                     ${p.mo_ta ? `<div class="card-desc">${p.mo_ta}</div>` : ''}
                     <div class="card-footer">
                         <span class="card-stock ${stockClass}">${stockText}</span>
-                        <button class="add-btn" ${!isOnSale || stock === 0 ? 'disabled' : ''}>
-                            ${stock === 0 ? 'Hết hàng' : '🛒 Đặt hoa'}
+                        <button class="add-btn" ${btnDisabled ? 'disabled' : ''} ${btnOnClick}>
+                            ${btnLabel}
                         </button>
                     </div>
                 </div>

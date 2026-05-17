@@ -27,7 +27,8 @@ Route::get('/', function () {
             default              => redirect()->route('customer.dashboard'),
         };
     }
-    return redirect()->route('login');
+    // Guest vào thẳng dashboard customer (không cần đăng nhập)
+    return redirect()->route('customer.dashboard');
 });
 
 // ─── Breeze Auth routes ────────────────────────────────────────────────────────
@@ -152,15 +153,19 @@ Route::middleware(['auth', 'role:SHIPPER'])->group(function () {
     Route::patch('/shipper/profile',[ShipperProfileController::class, 'update'])->name('shipper.profile.update');
     Route::patch('/shipper/profile/password', [ShipperProfileController::class, 'updatePassword']) ->name('shipper.profile.password');
 });
+
+
+
+//Khach hàng
+Route::get('/customer/dashboard', [CustomerController::class, 'dashboard'])
+    ->name('customer.dashboard');
+
+// Các chức năng cần đăng nhập mới dùng được
 Route::middleware(['auth', 'role:KHACH_HANG'])->group(function () {
-    Route::get('/customer/dashboard', [CustomerController::class, 'dashboard'])
-        ->name('customer.dashboard');
- 
-    
-    Route::get('/customer/profile',              [CustomerProfileController::class, 'edit'])
+    Route::get('/customer/profile',            [CustomerProfileController::class, 'edit'])
         ->name('customer.profile.edit');
-    Route::patch('/customer/profile',            [CustomerProfileController::class, 'update'])
+    Route::patch('/customer/profile',          [CustomerProfileController::class, 'update'])
         ->name('customer.profile.update');
-    Route::patch('/customer/profile/password',   [CustomerProfileController::class, 'updatePassword'])
+    Route::patch('/customer/profile/password', [CustomerProfileController::class, 'updatePassword'])
         ->name('customer.profile.password');
 });

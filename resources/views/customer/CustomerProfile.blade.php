@@ -4,323 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+    <link rel="stylesheet" href="{{ asset('css/Customer/Profile.css') }}">
     <title>Hồ sơ cá nhân · Cửa Hàng Hoa</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        :root {
-            --primary:      #e8436a;
-            --primary-dark: #c0294e;
-            --primary-soft: #fdf2f5;
-            --accent:       #f97316;
-            --gold:         #f59e0b;
-            --green:        #16a34a;
-            --red:          #dc2626;
-            --gray:         #6b7280;
-            --gray-light:   #f3f4f6;
-            --border:       #e5e7eb;
-            --dark:         #1f2937;
-            --white:        #ffffff;
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-
-        body {
-            font-family: 'Be Vietnam Pro', sans-serif;
-            background: #faf5f7;
-            color: var(--dark);
-            min-height: 100vh;
-        }
-
-        /* ── TOPBAR ── */
-        .topbar {
-            background: var(--primary);
-            color: #fff;
-            padding: 10px 28px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-        .topbar-brand {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.1rem;
-            letter-spacing: .02em;
-        }
-        .topbar-right {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            font-size: 0.83rem;
-        }
-        .topbar-right a {
-            color: rgba(255,255,255,.85);
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: color .2s;
-        }
-        .topbar-right a:hover { color: #fff; }
-        .logout-form button {
-            background: none;
-            border: none;
-            color: rgba(255,255,255,.85);
-            font-size: 0.83rem;
-            font-family: inherit;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            transition: color .2s;
-        }
-        .logout-form button:hover { color: #fff; }
-
-        /* ── PAGE WRAP ── */
-        .profile-page {
-            max-width: 860px;
-            margin: 0 auto;
-            padding: 32px 20px 60px;
-        }
-
-        /* back link */
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            gap: 7px;
-            color: var(--primary);
-            font-size: 0.85rem;
-            font-weight: 600;
-            text-decoration: none;
-            margin-bottom: 20px;
-            transition: opacity .2s;
-        }
-        .back-link:hover { opacity: .75; }
-
-        /* page title */
-        .page-title {
-            font-family: 'Playfair Display', serif;
-            font-size: 1.6rem;
-            color: var(--primary-dark);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 24px;
-        }
-
-        /* ── ALERTS ── */
-        .alert {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            padding: 12px 16px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-            margin-bottom: 18px;
-        }
-        .alert-success {
-            background: #ecfdf5;
-            color: #065f46;
-            border: 1px solid #a7f3d0;
-        }
-        .alert-error {
-            background: #fef2f2;
-            color: var(--red);
-            border: 1px solid #fecaca;
-        }
-
-        /* ── TABS ── */
-        .tab-bar {
-            display: flex;
-            gap: 4px;
-            background: var(--gray-light);
-            border-radius: 14px;
-            padding: 5px;
-            margin-bottom: 24px;
-            width: fit-content;
-        }
-        .tab-btn {
-            background: none;
-            border: none;
-            font-family: inherit;
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--gray);
-            padding: 9px 22px;
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 7px;
-            transition: background .2s, color .2s;
-        }
-        .tab-btn.active {
-            background: var(--white);
-            color: var(--primary);
-            box-shadow: 0 1px 6px rgba(0,0,0,.10);
-        }
-        .tab-btn:not(.active):hover { color: var(--primary-dark); }
-
-        /* ── TAB PANES ── */
-        .tab-pane { display: none; }
-        .tab-pane.active { display: block; }
-
-        /* ── CARD ── */
-        .pcard {
-            background: var(--white);
-            border-radius: 20px;
-            box-shadow: 0 2px 16px rgba(232,67,106,.08);
-            overflow: hidden;
-        }
-        .pcard-header {
-            background: linear-gradient(135deg, var(--primary) 0%, #f0607f 100%);
-            color: #fff;
-            padding: 16px 24px;
-            font-size: 0.92rem;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            letter-spacing: .03em;
-        }
-        .pcard-body { padding: 28px 28px 32px; }
-
-        /* ── FORM GRID ── */
-        .form-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 18px 24px;
-        }
-        @media (max-width: 600px) {
-            .form-grid { grid-template-columns: 1fr; }
-            .tab-bar { width: 100%; }
-            .tab-btn { flex: 1; justify-content: center; }
-        }
-
-        .fgroup { display: flex; flex-direction: column; gap: 5px; }
-        .fgroup.full { grid-column: 1 / -1; }
-        .fgroup.span2 { grid-column: 1 / -1; }
-
-        .fgroup label {
-            font-size: 0.78rem;
-            font-weight: 600;
-            color: var(--gray);
-            text-transform: uppercase;
-            letter-spacing: .05em;
-        }
-        .fgroup input,
-        .fgroup textarea {
-            border: 1.5px solid var(--border);
-            border-radius: 10px;
-            padding: 10px 14px;
-            font-size: 0.88rem;
-            font-family: inherit;
-            color: var(--dark);
-            background: var(--white);
-            transition: border-color .2s, box-shadow .2s;
-            outline: none;
-        }
-        .fgroup input:focus,
-        .fgroup textarea:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(232,67,106,.12);
-        }
-        .fgroup input.is-invalid { border-color: var(--red); }
-        .fgroup textarea { resize: vertical; min-height: 80px; }
-
-        .readonly-field {
-            background: var(--gray-light) !important;
-            color: var(--gray) !important;
-            cursor: default;
-        }
-
-        .invalid-msg {
-            font-size: 0.75rem;
-            color: var(--red);
-            margin-top: 2px;
-        }
-
-        /* diem tich luy badge */
-        .diem-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: linear-gradient(135deg, #fef3c7, #fde68a);
-            border: 1px solid #fbbf24;
-            border-radius: 10px;
-            padding: 10px 16px;
-            font-size: 0.9rem;
-            font-weight: 700;
-            color: #92400e;
-            margin-top: 4px;
-        }
-        .diem-badge .diem-val {
-            font-size: 1.2rem;
-            color: #b45309;
-        }
-
-        /* password wrap */
-        .pwd-wrap {
-            position: relative;
-        }
-        .pwd-wrap input { width: 100%; padding-right: 44px; }
-        .pwd-eye {
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: var(--gray);
-            cursor: pointer;
-            padding: 4px;
-            font-size: 0.85rem;
-            transition: color .2s;
-        }
-        .pwd-eye:hover { color: var(--primary); }
-
-        /* submit button */
-        .btn-submit {
-            margin-top: 28px;
-            background: linear-gradient(135deg, var(--primary), #f0607f);
-            color: #fff;
-            border: none;
-            border-radius: 999px;
-            padding: 12px 32px;
-            font-size: 0.9rem;
-            font-family: inherit;
-            font-weight: 700;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            box-shadow: 0 4px 14px rgba(232,67,106,.35);
-            transition: transform .2s, box-shadow .2s;
-        }
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(232,67,106,.45);
-        }
-
-        /* strength meter */
-        .strength-bar {
-            height: 4px;
-            border-radius: 4px;
-            background: var(--border);
-            margin-top: 6px;
-            overflow: hidden;
-        }
-        .strength-fill {
-            height: 100%;
-            width: 0%;
-            border-radius: 4px;
-            transition: width .3s, background .3s;
-        }
-        .strength-label {
-            font-size: 0.72rem;
-            color: var(--gray);
-            margin-top: 3px;
-        }
-    </style>
+    
 </head>
 <body>
 
@@ -384,11 +72,11 @@
             <div class="pcard-body">
 
                 {{-- Lỗi validation thông tin --}}
-                @if($errors->has('ten_khach_hang') || $errors->has('so_dien_thoai') || $errors->has('email') || $errors->has('dia_chi'))
+                @if($errors->has('ten_khach_hang') || $errors->has('so_dien_thoai') || $errors->has('email') || $errors->has('quan_huyen') || $errors->has('xa_phuong') || $errors->has('dia_chi_chi_tiet'))
                     <div class="alert alert-error">
                         <i class="fas fa-exclamation-circle"></i>
                         <ul style="margin:0;padding-left:1.2rem;">
-                            @foreach(['ten_khach_hang','so_dien_thoai','email','dia_chi'] as $field)
+                            @foreach(['ten_khach_hang','so_dien_thoai','email','quan_huyen','xa_phuong','dia_chi_chi_tiet'] as $field)
                                 @if($errors->has($field))
                                     <li>{{ $errors->first($field) }}</li>
                                 @endif
@@ -400,6 +88,21 @@
                 <form method="POST" action="{{ route('customer.profile.update') }}">
                     @csrf
                     @method('PATCH')
+
+                    {{--
+                        Phân tách địa chỉ hiện tại từ DB để điền lại vào các ô select.
+                        Định dạng lưu: "Số nhà, Xã/Phường, Quận/Huyện, Hà Nội"
+                        → tách theo dấu phẩy từ cuối lên.
+                    --}}
+                    @php
+                        $diaChiHienTai   = $khachHang->dia_chi ?? '';
+                        $parts           = array_map('trim', explode(',', $diaChiHienTai));
+                        // Bỏ "Hà Nội" ở cuối nếu có
+                        if (count($parts) >= 1 && strtolower(end($parts)) === 'hà nội') array_pop($parts);
+                        $savedQuan       = old('quan_huyen',      count($parts) >= 2 ? $parts[count($parts)-1] : '');
+                        $savedPhuong     = old('xa_phuong',       count($parts) >= 3 ? $parts[count($parts)-2] : '');
+                        $savedChiTiet    = old('dia_chi_chi_tiet', count($parts) >= 1 ? implode(', ', array_slice($parts, 0, count($parts)-2)) : $diaChiHienTai);
+                    @endphp
 
                     <div class="form-grid">
                         {{-- Tên đăng nhập (readonly) --}}
@@ -449,16 +152,59 @@
                             @enderror
                         </div>
 
-                        {{-- Địa chỉ (full width) --}}
-                        <div class="fgroup span2">
-                            <label><i class="fas fa-map-marker-alt" style="font-size:.7rem;"></i> Địa chỉ</label>
-                            <textarea name="dia_chi"
-                                      placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành phố"
-                                      class="{{ $errors->has('dia_chi') ? 'is-invalid' : '' }}">{{ old('dia_chi', $khachHang->dia_chi) }}</textarea>
-                            @error('dia_chi')
-                                <div class="invalid-msg">{{ $message }}</div>
-                            @enderror
+                        {{-- ── KHỐI ĐỊA CHỈ ── --}}
+                        <div class="address-box">
+                            <div class="address-box-title">
+                                <i class="fas fa-map-marker-alt"></i> Địa chỉ giao hàng
+                            </div>
+
+                            {{-- Tỉnh / Thành phố cố định --}}
+                            <div class="fgroup">
+                                <label>Tỉnh / Thành phố *</label>
+                                <input type="text" value="Hà Nội" class="readonly-field" readonly>
+                            </div>
+
+                            {{-- Quận / Huyện + Xã / Phường --}}
+                            <div class="address-row">
+                                <div class="fgroup">
+                                    <label>Quận / Huyện *</label>
+                                    <select id="sel_quan_huyen" name="quan_huyen"
+                                            class="{{ $errors->has('quan_huyen') ? 'is-invalid' : '' }}"
+                                            required>
+                                        <option value="">Chọn quận/huyện</option>
+                                    </select>
+                                    @error('quan_huyen')
+                                        <div class="invalid-msg">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="fgroup">
+                                    <label>Xã / Phường *</label>
+                                    <select id="sel_xa_phuong" name="xa_phuong"
+                                            class="{{ $errors->has('xa_phuong') ? 'is-invalid' : '' }}"
+                                            required>
+                                        <option value="">Chọn xã/phường</option>
+                                    </select>
+                                    @error('xa_phuong')
+                                        <div class="invalid-msg">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            {{-- Địa chỉ chi tiết --}}
+                            <div class="fgroup">
+                                <label>Địa chỉ chi tiết *</label>
+                                <input type="text" name="dia_chi_chi_tiet"
+                                       value="{{ $savedChiTiet }}"
+                                       placeholder="Ví dụ: Số 20, ngõ 90"
+                                       class="{{ $errors->has('dia_chi_chi_tiet') ? 'is-invalid' : '' }}"
+                                       required>
+                                @error('dia_chi_chi_tiet')
+                                    <div class="invalid-msg">{{ $message }}</div>
+                                @enderror
+                            </div>
                         </div>
+                        {{-- ── KẾT THÚC KHỐI ĐỊA CHỈ ── --}}
 
                         {{-- Điểm tích lũy (readonly, badge) --}}
                         <div class="fgroup">
@@ -477,9 +223,15 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-submit">
-                        <i class="fas fa-save"></i> Lưu thông tin
-                    </button>
+                    <div class="btn-actions">
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-save"></i> Lưu thông tin
+                        </button>
+                        <button type="button" class="btn-cancel" id="btn-cancel-info"
+                                style="display:none;" onclick="resetInfoForm()">
+                            <i class="fas fa-undo"></i> Hủy thay đổi
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -574,9 +326,15 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-submit">
-                        <i class="fas fa-key"></i> Đổi mật khẩu
-                    </button>
+                    <div class="btn-actions">
+                        <button type="submit" class="btn-submit">
+                            <i class="fas fa-key"></i> Đổi mật khẩu
+                        </button>
+                        <button type="button" class="btn-cancel" id="btn-cancel-pwd"
+                                style="display:none;" onclick="resetPwdForm()">
+                            <i class="fas fa-undo"></i> Hủy thay đổi
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
@@ -585,61 +343,169 @@
 </div>
 
 <script>
-    function switchTab(tab) {
-        document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.getElementById('tab-' + tab).classList.add('active');
-        document.getElementById('tab-' + tab + '-btn').classList.add('active');
+const hanoiData = {
+    "Ba Đình": ["Phúc Xá","Trúc Bạch","Vĩnh Phúc","Cống Vị","Liễu Giai","Nguyễn Trung Trực","Quán Thánh","Ngọc Hà","Điện Biên","Đội Cấn","Ngọc Khánh","Kim Mã","Giảng Võ","Thành Công"],
+    "Hoàn Kiếm": ["Phúc Tân","Đồng Xuân","Hàng Mã","Hàng Buồm","Hàng Đào","Hàng Bồ","Cửa Đông","Lý Thái Tổ","Hàng Bạc","Hàng Gai","Chương Dương","Hàng Trống","Cửa Nam","Hàng Bông","Tràng Tiền","Trần Hưng Đạo","Phan Chu Trinh","Hàng Bài"],
+    "Đống Đa": ["Cát Linh","Văn Miếu","Quốc Tử Giám","Láng Thượng","Ô Chợ Dừa","Văn Chương","Hàng Bột","Nam Đồng","Trung Phụng","Trung Liệt","Khâm Thiên","Thịnh Quang","Láng Hạ","Ngã Tư Sở","Phương Liên","Phương Mai","Kim Liên","Trung Tự","Khương Thượng"],
+    "Hai Bà Trưng": ["Nguyễn Du","Bùi Thị Xuân","Ngô Thì Nhậm","Lê Đại Hành","Đồng Nhân","Phố Huế","Đống Mác","Thanh Lương","Thanh Nhàn","Cầu Dền","Bách Khoa","Quỳnh Lôi","Bạch Mai","Quỳnh Mai","Vĩnh Tuy","Minh Khai","Trương Định"],
+    "Cầu Giấy": ["Nghĩa Đô","Nghĩa Tân","Mai Dịch","Dịch Vọng","Dịch Vọng Hậu","Quan Hoa","Yên Hòa","Trung Hòa"],
+    "Thanh Xuân": ["Nhân Chính","Thượng Đình","Khương Trung","Khương Mai","Thanh Xuân Trung","Phương Liệt","Hạ Đình","Thanh Xuân Bắc","Thanh Xuân Nam","Khương Đình","Kim Giang"],
+    "Hoàng Mai": ["Thanh Trì","Vĩnh Hưng","Định Công","Mai Động","Tương Mai","Đại Kim","Tân Mai","Hoàng Văn Thụ","Giáp Bát","Lĩnh Nam","Thịnh Liệt","Trần Phú","Hoàng Liệt","Yên Sở"],
+    "Long Biên": ["Thượng Thanh","Ngọc Thụy","Giang Biên","Đức Giang","Việt Hưng","Gia Thụy","Ngọc Lâm","Phúc Lợi","Bồ Đề","Sài Đồng","Long Biên","Thạch Bàn","Phúc Đồng","Cự Khối"],
+    "Nam Từ Liêm": ["Cầu Diễn","Xuân Phương","Phương Canh","Mỹ Đình 1","Mỹ Đình 2","Tây Mỗ","Mễ Trì","Phú Đô","Đại Mỗ","Trung Văn"],
+    "Bắc Từ Liêm": ["Thượng Cát","Liên Mạc","Đông Ngạc","Đức Thắng","Thụy Phương","Tây Tựu","Xuân Đỉnh","Xuân Tảo","Minh Khai","Cổ Nhuế 1","Cổ Nhuế 2","Phú Diễn","Phúc Diễn"],
+    "Tây Hồ": ["Phú Thượng","Nhật Tân","Tứ Liên","Quảng An","Xuân La","Yên Phụ","Bưởi","Thụy Khuê"],
+    "Hà Đông": ["Nguyễn Trãi","Mỗ Lao","Văn Quán","Vạn Phúc","Yết Kiêu","Quang Trung","La Khê","Phú La","Phúc La","Hà Cầu","Yên Nghĩa","Kiến Hưng","Phú Lương","Dương Nội","Đồng Mai","Biên Giang"],
+    "Gia Lâm": ["Yên Viên","Cổ Bi","Đặng Xá","Trâu Quỳ","Dương Xá","Kiêu Kỵ","Ninh Hiệp","Phù Đổng","Lệ Chi","Đông Dư","Bát Tràng","Kim Lan","Văn Đức","Dương Quang","Gia Lâm","Kim Sơn","Phú Thị","Trung Màu","Yên Thường"],
+    "Đông Anh": ["Vân Nội","Liên Hà","Việt Hùng","Uy Nỗ","Xuân Nộn","Thụy Lâm","Bắc Hồng","Nguyên Khê","Nam Hồng","Tiên Dương","Vân Hà","Cổ Loa","Hải Bối","Xuân Canh","Võng La","Tầm Xá","Mai Lâm","Đông Hội","Kim Nỗ","Kim Chung","Dục Tú"],
+    "Sóc Sơn": ["Sóc Sơn","Bắc Phú","Bắc Sơn","Đông Xuân","Đức Hòa","Hiền Ninh","Hồng Kỳ","Kim Lũ","Minh Phú","Minh Trí","Nam Sơn","Phù Lỗ","Phú Cường","Phú Minh","Quang Tiến","Tân Dân","Tân Hưng","Tiên Dược","Trung Giã","Việt Long","Xuân Giang","Xuân Thu"],
+    "Thạch Thất": ["Thạch Thất","Bình Phú","Bình Yên","Cẩm Yên","Canh Nậu","Chàng Sơn","Dị Nậu","Đại Đồng","Hương Ngải","Hữu Bằng","Kim Quan","Lại Thượng","Liên Quan","Phú Kim","Phùng Xá","Tân Xã","Thạch Hòa","Tiến Xuân","Yên Bình","Yên Trung"],
+    "Quốc Oai": ["Quốc Oai","Cấn Hữu","Cộng Hòa","Đông Cứu","Đông Yên","Đồng Quang","Hòa Thạch","Liệp Tuyết","Ngọc Liệp","Ngọc Mỹ","Phú Cát","Phú Mãn","Sài Sơn","Tân Hòa","Tân Phú","Thạch Thán","Tuyết Nghĩa","Yên Sơn"],
+    "Mê Linh": ["Chi Đông","Chu Phan","Đại Thịnh","Hoàng Kim","Kim Hoa","Liên Mạc","Mê Linh","Tam Đồng","Thạch Đà","Tráng Việt","Tiền Phong","Tự Lập","Văn Khê","Vạn Yên"],
+    "Chương Mỹ": ["Chúc Sơn","Đại Yên","Đồng Phú","Đồng Lạc","Hòa Chính","Hoàng Diệu","Hoàng Văn Thụ","Hữu Văn","Lam Điền","Long Sơn","Mỹ Lương","Nam Phương Tiến","Ngọc Hòa","Phú Nam An","Phụng Châu","Quảng Bị","Tốt Động","Thủy Xuân Tiên","Thanh Bình","Trung Hòa","Trường Yên","Xuân Mai"],
+};
+
+const selQuan   = document.getElementById('sel_quan_huyen');
+const selPhuong = document.getElementById('sel_xa_phuong');
+
+Object.keys(hanoiData).sort().forEach(q => {
+    const opt = document.createElement('option');
+    opt.value = q; opt.textContent = q;
+    selQuan.appendChild(opt);
+});
+
+function updatePhuong(selectedPhuong) {
+    selPhuong.innerHTML = '<option value="">Chọn xã/phường</option>';
+    const wards = hanoiData[selQuan.value] || [];
+    wards.forEach(p => {
+        const opt = document.createElement('option');
+        opt.value = p; opt.textContent = p;
+        if (p === selectedPhuong) opt.selected = true;
+        selPhuong.appendChild(opt);
+    });
+}
+
+selQuan.addEventListener('change', () => updatePhuong(''));
+
+const savedQuan   = "{{ $savedQuan }}";
+const savedPhuong = "{{ $savedPhuong }}";
+if (savedQuan) {
+    selQuan.value = savedQuan;
+    updatePhuong(savedPhuong);
+}
+
+const originalInfo = {
+    ten_khach_hang:   "{{ addslashes($khachHang->ten_khach_hang) }}",
+    so_dien_thoai:    "{{ addslashes($khachHang->so_dien_thoai) }}",
+    email:            "{{ addslashes($khachHang->email) }}",
+    quan_huyen:       savedQuan,
+    xa_phuong:        savedPhuong,
+    dia_chi_chi_tiet: "{{ addslashes($savedChiTiet) }}",
+};
+
+function checkInfoDirty() {
+    const form   = document.querySelector('#tab-info form');
+    const fields = ['ten_khach_hang','so_dien_thoai','email','dia_chi_chi_tiet'];
+    const dirty  = fields.some(f => form[f] && form[f].value !== originalInfo[f])
+                || selQuan.value   !== originalInfo.quan_huyen
+                || selPhuong.value !== originalInfo.xa_phuong;
+    document.getElementById('btn-cancel-info').style.display = dirty ? 'inline-flex' : 'none';
+}
+
+function resetInfoForm() {
+    const form = document.querySelector('#tab-info form');
+    form.ten_khach_hang.value   = originalInfo.ten_khach_hang;
+    form.so_dien_thoai.value    = originalInfo.so_dien_thoai;
+    form.email.value            = originalInfo.email;
+    form.dia_chi_chi_tiet.value = originalInfo.dia_chi_chi_tiet;
+    selQuan.value = originalInfo.quan_huyen;
+    updatePhuong(originalInfo.xa_phuong);
+    document.getElementById('btn-cancel-info').style.display = 'none';
+}
+
+document.querySelectorAll('#tab-info input:not([readonly]), #tab-info select').forEach(el => {
+    el.addEventListener('input',  checkInfoDirty);
+    el.addEventListener('change', checkInfoDirty);
+});
+
+function checkPwdDirty() {
+    const hasCu   = document.getElementById('mat_khau_cu').value.length > 0;
+    const hasMoi  = document.getElementById('mat_khau_moi').value.length > 0;
+    const hasConf = document.getElementById('mat_khau_moi_confirmation').value.length > 0;
+    document.getElementById('btn-cancel-pwd').style.display =
+        (hasCu || hasMoi || hasConf) ? 'inline-flex' : 'none';
+}
+
+function resetPwdForm() {
+    document.getElementById('mat_khau_cu').value                    = '';
+    document.getElementById('mat_khau_moi').value                   = '';
+    document.getElementById('mat_khau_moi_confirmation').value      = '';
+    document.getElementById('strengthFill').style.width      = '0%';
+    document.getElementById('strengthFill').style.background = '';
+    document.getElementById('strengthLabel').textContent     = '';
+    document.getElementById('matchLabel').textContent        = '';
+    document.getElementById('btn-cancel-pwd').style.display  = 'none';
+}
+
+document.querySelectorAll('#tab-password input[type=password]').forEach(el => {
+    el.addEventListener('input', checkPwdDirty);
+});
+function switchTab(tab) {
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + tab).classList.add('active');
+    document.getElementById('tab-' + tab + '-btn').classList.add('active');
+}
+
+// ── Password helpers ──────────────────────────────────────────────────────────
+function togglePwd(fieldId, btn) {
+    const input = document.getElementById(fieldId);
+    const icon  = btn.querySelector('i');
+    input.type  = input.type === 'password' ? 'text' : 'password';
+    icon.className = input.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
+}
+
+function checkStrength(val) {
+    const fill  = document.getElementById('strengthFill');
+    const label = document.getElementById('strengthLabel');
+    let score = 0;
+    if (val.length >= 6)  score++;
+    if (val.length >= 10) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+
+    const levels = [
+        { w: '0%',   c: '',         t: '' },
+        { w: '25%',  c: '#ef4444',  t: 'Rất yếu' },
+        { w: '50%',  c: '#f97316',  t: 'Yếu' },
+        { w: '75%',  c: '#f59e0b',  t: 'Trung bình' },
+        { w: '90%',  c: '#22c55e',  t: 'Mạnh' },
+        { w: '100%', c: '#16a34a',  t: 'Rất mạnh 🔒' },
+    ];
+
+    const lvl = val.length === 0 ? levels[0] : levels[Math.min(score, 5)];
+    fill.style.width      = lvl.w;
+    fill.style.background = lvl.c;
+    label.textContent     = lvl.t;
+    label.style.color     = lvl.c;
+
+    checkMatch();
+}
+
+function checkMatch() {
+    const moi   = document.getElementById('mat_khau_moi').value;
+    const conf  = document.getElementById('mat_khau_moi_confirmation').value;
+    const label = document.getElementById('matchLabel');
+    if (!conf) { label.textContent = ''; return; }
+    if (moi === conf) {
+        label.textContent = '✓ Mật khẩu khớp';
+        label.style.color = 'var(--green)';
+    } else {
+        label.textContent = '✗ Mật khẩu chưa khớp';
+        label.style.color = 'var(--red)';
     }
-
-    function togglePwd(fieldId, btn) {
-        const input = document.getElementById(fieldId);
-        const icon  = btn.querySelector('i');
-        input.type  = input.type === 'password' ? 'text' : 'password';
-        icon.className = input.type === 'password' ? 'fas fa-eye' : 'fas fa-eye-slash';
-    }
-
-    function checkStrength(val) {
-        const fill  = document.getElementById('strengthFill');
-        const label = document.getElementById('strengthLabel');
-        let score = 0;
-        if (val.length >= 6)  score++;
-        if (val.length >= 10) score++;
-        if (/[A-Z]/.test(val)) score++;
-        if (/[0-9]/.test(val)) score++;
-        if (/[^A-Za-z0-9]/.test(val)) score++;
-
-        const levels = [
-            { w: '0%',   c: '',         t: '' },
-            { w: '25%',  c: '#ef4444',  t: 'Rất yếu' },
-            { w: '50%',  c: '#f97316',  t: 'Yếu' },
-            { w: '75%',  c: '#f59e0b',  t: 'Trung bình' },
-            { w: '90%',  c: '#22c55e',  t: 'Mạnh' },
-            { w: '100%', c: '#16a34a',  t: 'Rất mạnh 🔒' },
-        ];
-
-        const lvl = val.length === 0 ? levels[0] : levels[Math.min(score, 5)];
-        fill.style.width      = lvl.w;
-        fill.style.background = lvl.c;
-        label.textContent     = lvl.t;
-        label.style.color     = lvl.c;
-
-        checkMatch();
-    }
-
-    function checkMatch() {
-        const moi   = document.getElementById('mat_khau_moi').value;
-        const conf  = document.getElementById('mat_khau_moi_confirmation').value;
-        const label = document.getElementById('matchLabel');
-        if (!conf) { label.textContent = ''; return; }
-        if (moi === conf) {
-            label.textContent = '✓ Mật khẩu khớp';
-            label.style.color = 'var(--green)';
-        } else {
-            label.textContent = '✗ Mật khẩu chưa khớp';
-            label.style.color = 'var(--red)';
-        }
-    }
+}
 </script>
 </body>
 </html>
