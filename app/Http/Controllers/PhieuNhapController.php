@@ -39,9 +39,20 @@ class PhieuNhapController extends Controller
         $danhSachNhanVien = NhanVien::where('chuc_vu', 'VAN_HANH')->get();
 
         
+        $tonKhoTheoLo = DB::table('chi_tiet_nhap as ctn')
+            ->join('phieu_nhap as pn', 'ctn.ma_phieu_nhap', '=', 'pn.ma_phieu_nhap')
+            ->where('pn.trang_thai', 'CONFIRMED')
+            ->groupBy('ctn.ma_san_pham')
+            ->select('ctn.ma_san_pham', DB::raw('SUM(ctn.so_luong_con_lai) as tong_con_lai'))
+            ->pluck('tong_con_lai', 'ma_san_pham');
+
         $danhSachSanPham = SanPham::where('trang_thai', 'DANG_BAN')
                                   ->orderBy('ten_san_pham')
-                                  ->get();
+                                  ->get()
+                                  ->map(function ($sp) use ($tonKhoTheoLo) {
+                                      $sp->ton_kho_lo = (int) ($tonKhoTheoLo[$sp->ma_san_pham] ?? 0);
+                                      return $sp;
+                                  });
 
         return view('PhieuNhap', compact(
             'danhSachPhieuNhap',

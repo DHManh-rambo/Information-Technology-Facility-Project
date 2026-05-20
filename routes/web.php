@@ -100,6 +100,8 @@ Route::middleware(['auth', 'role:ADMIN,NHAN_VIEN'])->group(function () {
         Route::get('/{id}/edit-data',[SanPhamController::class, 'editData'])->name('editData');
         Route::put('/{id}',          [SanPhamController::class, 'update'])->name('update');
         Route::patch('/{id}/toggle', [SanPhamController::class, 'toggleTrangThai'])->name('toggle');
+        Route::get('/{id}/lo-nhap',   [SanPhamController::class, 'loNhap'])->name('lo-nhap');
+        Route::post('/bao-hang-hong', [SanPhamController::class, 'baoHangHong'])->name('bao-hang-hong');
     });
 
     // Hóa đơn

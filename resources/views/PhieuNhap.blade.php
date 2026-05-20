@@ -137,7 +137,7 @@
                                     <option value="">-- Chọn sản phẩm --</option>
                                     @foreach($danhSachSanPham as $sp)
                                         <option value="{{ $sp->ma_san_pham }}">
-                                            {{ $sp->ten_san_pham }} (Tồn: {{ $sp->so_luong }})
+                                            {{ $sp->ten_san_pham }} (Tồn: {{ $sp->ton_kho_lo }})
                                         </option>
                                     @endforeach
                                 </select>
@@ -411,7 +411,7 @@
 
         let optionsSanPham = '<option value="">-- Chọn sản phẩm --</option>';
         danhSachSanPham.forEach(sp => {
-            optionsSanPham += `<option value="${sp.ma_san_pham}">${sp.ten_san_pham} (Tồn: ${sp.so_luong})</option>`;
+            optionsSanPham += `<option value="${sp.ma_san_pham}">${sp.ten_san_pham} (Tồn: ${sp.ton_kho_lo})</option>`;
         });
 
         const dongHtml = `
@@ -476,7 +476,7 @@
                         let opts = '<option value="">-- Chọn sản phẩm --</option>';
                         danhSachSanPham.forEach(sp => {
                             const sel = sp.ma_san_pham == ct.ma_san_pham ? 'selected' : '';
-                            opts += `<option value="${sp.ma_san_pham}" ${sel}>${sp.ten_san_pham} (Tồn: ${sp.so_luong})</option>`;
+                            opts += `<option value="${sp.ma_san_pham}" ${sel}>${sp.ten_san_pham} (Tồn: ${sp.ton_kho_lo})</option>`;
                         });
 
                         const nutXoa = index > 0
@@ -543,7 +543,7 @@
 
         let optionsSanPham = '<option value="">-- Chọn sản phẩm --</option>';
         danhSachSanPham.forEach(sp => {
-            optionsSanPham += `<option value="${sp.ma_san_pham}">${sp.ten_san_pham} (Tồn: ${sp.so_luong})</option>`;
+            optionsSanPham += `<option value="${sp.ma_san_pham}">${sp.ten_san_pham} (Tồn: ${sp.ton_kho_lo})</option>`;
         });
 
         

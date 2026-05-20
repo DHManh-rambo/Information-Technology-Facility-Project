@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="{{ asset('css/SanPham.css') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    
 </head>
 <body>
 <div class="container py-4">
@@ -200,7 +199,7 @@
                             {{-- Giá bán theo lô --}}
                             <td>
                                 @php
-                                    $loCoHang = $sp->chiTietNhaps; // đã được filter trong controller
+                                    $loCoHang = $sp->chiTietNhaps;
                                     $tongConLai = $loCoHang->sum('so_luong_con_lai');
                                 @endphp
                                 @if($loCoHang->isNotEmpty())
@@ -287,9 +286,10 @@
                                             onclick="moModalHangHong(
                                                 {{ $sp->ma_san_pham }},
                                                 '{{ addslashes($sp->ten_san_pham) }}',
-                                                {{ $sp->so_luong }}
+                                                {{ $tongConLai }}
                                             )"
-                                            title="Báo cáo hàng hỏng">
+                                            title="Báo cáo hàng hỏng"
+                                            {{ $tongConLai == 0 ? 'disabled' : '' }}>
                                         <i class="bi bi-exclamation-triangle-fill"></i> Hỏng
                                     </button>
 
@@ -313,9 +313,7 @@
 </div>
 
 
-
-{{-- MODAL: BÁO CÁO HÀNG HỎNG  --}}
-
+{{-- ===== MODAL: BÁO CÁO HÀNG HỎNG ===== --}}
 <div class="modal fade modal-hong" id="modalHangHong" tabindex="-1" aria-labelledby="labelModalHangHong" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -327,20 +325,35 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
 
-            <form action="{{ route('bao-cao.bao-hang-hong') }}" method="POST">
+            {{-- ĐỔI route từ bao-cao.bao-hang-hong → san-pham.bao-hang-hong --}}
+            <form action="{{ route('san-pham.bao-hang-hong') }}" method="POST">
                 @csrf
                 <input type="hidden" name="ma_san_pham" id="modal_ma_sp">
 
                 <div class="modal-body">
 
                     {{-- Thông tin sản phẩm --}}
-                    <div class="info-sp-hong">
+                    <div class="info-sp-hong mb-3">
                         <div class="text-muted mb-1" style="font-size:12px;">Sản phẩm được báo cáo</div>
                         <strong id="modal_ten_sp">—</strong>
                         <div class="mt-1">
-                            Tồn kho hiện tại:
+                            Tồn kho lô đang chọn:
                             <span class="badge bg-secondary" id="modal_so_luong_badge">0</span>
                         </div>
+                    </div>
+
+                    {{-- CHỌN LÔ NHẬP — MỚI --}}
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">
+                            Chọn lô nhập <span class="text-danger">*</span>
+                        </label>
+                        <select name="ma_chi_tiet_nhap" id="modal_lo_nhap" class="form-select" required>
+                            <option value="">-- Đang tải lô... --</option>
+                        </select>
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle me-1"></i>
+                            Chọn đúng lô bị hỏng. Mỗi lô hiển thị: Phiếu nhập — Ngày nhập — Số lượng còn lại.
+                        </small>
                     </div>
 
                     {{-- Số lượng hỏng --}}
@@ -352,7 +365,7 @@
                                class="form-control" min="1" required
                                placeholder="Nhập số lượng hỏng">
                         <div class="form-text text-danger" id="modal_sl_error" style="display:none;">
-                            Số lượng hỏng không được vượt tồn kho!
+                            Số lượng hỏng không được vượt tồn kho của lô này!
                         </div>
                     </div>
 
@@ -384,7 +397,7 @@
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
                         <i class="bi bi-x-lg me-1"></i>Hủy
                     </button>
-                    <button type="submit" class="btn btn-danger" id="btnGuiBaoCao">
+                    <button type="submit" class="btn btn-danger" id="btnGuiBaoCao" disabled>
                         <i class="bi bi-send-fill me-1"></i>Xác nhận báo cáo
                     </button>
                 </div>
@@ -399,6 +412,7 @@
 <script>
     const danhSachLoai = @json($danhSachLoai);
 
+    // ── Xem trước ảnh ──────────────────────────────────────────
     function xemTruocAnh(input) {
         const imgEl = document.getElementById('xemTruocAnh');
         if (input.files && input.files[0]) {
@@ -411,6 +425,7 @@
         }
     }
 
+    // ── Chuyển chế độ sửa ──────────────────────────────────────
     function chuyenCheDeSua(id) {
         fetch('/san-pham/' + id + '/edit-data')
             .then(function(res) { return res.json(); })
@@ -459,7 +474,7 @@
             });
     }
 
-   
+    // ── Quay về chế độ thêm ────────────────────────────────────
     function chuyenVeCheDoDaThem() {
         document.getElementById('formChung').reset();
         document.getElementById('formChung').action = '{{ route('san-pham.store') }}';
@@ -484,29 +499,77 @@
         document.getElementById('labelAnh').textContent = 'Hình ảnh';
     }
 
-    
+    // ── Modal báo cáo hàng hỏng ────────────────────────────────
     let _soLuongKho = 0;
 
     function moModalHangHong(maSP, tenSP, soLuong) {
         _soLuongKho = soLuong;
 
-        document.getElementById('modal_ma_sp').value      = maSP;
-        document.getElementById('modal_ten_sp').textContent = tenSP;
+        document.getElementById('modal_ma_sp').value         = maSP;
+        document.getElementById('modal_ten_sp').textContent  = tenSP;
         document.getElementById('modal_so_luong_badge').textContent = soLuong;
         document.getElementById('modal_so_luong_hong').value = '';
         document.getElementById('modal_so_luong_hong').max   = soLuong;
         document.getElementById('modal_sl_error').style.display = 'none';
+        document.getElementById('btnGuiBaoCao').disabled = true;
 
-        const modal = new bootstrap.Modal(document.getElementById('modalHangHong'));
-        modal.show();
+        // Reset dropdown lô
+        const selectLo = document.getElementById('modal_lo_nhap');
+        selectLo.innerHTML = '<option value="">-- Đang tải lô nhập... --</option>';
+
+        // Gọi API lấy danh sách lô còn hàng
+        fetch('/san-pham/' + maSP + '/lo-nhap')
+            .then(res => res.json())
+            .then(data => {
+                selectLo.innerHTML = '<option value="">-- Chọn lô nhập --</option>';
+
+                if (data.lo_nhaps.length === 0) {
+                    selectLo.innerHTML = '<option value="">Không có lô nào còn hàng</option>';
+                    return;
+                }
+
+                data.lo_nhaps.forEach(lo => {
+                    const opt = document.createElement('option');
+                    opt.value = lo.ma_chi_tiet_nhap;
+                    opt.textContent = lo.label;
+                    opt.dataset.soLuongConLai = lo.so_luong_con_lai;
+                    selectLo.appendChild(opt);
+                });
+            })
+            .catch(() => {
+                selectLo.innerHTML = '<option value="">Lỗi tải lô, vui lòng thử lại</option>';
+            });
+
+        // Khi đổi lô → cập nhật max số lượng hỏng
+        selectLo.onchange = function () {
+            const opt = this.options[this.selectedIndex];
+            const slConLai = parseInt(opt.dataset.soLuongConLai) || 0;
+            _soLuongKho = slConLai;
+            document.getElementById('modal_so_luong_hong').max = slConLai;
+            document.getElementById('modal_so_luong_badge').textContent = slConLai;
+            document.getElementById('modal_so_luong_hong').value = '';
+            document.getElementById('modal_sl_error').style.display = 'none';
+            // Chỉ enable nút Xác nhận khi đã chọn lô hợp lệ
+            document.getElementById('btnGuiBaoCao').disabled = (slConLai === 0 || !this.value);
+        };
+
+        new bootstrap.Modal(document.getElementById('modalHangHong')).show();
     }
 
+    // Validate số lượng hỏng không vượt tồn kho lô
     document.getElementById('modal_so_luong_hong').addEventListener('input', function () {
-        const val     = parseInt(this.value) || 0;
-        const errEl   = document.getElementById('modal_sl_error');
-        const btnGui  = document.getElementById('btnGuiBaoCao');
+        const val    = parseInt(this.value) || 0;
+        const errEl  = document.getElementById('modal_sl_error');
+        const btnGui = document.getElementById('btnGuiBaoCao');
+        const loVal  = document.getElementById('modal_lo_nhap').value;
 
-        if (val > _soLuongKho) {
+        if (!loVal) {
+            // Chưa chọn lô thì không cho submit
+            btnGui.disabled = true;
+            return;
+        }
+
+        if (val < 1 || val > _soLuongKho) {
             errEl.style.display = 'block';
             btnGui.disabled = true;
         } else {

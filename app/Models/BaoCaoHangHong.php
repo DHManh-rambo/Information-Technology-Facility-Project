@@ -21,14 +21,16 @@ class BaoCaoHangHong extends Model
 
     protected $fillable = [
         'ma_san_pham',
+        'ma_chi_tiet_nhap',   
         'ma_nhan_vien',
         'so_luong_hong',
         'ly_do',
         'ghi_chu',
-        'thoi_gian_bao_cao'
+        'thoi_gian_bao_cao',
     ];
 
     
+
     public function sanPham()
     {
         return $this->belongsTo(
@@ -38,13 +40,22 @@ class BaoCaoHangHong extends Model
         );
     }
 
-   
     public function nhanVien()
     {
         return $this->belongsTo(
             NhanVien::class,
             'ma_nhan_vien',
             'ma_nhan_vien'
+        );
+    }
+
+    
+    public function chiTietNhap()
+    {
+        return $this->belongsTo(
+            ChiTietNhap::class,
+            'ma_chi_tiet_nhap',
+            'ma_chi_tiet_nhap'
         );
     }
 }

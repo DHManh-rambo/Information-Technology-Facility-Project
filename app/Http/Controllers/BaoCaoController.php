@@ -304,7 +304,8 @@ public function exportDoanhThu(Request $request)
     {
         $sanPham = SanPham::findOrFail($id);
 
-        $query = BaoCaoHangHong::with('nhanVien')->where('ma_san_pham', $id);
+        $query = BaoCaoHangHong::with(['nhanVien', 'chiTietNhap.phieuNhap'])
+            ->where('ma_san_pham', $id);
 
         if ($request->filled('ngay_bat_dau')) {
             $query->where('thoi_gian_bao_cao', '>=',
@@ -318,10 +319,15 @@ public function exportDoanhThu(Request $request)
         $chiTiet = $query->orderByDesc('thoi_gian_bao_cao')
             ->get()
             ->map(fn($item) => [
-                'ngay_ghi_nhan'      => optional($item->thoi_gian_bao_cao)->format('d/m/Y'),
+                'ngay_ghi_nhan'      => optional($item->thoi_gian_bao_cao)->format('d/m/Y H:i'),
                 'so_luong_hong'      => $item->so_luong_hong,
                 'ly_do_hong'         => $item->ly_do ?? '-',
+                'ghi_chu'            => $item->ghi_chu ?? '-',
                 'nhan_vien_ghi_nhan' => $item->nhanVien?->ten_nhan_vien ?? 'Không rõ',
+                // Thông tin lô nhập bị hỏng
+                'ma_phieu_nhap'      => $item->chiTietNhap?->ma_phieu_nhap ?? null,
+                'ngay_nhap_lo'       => optional($item->chiTietNhap?->phieuNhap?->ngay_nhap)->format('d/m/Y') ?? '-',
+                'sl_lo_con_lai'      => $item->chiTietNhap?->so_luong_con_lai ?? '-',
             ]);
 
         return response()->json([
@@ -572,100 +578,55 @@ foreach ($sanPhams as $sp) {
         ];
     }
 
-    public function baoHangHong(Request $request)
-    {
-        $request->validate([
-            'ma_san_pham'   => 'required|exists:san_pham,ma_san_pham',
-            'so_luong_hong' => 'required|integer|min:1',
-            'ly_do'         => 'nullable|string|max:255',
-            'ghi_chu'       => 'nullable|string',
-        ], [
-            'so_luong_hong.required' => 'Vui lòng nhập số lượng hỏng.',
-            'so_luong_hong.min'      => 'Số lượng hỏng phải lớn hơn 0.',
-        ]);
+    // baoHangHong đã chuyển sang SanPhamController
 
-        $sanPham = SanPham::findOrFail($request->ma_san_pham);
-
-        
-        if ($request->so_luong_hong > $sanPham->so_luong) {
-            return redirect()->back()
-                ->withErrors(['so_luong_hong' => "Số lượng hỏng ({$request->so_luong_hong}) vượt quá tồn kho ({$sanPham->so_luong})."])
-                ->withInput();
-        }
-
-        DB::transaction(function () use ($request, $sanPham) {
-            
-            $sanPham->decrement('so_luong', $request->so_luong_hong);
-
-            
-            if ($sanPham->fresh()->so_luong <= 0) {
-                $sanPham->update(['trang_thai' => 'NGUNG_BAN']);
-            }
-
-            
-            BaoCaoHangHong::create([
-                'ma_san_pham'       => $request->ma_san_pham,
-                'ma_nhan_vien'      => self::MA_NHAN_VIEN_MAC_DINH,
-                'so_luong_hong'     => $request->so_luong_hong,
-                'ly_do'             => $request->ly_do,
-                'ghi_chu'           => $request->ghi_chu,
-                'thoi_gian_bao_cao' => now(),
-            ]);
-        });
-
-        $tenSp      = $sanPham->ten_san_pham;
-        $slHong     = $request->so_luong_hong;
-        $slConLai   = $sanPham->fresh()->so_luong;
-
-        return redirect()->route('san-pham.index')
-            ->with('success', "Đã báo cáo {$slHong} sp hỏng của \"{$tenSp}\". Tồn kho còn lại: {$slConLai}.");
-    }
-
-    
     private function dataHangHong(Request $request): array
     {
-        
-        $hhTongSoLuong = BaoCaoHangHong::sum('so_luong_hong');
-
-        
+        $hhTongSoLuong   = BaoCaoHangHong::sum('so_luong_hong');
         $hhTongLanBaoCao = BaoCaoHangHong::count();
 
-       
+        // Base select dùng chung: join thêm chi_tiet_nhap + phieu_nhap để lấy thông tin lô
+        $baseSelect = [
+            'bc.ma_bao_cao',
+            'sp.ten_san_pham',
+            'bc.so_luong_hong',
+            'bc.thoi_gian_bao_cao',
+            'bc.ly_do',
+            'bc.ghi_chu',
+            'nv.ten_nhan_vien',
+            'pn.ma_phieu_nhap',
+            'pn.ngay_nhap',
+            'ctn.so_luong as sl_lo_ban_dau',
+            'ctn.so_luong_con_lai as sl_lo_con_lai',
+        ];
+
+        // Danh sách hàng tươi hỏng (kèm thông tin lô nhập)
         $hhDanhSachTuoi = DB::table('bao_cao_hang_hong as bc')
-            ->join('san_pham as sp', 'bc.ma_san_pham', '=', 'sp.ma_san_pham')
-            ->join('nhan_vien as nv', 'bc.ma_nhan_vien', '=', 'nv.ma_nhan_vien')
+            ->join('san_pham as sp',        'bc.ma_san_pham',      '=', 'sp.ma_san_pham')
+            ->join('nhan_vien as nv',        'bc.ma_nhan_vien',     '=', 'nv.ma_nhan_vien')
+            ->leftJoin('chi_tiet_nhap as ctn', 'bc.ma_chi_tiet_nhap', '=', 'ctn.ma_chi_tiet_nhap')
+            ->leftJoin('phieu_nhap as pn',   'ctn.ma_phieu_nhap',   '=', 'pn.ma_phieu_nhap')
             ->whereIn('sp.loai_san_pham', self::LOAI_TUOI)
-            ->select(
-                'sp.ten_san_pham',
-                'bc.so_luong_hong',
-                'bc.thoi_gian_bao_cao',
-                'bc.ly_do',
-                'bc.ghi_chu',
-                'nv.ten_nhan_vien'
-            )
+            ->select($baseSelect)
             ->orderBy('bc.thoi_gian_bao_cao', 'desc')
             ->get();
 
         $hhTongTuoi = $hhDanhSachTuoi->sum('so_luong_hong');
 
-        
+        // Danh sách hàng không tươi hỏng (kèm thông tin lô nhập)
         $hhDanhSachKhacTuoi = DB::table('bao_cao_hang_hong as bc')
-            ->join('san_pham as sp', 'bc.ma_san_pham', '=', 'sp.ma_san_pham')
-            ->join('nhan_vien as nv', 'bc.ma_nhan_vien', '=', 'nv.ma_nhan_vien')
+            ->join('san_pham as sp',          'bc.ma_san_pham',      '=', 'sp.ma_san_pham')
+            ->join('nhan_vien as nv',          'bc.ma_nhan_vien',     '=', 'nv.ma_nhan_vien')
+            ->leftJoin('chi_tiet_nhap as ctn', 'bc.ma_chi_tiet_nhap', '=', 'ctn.ma_chi_tiet_nhap')
+            ->leftJoin('phieu_nhap as pn',     'ctn.ma_phieu_nhap',   '=', 'pn.ma_phieu_nhap')
             ->whereNotIn('sp.loai_san_pham', self::LOAI_TUOI)
-            ->select(
-                'sp.ten_san_pham',
-                'bc.so_luong_hong',
-                'bc.thoi_gian_bao_cao',
-                'bc.ly_do',
-                'bc.ghi_chu',
-                'nv.ten_nhan_vien'
-            )
+            ->select($baseSelect)
             ->orderBy('bc.thoi_gian_bao_cao', 'desc')
             ->get();
 
         $hhTongKhacTuoi = $hhDanhSachKhacTuoi->sum('so_luong_hong');
 
+        // Top 5 sản phẩm hỏng nhiều nhất
         $hhTopHong = DB::table('bao_cao_hang_hong as bc')
             ->join('san_pham as sp', 'bc.ma_san_pham', '=', 'sp.ma_san_pham')
             ->select('sp.ten_san_pham', DB::raw('SUM(bc.so_luong_hong) as tong_hong'))
