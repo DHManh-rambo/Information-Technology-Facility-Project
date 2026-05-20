@@ -34,7 +34,11 @@ class SanPhamController extends Controller
 
        
         $danhSachSanPham = $query
-            ->with('chiTietNhaps')
+            ->with(['chiTietNhaps' => function ($q) {
+                $q->where('so_luong_con_lai', '>', 0)
+                  ->whereHas('phieuNhap', fn($q2) => $q2->where('trang_thai', 'CONFIRMED'))
+                  ->orderBy('gia_ban', 'asc'); 
+            }])
             ->orderBy('ma_san_pham', 'desc')
             ->get();
 

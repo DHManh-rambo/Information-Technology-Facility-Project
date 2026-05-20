@@ -197,24 +197,41 @@
                                 </span>
                             </td>
 
-                            {{-- Giá bán --}}
+                            {{-- Giá bán theo lô --}}
                             <td>
-                                @if($sp->chiTietNhaps->isNotEmpty())
-                                    @foreach($sp->chiTietNhaps->unique('gia_ban') as $ct)
-                                        <span class="badge bg-success mb-1">
-                                            {{ number_format($ct->gia_ban, 0, ',', '.') }} đ
-                                        </span><br>
-                                    @endforeach
+                                @php
+                                    $loCoHang = $sp->chiTietNhaps; // đã được filter trong controller
+                                    $tongConLai = $loCoHang->sum('so_luong_con_lai');
+                                @endphp
+                                @if($loCoHang->isNotEmpty())
+                                    <div class="d-flex flex-column gap-1">
+                                        @foreach($loCoHang as $ct)
+                                            <div class="d-flex align-items-center gap-1">
+                                                <span class="badge bg-success" style="min-width:90px; text-align:right;">
+                                                    {{ number_format($ct->gia_ban, 0, ',', '.') }} đ
+                                                </span>
+                                                <span class="badge bg-secondary" title="Số lượng còn lại của lô này">
+                                                    <i class="bi bi-box-seam me-1"></i>{{ $ct->so_luong_con_lai }}
+                                                </span>
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 @else
-                                    <span class="text-muted fst-italic">Chưa có giá</span>
+                                    <span class="text-muted fst-italic">Chưa nhập hàng</span>
                                 @endif
                             </td>
 
-                            {{-- Số lượng --}}
+                            {{-- Tổng số lượng trong kho --}}
                             <td>
-                                <span class="{{ $sp->so_luong == 0 ? 'text-danger fw-bold' : ($sp->so_luong < 5 ? 'text-warning fw-bold' : '') }}">
-                                    {{ $sp->so_luong }}
+                                <span class="{{ $tongConLai == 0 ? 'text-danger fw-bold' : ($tongConLai < 5 ? 'text-warning fw-bold' : '') }}"
+                                      title="Tổng các lô CONFIRMED còn hàng">
+                                    {{ $tongConLai }}
                                 </span>
+                                @if($loCoHang->count() > 1)
+                                    <div class="text-muted" style="font-size:11px;">
+                                        ({{ $loCoHang->count() }} mức giá)
+                                    </div>
+                                @endif
                             </td>
 
                             {{-- Mô tả --}}

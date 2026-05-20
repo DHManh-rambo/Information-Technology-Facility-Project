@@ -14,6 +14,7 @@ use App\Http\Controllers\Shipper\ShipperProfileController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Customer\CustomerProfileController;
+use App\Http\Controllers\Customer\ChiTietSanPhamController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 
@@ -159,6 +160,8 @@ Route::middleware(['auth', 'role:SHIPPER'])->group(function () {
 //Khach hàng
 Route::get('/customer/dashboard', [CustomerController::class, 'dashboard'])
     ->name('customer.dashboard');
+Route::get('/customer/san-pham/{id}', [ChiTietSanPhamController::class, 'show'])
+    ->name('customer.san-pham.chi-tiet');
 
 // Các chức năng cần đăng nhập mới dùng được
 Route::middleware(['auth', 'role:KHACH_HANG'])->group(function () {

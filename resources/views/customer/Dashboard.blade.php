@@ -1,96 +1,11 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ asset('css/Customer/Dashboard.css') }}">
-    <title>🌸 Cửa Hàng Hoa Tươi</title>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
-    
-</head>
-<body>
+@extends('customer.layouts.customer')
 
-{{-- TOP BAR --}}
-<div class="topbar">
-    <div class="topbar-left">
-        <span>📞 Hotline: <strong>0357 634 696</strong></span>
-        <span>💬 Zalo: <a href="https://zalo.me/0357634696" target="_blank">0357 634 696</a></span>
-    </div>
-    <div class="topbar-right">
-        <a href="https://www.facebook.com/duong.manh.19423" target="_blank">📘 Facebook</a>
-        <span>🕐 Phục vụ 24/7</span>
-    </div>
-</div>
+@section('title', '🌸 Cửa Hàng Hoa Tươi')
+@section('page-id', 'dashboard')
 
-{{-- HEADER --}}
-<header>
-    <a href="{{ route('customer.dashboard') }}" class="logo">
-        <span class="logo-icon">🌸</span>
-        <div class="logo-text">
-            <span>Hoa Tươi Shop</span>
-            <span>Flower Delivery Expert</span>
-        </div>
-    </a>
-
-    <div class="search-wrap">
-        <input type="text" id="searchInput" placeholder="Tìm sản phẩm... (vd: hồng, lan, tươi)">
-        <button class="search-btn" onclick="doSearch()">Tìm kiếm</button>
-    </div>
-
-    <div class="header-right">
-        <a href="https://www.facebook.com/duong.manh.19423" target="_blank" class="header-icon">
-            <span class="icon">📘</span>
-            <span>Facebook</span>
-        </a>
-        <a href="https://zalo.me/0357634696" target="_blank" class="header-icon">
-            <span class="icon">💬</span>
-            <span>Zalo</span>
-        </a>
-
-        @auth
-            {{-- Đã đăng nhập: hiện hồ sơ + tên + đăng xuất --}}
-            <a href="{{ route('customer.profile.edit') }}" class="header-icon">
-                <span class="icon">👤</span>
-                <span>Hồ sơ</span>
-            </a>
-            <div class="user-greeting">
-                <span>Xin chào,</span>
-                <strong>{{ $user->ten_dang_nhap }}</strong>
-            </div>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit" class="logout-btn">Đăng xuất</button>
-            </form>
-        @else
-            {{-- Chưa đăng nhập: hiện nút Đăng nhập / Đăng ký --}}
-            <div class="auth-btns">
-                <a href="{{ route('login') }}" class="btn-login">Đăng nhập</a>
-                <a href="{{ route('register') }}" class="btn-register">Đăng ký</a>
-            </div>
-        @endauth
-    </div>
-</header>
-
-{{-- CATEGORY NAV --}}
-<nav class="cat-nav">
-    <button class="cat-btn active" onclick="filterCat('', this)">Tất Cả</button>
-    <button class="cat-btn" onclick="filterCat('HOA_TUOI', this)">🌹 Hoa Tươi</button>
-    <button class="cat-btn" onclick="filterCat('HOA_GIA', this)">💐 Hoa Giả</button>
-    <button class="cat-btn" onclick="filterCat('SAN_PHAM_PREMIUM', this)">👑 Premium</button>
-    <button class="cat-btn" onclick="filterCat('CHAU_HOA_GIA', this)">🪴 Chậu Giả</button>
-    <button class="cat-btn" onclick="filterCat('CHAU_HOA_TUOI', this)">🌷 Chậu Tươi</button>
-    <button class="cat-btn" onclick="filterCat('CAY_CANH', this)">🌿 Cây Cảnh</button>
-    <button class="cat-btn" onclick="filterCat('HOA_SAP', this)">🕯️ Hoa Sáp</button>
-    <button class="cat-btn" onclick="filterCat('HOA_GIAY_NHUN', this)">🎀 Hoa Giấy</button>
-    <button class="cat-btn" onclick="filterCat('TERRARIUM', this)">🔮 Terrarium</button>
-    <button class="cat-btn" onclick="filterCat('PHU_KIEN', this)">🎁 Phụ Kiện</button>
-    <button class="cat-btn" onclick="filterCat('QUA_TANG', this)">🎀 Quà Tặng</button>
-</nav>
-
-{{-- MAIN --}}
+@section('content')
 <div class="main-wrap">
 
-    {{-- Welcome Card: hiện khi đã đăng nhập --}}
     @auth
     <div class="welcome-card">
         <div class="welcome-left">
@@ -116,7 +31,6 @@
         @endif
     </div>
     @else
-    {{-- Banner mời đăng nhập khi là khách --}}
     <div class="guest-banner">
         <div class="guest-banner-left">
             <div class="welcome-avatar">🌸</div>
@@ -132,14 +46,12 @@
     </div>
     @endauth
 
-    {{-- Products Section --}}
     <div class="section-head">
         <h2 class="section-title">Sản Phẩm</h2>
         <span class="result-count" id="resultCount">Đang tải...</span>
     </div>
 
     <div id="productGrid">
-        {{-- Loading placeholders --}}
         @for($i = 0; $i < 8; $i++)
         <div class="product-card pulse" style="height:300px;"></div>
         @endfor
@@ -148,81 +60,57 @@
             <p>Không tìm thấy sản phẩm phù hợp.</p>
         </div>
     </div>
+
 </div>
+@endsection
 
-{{-- FOOTER --}}
-<footer>
-    <div class="footer-inner">
-        <div class="footer-brand">
-            <a href="#" class="logo" style="text-decoration:none;">
-                <span class="logo-icon">🌸</span>
-                <div class="logo-text">
-                    <span>Hoa Tươi Shop</span>
-                    <span style="color:#9ca3af;">Flower Delivery Expert</span>
-                </div>
-            </a>
-            <p>Chuyên cung cấp hoa tươi, hoa giả, cây cảnh và quà tặng. Giao hàng nhanh trong 60 phút.</p>
-        </div>
-        <div class="footer-col">
-            <h4>Liên hệ</h4>
-            <ul>
-                <li>📞 <a href="tel:0357634696">0357 634 696</a></li>
-                <li>💬 <a href="https://zalo.me/0357634696" target="_blank">Zalo: 0357 634 696</a></li>
-                <li>📘 <a href="https://www.facebook.com/duong.manh.19423" target="_blank">Facebook</a></li>
-            </ul>
-        </div>
-        <div class="footer-col">
-            <h4>Danh mục</h4>
-            <ul>
-                <li><a href="#" onclick="filterCat('HOA_TUOI')">🌹 Hoa Tươi</a></li>
-                <li><a href="#" onclick="filterCat('SAN_PHAM_PREMIUM')">👑 Premium</a></li>
-                <li><a href="#" onclick="filterCat('CAY_CANH')">🌿 Cây Cảnh</a></li>
-                <li><a href="#" onclick="filterCat('QUA_TANG')">🎀 Quà Tặng</a></li>
-            </ul>
-        </div>
-    </div>
-    <hr class="footer-divider">
-    <div class="footer-bottom">
-        © {{ date('Y') }} Hoa Tươi Shop. Phục vụ 24/7 với tình yêu 🌸
-    </div>
-</footer>
-
+@section('scripts')
 <script>
-    {{-- Truyền trạng thái đăng nhập xuống JS để xử lý nút "Đặt hoa" --}}
-    const isLoggedIn = {{ auth()->check() ? 'true' : 'false' }};
-    const loginUrl   = "{{ route('login') }}";
-
     const categoryLabels = {
-        'HOA_TUOI':         'Hoa Tươi',
-        'HOA_GIA':          'Hoa Giả',
-        'SAN_PHAM_PREMIUM': 'Premium',
-        'CHAU_HOA_GIA':     'Chậu Giả',
-        'CHAU_HOA_TUOI':    'Chậu Tươi',
-        'CAY_CANH':         'Cây Cảnh',
-        'HOA_SAP':          'Hoa Sáp',
-        'HOA_GIAY_NHUN':    'Hoa Giấy Nhún',
-        'TERRARIUM':        'Terrarium',
-        'PHU_KIEN':         'Phụ Kiện',
-        'QUA_TANG':         'Quà Tặng',
+        'HOA_TUOI':'Hoa Tươi','HOA_GIA':'Hoa Giả','SAN_PHAM_PREMIUM':'Premium',
+        'CHAU_HOA_GIA':'Chậu Giả','CHAU_HOA_TUOI':'Chậu Tươi','CAY_CANH':'Cây Cảnh',
+        'HOA_SAP':'Hoa Sáp','HOA_GIAY_NHUN':'Hoa Giấy Nhún','TERRARIUM':'Terrarium',
+        'PHU_KIEN':'Phụ Kiện','QUA_TANG':'Quà Tặng',
     };
-
     const catEmoji = {
-        'HOA_TUOI': '🌹', 'HOA_GIA': '💐', 'SAN_PHAM_PREMIUM': '👑',
-        'CHAU_HOA_GIA': '🪴', 'CHAU_HOA_TUOI': '🌷', 'CAY_CANH': '🌿',
-        'HOA_SAP': '🕯️', 'HOA_GIAY_NHUN': '🎀', 'TERRARIUM': '🔮',
-        'PHU_KIEN': '🎁', 'QUA_TANG': '🎀',
+        'HOA_TUOI':'🌹','HOA_GIA':'💐','SAN_PHAM_PREMIUM':'👑','CHAU_HOA_GIA':'🪴',
+        'CHAU_HOA_TUOI':'🌷','CAY_CANH':'🌿','HOA_SAP':'🕯️','HOA_GIAY_NHUN':'🎀',
+        'TERRARIUM':'🔮','PHU_KIEN':'🎁','QUA_TANG':'🎀',
     };
 
-    let allProducts = @json($sanPhams ?? []);
-    let activeCat   = '';
-    let searchVal   = '';
+    const allProducts = @json($sanPhams ?? []);
+
+    const urlParams  = new URLSearchParams(window.location.search);
+    let activeCat    = urlParams.get('cat') || '';
+    let searchVal    = urlParams.get('q')   || '';
+
+    if (searchVal) document.getElementById('searchInput').value = searchVal;
+
+    if (activeCat) {
+        document.querySelectorAll('#catNav .cat-btn').forEach(b => b.classList.remove('active'));
+        const match = document.querySelector(`#catNav .cat-btn[data-cat="${activeCat}"]`);
+        if (match) match.classList.add('active');
+    } else {
+        const first = document.querySelector('#catNav .cat-btn[data-cat=""]');
+        if (first) first.classList.add('active');
+    }
+
+    function filterCat(cat, _btnEl) {
+        activeCat = cat;
+        renderProducts();
+    }
+
+    function setSearchVal(val) {
+        searchVal = val;
+        renderProducts();
+    }
 
     function renderProducts() {
         const grid    = document.getElementById('productGrid');
         const empty   = document.getElementById('emptyState');
         const counter = document.getElementById('resultCount');
 
-        let filtered = allProducts.filter(p => {
+        const filtered = allProducts.filter(p => {
             const matchCat  = activeCat ? p.loai_san_pham === activeCat : true;
             const matchText = searchVal
                 ? p.ten_san_pham.toLowerCase().includes(searchVal.toLowerCase())
@@ -230,82 +118,60 @@
             return matchCat && matchText;
         });
 
-        Array.from(grid.children).forEach(c => {
-            if (c.id !== 'emptyState') c.remove();
-        });
-
+        Array.from(grid.children).forEach(c => { if (c.id !== 'emptyState') c.remove(); });
         counter.textContent = `${filtered.length} sản phẩm`;
 
-        if (filtered.length === 0) {
-            empty.style.display = 'block';
-            return;
-        }
+        if (filtered.length === 0) { empty.style.display = 'block'; return; }
         empty.style.display = 'none';
 
         filtered.forEach(p => {
-            const isOnSale = p.trang_thai === 'DANG_BAN';
-            const stock    = p.so_luong ?? 0;
+            const isOnSale   = p.trang_thai === 'DANG_BAN';
+            const loGiaAll   = (p.chi_tiet_nhaps || []).filter(l => l.so_luong_con_lai > 0);
+            const stock      = loGiaAll.reduce((sum, l) => sum + (l.so_luong_con_lai || 0), 0);
             const stockClass = stock === 0 ? 'out' : stock <= 5 ? 'low' : '';
             const stockText  = stock === 0 ? 'Hết hàng' : `Còn ${stock} sp`;
-
-            // Nếu chưa đăng nhập thì nút "Đặt hoa" sẽ chuyển sang trang login
             const btnDisabled = !isOnSale || stock === 0;
-            const btnLabel    = stock === 0 ? 'Hết hàng' : '🛒 Đặt hoa';
-            const btnOnClick  = (!btnDisabled && !isLoggedIn)
-                ? `onclick="window.location.href='${loginUrl}'"` : '';
+            const detailUrl   = `{{ url('customer/san-pham') }}/` + p.ma_san_pham;
+
+            const loGia = loGiaAll;
+            let priceHtml = '';
+            if (loGia.length > 0) {
+                const giaMin = Math.min(...loGia.map(l => parseFloat(l.gia_ban)));
+                const giaMax = Math.max(...loGia.map(l => parseFloat(l.gia_ban)));
+                const fmt = v => new Intl.NumberFormat('vi-VN').format(v) + '₫';
+                priceHtml = `<div class="card-price">${fmt(giaMin)}${giaMax > giaMin ? ' – ' + fmt(giaMax) : ''}</div>`;
+            }
 
             const card = document.createElement('div');
             card.className = 'product-card';
             card.innerHTML = `
                 <div class="card-img-wrap">
                     ${p.hinh_anh
-                        ? `<img src="/${p.hinh_anh}" alt="${p.ten_san_pham}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
-                           <div class="card-img-placeholder" style="display:none;">${catEmoji[p.loai_san_pham] || '🌸'}</div>`
-                        : `<div class="card-img-placeholder">${catEmoji[p.loai_san_pham] || '🌸'}</div>`
-                    }
+                        ? `<img src="/${p.hinh_anh}" alt="${p.ten_san_pham}"
+                               onerror="this.style.display='none';this.nextElementSibling.style.display='flex';">
+                           <div class="card-img-placeholder" style="display:none;">${catEmoji[p.loai_san_pham]||'🌸'}</div>`
+                        : `<div class="card-img-placeholder">${catEmoji[p.loai_san_pham]||'🌸'}</div>`}
                     <span class="badge-status ${isOnSale ? 'on-sale' : 'sold-out'}">
                         ${isOnSale ? 'Đang bán' : 'Ngừng bán'}
                     </span>
-                    <span class="badge-type">${categoryLabels[p.loai_san_pham] || p.loai_san_pham}</span>
+                    <span class="badge-type">${categoryLabels[p.loai_san_pham]||p.loai_san_pham}</span>
                 </div>
                 <div class="card-body">
                     <div class="card-name">${p.ten_san_pham}</div>
+                    ${priceHtml}
                     ${p.mo_ta ? `<div class="card-desc">${p.mo_ta}</div>` : ''}
                     <div class="card-footer">
                         <span class="card-stock ${stockClass}">${stockText}</span>
-                        <button class="add-btn" ${btnDisabled ? 'disabled' : ''} ${btnOnClick}>
-                            ${btnLabel}
+                        <button class="add-btn"
+                            ${btnDisabled ? 'disabled' : `onclick="navigateTo('${detailUrl}')"`}>
+                            ${stock === 0 ? 'Hết hàng' : '🛒 Đặt hoa'}
                         </button>
                     </div>
-                </div>
-            `;
+                </div>`;
             grid.insertBefore(card, empty);
         });
     }
 
-    function filterCat(cat, btnEl) {
-        activeCat = cat;
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        if (btnEl) btnEl.classList.add('active');
-        renderProducts();
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    function doSearch() {
-        searchVal = document.getElementById('searchInput').value.trim();
-        renderProducts();
-    }
-
-    document.getElementById('searchInput').addEventListener('input', function() {
-        searchVal = this.value.trim();
-        renderProducts();
-    });
-
-    document.getElementById('searchInput').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') doSearch();
-    });
-
     renderProducts();
 </script>
-</body>
-</html>
+@endsection
