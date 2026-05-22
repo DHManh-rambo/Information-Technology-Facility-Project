@@ -24,6 +24,10 @@ class ChiTietSanPhamController extends Controller
         $sanPhamLienQuan = SanPham::where('trang_thai', 'DANG_BAN')
             ->where('loai_san_pham', $sanPham->loai_san_pham)
             ->where('ma_san_pham', '!=', $sanPham->ma_san_pham)
+            ->with(['chiTietNhaps' => function ($q) {
+                $q->where('so_luong_con_lai', '>', 0)
+                  ->whereHas('phieuNhap', fn($q2) => $q2->where('trang_thai', 'CONFIRMED'));
+            }])
             ->orderBy('ma_san_pham', 'desc')
             ->limit(6)
             ->get();

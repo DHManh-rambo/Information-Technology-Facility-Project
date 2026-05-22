@@ -4,9 +4,6 @@
 
 @section('head-styles')
 <link rel="stylesheet" href="{{ asset('css/Customer/ChiTietSanPham.css') }}">
-<style>
-    
-</style>
 @endsection
 
 @section('content')
@@ -30,7 +27,7 @@
         'HOA_SAP' => '🕯️', 'HOA_GIAY_NHUN' => '🎀', 'TERRARIUM' => '🔮',
         'PHU_KIEN' => '🎁', 'QUA_TANG' => '🎀',
     ];
-    $soLuong  = $sanPham->so_luong ?? 0;
+    $soLuong  = ($sanPham->chiTietNhaps ?? collect())->sum('so_luong_con_lai');
     $catLabel = $categoryLabels[$sanPham->loai_san_pham] ?? $sanPham->loai_san_pham;
     $emoji    = $catEmoji[$sanPham->loai_san_pham] ?? '🌸';
 @endphp
@@ -82,16 +79,15 @@
             @endif
         </div>
 
-        {{-- Meta chips (bỏ mã SP) --}}
+        {{-- Meta chips --}}
         <div class="meta-strip">
             <div class="meta-chip">📦 Số lượng: <strong>{{ $soLuong }}</strong></div>
             <div class="meta-chip">📂 Loại: <strong>{{ $catLabel }}</strong></div>
         </div>
 
         {{-- Bảng giá bán theo lô nhập --}}
-        @php
-            $loGia = $sanPham->chiTietNhaps ?? collect();
-        @endphp
+        @php $loGia = $sanPham->chiTietNhaps ?? collect(); @endphp
+
         @if($loGia->count() > 0)
         <div class="price-table-wrap">
             <div class="price-table-label">💰 Giá bán</div>
@@ -105,8 +101,7 @@
                 </thead>
                 <tbody>
                     @foreach($loGia as $loIndex => $lo)
-                    <tr class="{{ $lo->so_luong_con_lai <= 5 ? 'row-low' : '' }}"
-                        id="lo-row-{{ $loIndex }}">
+                    <tr class="{{ $lo->so_luong_con_lai <= 5 ? 'row-low' : '' }}" id="lo-row-{{ $loIndex }}">
                         <td class="price-val">{{ number_format($lo->gia_ban, 0, ',', '.') }}₫</td>
                         <td>
                             <span class="stock-pill {{ $lo->so_luong_con_lai <= 5 ? 'low' : '' }}">
@@ -115,8 +110,14 @@
                         </td>
                         <td>
                             <div class="lo-qty-row">
+                                <button class="lo-minus-btn" onclick="changeLo({{ $loIndex }}, -1)"
+                                        id="lo-minus-{{ $loIndex }}" style="display:none;">−</button>
                                 <span class="lo-qty-count" id="lo-qty-{{ $loIndex }}">0</span>
-                                <button class="lo-plus-btn" onclick="addLo({{ $loIndex }}, {{ $lo->so_luong_con_lai }}, {{ $lo->gia_ban }})">+</button>
+                                <button class="lo-plus-btn"
+                                        onclick="changeLo({{ $loIndex }}, 1)"
+                                        data-max="{{ $lo->so_luong_con_lai }}"
+                                        data-gia="{{ $lo->gia_ban }}"
+                                        data-id="{{ $lo->ma_chi_tiet_nhap }}">+</button>
                             </div>
                         </td>
                     </tr>
@@ -166,6 +167,9 @@
                 <button class="btn-cart" id="btnAddCart" onclick="addToCart()" disabled>
                     🛒 Thêm vào giỏ hàng
                 </button>
+                <button class="btn-buy-now" id="btnBuyNow" onclick="addToCartAndRedirect()" disabled>
+                    ⚡ Mua ngay
+                </button>
             @else
                 <button class="btn-cart" onclick="navigateTo('{{ route('login') }}')">
                     🛒 Đăng nhập để đặt hoa
@@ -197,7 +201,7 @@
     <div class="related-grid">
         @foreach($sanPhamLienQuan as $sp)
         @php
-            $spStock = $sp->so_luong ?? 0;
+            $spStock = ($sp->chiTietNhaps ?? collect())->sum('so_luong_con_lai');
             $spEmoji = $catEmoji[$sp->loai_san_pham] ?? '🌸';
         @endphp
         <div class="product-card"
@@ -234,24 +238,43 @@
 
 @section('scripts')
 <script>
+    const CSRF         = document.querySelector('meta[name=csrf-token]')?.content ?? '';
+    const ADD_CART_URL = '{{ route("customer.gio-hang.add") }}';
+    const CART_URL     = '{{ route("customer.gio-hang") }}';
+    const CHECKOUT_URL = '{{ route("customer.thanh-toan") }}';
+    const IS_AUTH      = {{ auth()->check() ? 'true' : 'false' }};
+
     const fmt = v => new Intl.NumberFormat('vi-VN').format(v) + '₫';
 
     const cart = {};
 
-    function addLo(idx, maxQty, giaBan) {
-        if (!cart[idx]) {
-            cart[idx] = { qty: 0, maxQty, giaBan };
-        }
-        if (cart[idx].qty >= maxQty) return;
-        cart[idx].qty++;
-        document.getElementById('lo-qty-' + idx).textContent = cart[idx].qty;
+    function changeLo(idx, delta) {
+        const plusEl = document.getElementById('lo-row-' + idx)?.querySelector('.lo-plus-btn');
+        if (!plusEl) return;
+        const max = parseInt(plusEl.dataset.max ?? 0);
+        const gia = parseFloat(plusEl.dataset.gia ?? 0);
+        const id  = parseInt(plusEl.dataset.id ?? 0);
+
+        if (!cart[idx]) cart[idx] = { qty: 0, maxQty: max, giaBan: gia, maChiTietNhap: id };
+
+        cart[idx].qty = Math.max(0, Math.min(cart[idx].qty + delta, cart[idx].maxQty));
+
+        const qtyEl   = document.getElementById('lo-qty-' + idx);
+        const minusEl = document.getElementById('lo-minus-' + idx);
+
+        if (qtyEl)   qtyEl.textContent = cart[idx].qty;
+        if (minusEl) minusEl.style.display = cart[idx].qty > 0 ? '' : 'none';
+
         renderSummary();
     }
 
     function resetCart() {
         Object.keys(cart).forEach(idx => {
             cart[idx].qty = 0;
-            document.getElementById('lo-qty-' + idx).textContent = 0;
+            const qtyEl   = document.getElementById('lo-qty-' + idx);
+            const minusEl = document.getElementById('lo-minus-' + idx);
+            if (qtyEl)   qtyEl.textContent = 0;
+            if (minusEl) minusEl.style.display = 'none';
         });
         renderSummary();
     }
@@ -261,6 +284,7 @@
         const linesEl  = document.getElementById('cartLines');
         const totalEl  = document.getElementById('cartTotal');
         const btnCart  = document.getElementById('btnAddCart');
+        const btnBuy   = document.getElementById('btnBuyNow');
 
         let totalQty   = 0;
         let totalPrice = 0;
@@ -268,7 +292,7 @@
 
         Object.entries(cart).forEach(([idx, item]) => {
             if (item.qty > 0) {
-                const sub = item.qty * item.giaBan;
+                const sub   = item.qty * item.giaBan;
                 totalQty   += item.qty;
                 totalPrice += sub;
                 linesHtml  += `<div class="cart-line">
@@ -279,19 +303,106 @@
         });
 
         if (totalQty > 0) {
-            linesEl.innerHTML = linesHtml;
+            linesEl.innerHTML  = linesHtml;
             totalEl.textContent = fmt(totalPrice);
             summary.style.display = 'block';
-            if (btnCart) { btnCart.disabled = false; btnCart.textContent = `🛒 Thêm vào giỏ (${totalQty} sp)`; }
+            if (btnCart) {
+                btnCart.disabled    = false;
+                btnCart.textContent = `🛒 Thêm vào giỏ (${totalQty} sp – ${fmt(totalPrice)})`;
+            }
+            if (btnBuy) btnBuy.disabled = false;
         } else {
             summary.style.display = 'none';
-            if (btnCart) { btnCart.disabled = true; btnCart.textContent = '🛒 Thêm vào giỏ hàng'; }
+            if (btnCart) {
+                btnCart.disabled    = true;
+                btnCart.textContent = '🛒 Thêm vào giỏ hàng';
+            }
+            if (btnBuy) btnBuy.disabled = true;
         }
     }
 
-    function addToCart() {
-        let totalQty = Object.values(cart).reduce((s, i) => s + i.qty, 0);
-        showToast('🛒 Đã thêm ' + totalQty + ' sản phẩm vào giỏ hàng!');
+    function buildItems() {
+        return Object.values(cart)
+            .filter(i => i.qty > 0)
+            .map(i => ({
+                ma_chi_tiet_nhap: i.maChiTietNhap,
+                so_luong: i.qty,
+            }));
+    }
+
+    async function addToCart() {
+        const items = buildItems();
+        if (!items.length) return;
+
+        const btn = document.getElementById('btnAddCart');
+        btn.disabled    = true;
+        btn.textContent = '⏳ Đang thêm...';
+
+        try {
+            const res  = await fetch(ADD_CART_URL, {
+                method:  'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': CSRF,
+                },
+                body: JSON.stringify({ items }),
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                if (typeof updateCartBadge === 'function') {
+                    updateCartBadge(data.so_san_pham);
+                }
+                showToast('✅ Đã thêm ' + items.reduce((s, i) => s + i.so_luong, 0) + ' sp vào giỏ hàng!');
+                resetCart();
+            } else {
+                showToast('❌ ' + (data.message ?? 'Có lỗi xảy ra, vui lòng thử lại.'));
+                btn.disabled    = false;
+                btn.textContent = '🛒 Thêm vào giỏ hàng';
+            }
+        } catch (e) {
+            showToast('❌ Không thể kết nối, vui lòng thử lại.');
+            btn.disabled    = false;
+            btn.textContent = '🛒 Thêm vào giỏ hàng';
+        }
+    }
+
+    async function addToCartAndRedirect() {
+        const items = buildItems();
+        if (!items.length) return;
+
+        const btn = document.getElementById('btnBuyNow');
+        btn.disabled    = true;
+        btn.textContent = '⏳ Đang xử lý...';
+
+        try {
+            const res  = await fetch(ADD_CART_URL, {
+                method:  'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': CSRF,
+                },
+                body: JSON.stringify({ items }),
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                if (typeof updateCartBadge === 'function') {
+                    updateCartBadge(data.so_san_pham);
+                }
+                navigateTo(CHECKOUT_URL);
+            } else {
+                showToast('❌ ' + (data.message ?? 'Có lỗi xảy ra, vui lòng thử lại.'));
+                btn.disabled    = false;
+                btn.textContent = '⚡ Mua ngay';
+            }
+        } catch (e) {
+            showToast('❌ Không thể kết nối, vui lòng thử lại.');
+            btn.disabled    = false;
+            btn.textContent = '⚡ Mua ngay';
+        }
     }
 </script>
+
+
 @endsection

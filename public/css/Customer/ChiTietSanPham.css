@@ -568,3 +568,51 @@
     background: #fff;
     color: var(--primary);
 }
+
+.btn-buy-now {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 22px;
+    border-radius: 50px;
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: #fff;
+    font-weight: 700;
+    font-size: .95rem;
+    border: none;
+    cursor: pointer;
+    transition: all .2s;
+    white-space: nowrap;
+}
+
+.btn-buy-now:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(245, 158, 11, .35);
+}
+
+.btn-buy-now:disabled {
+    opacity: .55;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.lo-minus-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1.5px solid #fce7f3;
+    background: #fff;
+    color: #be185d;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .15s;
+}
+
+.lo-minus-btn:hover {
+    background: #fdf2f8;
+    border-color: #be185d;
+}

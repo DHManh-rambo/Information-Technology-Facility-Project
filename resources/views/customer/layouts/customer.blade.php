@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('css/Customer/Dashboard.css') }}">
     <title>@yield('title', '🌸 Cửa Hàng Hoa Tươi')</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -29,6 +30,69 @@
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(14px); }
             to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .cart-dropdown-wrapper {
+            position: relative;
+            margin: 0 8px;
+        }
+        .cart-icon-btn {
+            background: none;
+            border: none;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            color: #374151;
+            padding: 6px 10px;
+            border-radius: 30px;
+            transition: background .2s;
+        }
+        .cart-icon-btn:hover {
+            background: #fdf2f8;
+        }
+        .cart-badge {
+            background: #be185d;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 5px;
+            margin-left: 2px;
+        }
+        .cart-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(190,24,93,.15);
+            min-width: 180px;
+            padding: 8px 0;
+            z-index: 1000;
+            display: none;
+            border: 1px solid #fce7f3;
+        }
+        .cart-dropdown-menu.show {
+            display: block;
+        }
+        .cart-dropdown-menu a {
+            display: block;
+            padding: 10px 18px;
+            color: #1f2937;
+            text-decoration: none;
+            font-size: 0.85rem;
+            transition: background .15s;
+        }
+        .cart-dropdown-menu a:hover {
+            background: #fdf2f8;
+            color: #be185d;
         }
     </style>
 
@@ -75,12 +139,24 @@
         </a>
 
         @auth
+            {{-- NÚT GIỎ HÀNG VỚI DROPDOWN --}}
+            <div class="cart-dropdown-wrapper">
+                <button class="cart-icon-btn" id="cartDropdownBtn">
+                    <span class="icon">🛒</span>
+                    <span class="cart-badge" id="cartBadge">{{ session('gio_hang') ? count(session('gio_hang')) : 0 }}</span>
+                </button>
+                <div class="cart-dropdown-menu" id="cartDropdownMenu">
+                    <a href="{{ route('customer.gio-hang') }}">🛒 Xem giỏ hàng</a>
+                    <a href="{{ route('customer.thanh-toan') }}">💳 Thanh toán</a>
+                </div>
+            </div>
+
             <a href="{{ route('customer.profile.edit') }}" class="header-icon">
                 <span class="icon">👤</span><span>Hồ sơ</span>
             </a>
             <div class="user-greeting">
                 <span>Xin chào,</span>
-                <strong>{{ $user->ten_dang_nhap }}</strong>
+                <strong>{{ $user->ten_dang_nhap ?? (auth()->user()->ten_dang_nhap ?? '') }}</strong>
             </div>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
@@ -155,7 +231,7 @@
 </div>
 
 <script>
-    const PAGE       = document.body.dataset.page; // 'dashboard' | 'other'
+    const PAGE       = document.body.dataset.page; 
     const DASH_URL   = "{{ route('customer.dashboard') }}";
     const overlay    = document.getElementById('page-transition');
 
@@ -194,7 +270,6 @@
         btn.addEventListener('click', () => {
             const cat = btn.dataset.cat;
             if (PAGE === 'dashboard') {
-                
                 document.querySelectorAll('#catNav .cat-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 if (typeof filterCat === 'function') filterCat(cat, null);
@@ -245,6 +320,28 @@
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 3000);
     }
+
+    const cartBtn = document.getElementById('cartDropdownBtn');
+    const cartMenu = document.getElementById('cartDropdownMenu');
+    if (cartBtn && cartMenu) {
+        cartBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            cartMenu.classList.toggle('show');
+        });
+        document.addEventListener('click', (e) => {
+            if (!cartBtn.contains(e.target) && !cartMenu.contains(e.target)) {
+                cartMenu.classList.remove('show');
+            }
+        });
+    }
+
+    window.updateCartBadge = function(count) {
+        const badge = document.getElementById('cartBadge');
+        if (badge) {
+            badge.textContent = count;
+            if (count === 0) badge.textContent = '0';
+        }
+    };
 </script>
 
 @yield('scripts')

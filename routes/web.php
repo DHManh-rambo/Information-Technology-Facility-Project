@@ -15,6 +15,8 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Customer\CustomerProfileController;
 use App\Http\Controllers\Customer\ChiTietSanPhamController;
+use App\Http\Controllers\Customer\GioHangController;
+use App\Http\Controllers\Customer\ThanhToanController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Illuminate\Support\Facades\Route;
 
@@ -173,4 +175,23 @@ Route::middleware(['auth', 'role:KHACH_HANG'])->group(function () {
         ->name('customer.profile.update');
     Route::patch('/customer/profile/password', [CustomerProfileController::class, 'updatePassword'])
         ->name('customer.profile.password');
+        Route::get('/customer/gio-hang', [GioHangController::class, 'index'])
+        ->name('customer.gio-hang');
+
+    Route::post('/customer/gio-hang/add', [GioHangController::class, 'add'])
+        ->name('customer.gio-hang.add');
+
+    Route::post('/customer/gio-hang/update', [GioHangController::class, 'update'])
+        ->name('customer.gio-hang.update');
+
+    Route::post('/customer/gio-hang/remove', [GioHangController::class, 'remove'])
+        ->name('customer.gio-hang.remove');
+
+    Route::post('/customer/gio-hang/apply-points', [GioHangController::class, 'applyPoints'])
+        ->name('customer.gio-hang.apply-points');
+    Route::get('/customer/thanh-toan', [ThanhToanController::class, 'index'])
+        ->name('customer.thanh-toan');
+
+    Route::post('/customer/thanh-toan', [ThanhToanController::class, 'store'])
+        ->name('customer.thanh-toan.store');
 });
