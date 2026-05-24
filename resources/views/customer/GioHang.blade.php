@@ -307,7 +307,6 @@
         if (pi) pi.value = '';
     }
 
-    // Khởi tạo điểm đã áp dụng nếu có
     @if($diemSuDung > 0)
     window.addEventListener('DOMContentLoaded', () => {
         const area = document.getElementById('pointsInputArea');

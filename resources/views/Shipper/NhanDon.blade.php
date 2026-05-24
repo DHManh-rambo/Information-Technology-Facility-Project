@@ -4,260 +4,7 @@
 
 @section('extra-styles')
  <link rel="stylesheet" href="{{ asset('css/Shipper/ShipperDashboard.css') }}">
-<style>
-    .detail-wrap {
-        max-width: 760px;
-        margin: 0 auto;
-        padding: 32px 20px 60px;
-    }
 
-    .back-bar {
-        display: flex; align-items: center; gap: 12px;
-        margin-bottom: 24px;
-    }
-    .back-btn {
-        display: inline-flex; align-items: center; gap: 7px;
-        color: var(--text-muted); font-size: 13px; font-weight: 500;
-        text-decoration: none; padding: 7px 14px;
-        border-radius: var(--radius-sm);
-        border: 1.5px solid var(--border);
-        background: var(--card);
-        transition: border-color .15s, color .15s, box-shadow .15s;
-    }
-    .back-btn:hover {
-        color: var(--text-main);
-        border-color: #c8cfd8;
-        box-shadow: var(--shadow-sm);
-    }
-    .order-id-title {
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 18px; font-weight: 700;
-        color: var(--text-main);
-        letter-spacing: -.5px;
-    }
-
-    .status-pill {
-        display: inline-flex; align-items: center; gap: 6px;
-        padding: 4px 14px; border-radius: 40px;
-        font-size: 12px; font-weight: 600; letter-spacing: .3px;
-    }
-    .status-pill.confirmed { background: #fff7ed; color: #c05621; border: 1.5px solid #fed7aa; }
-    .status-pill.shipping  { background: #eff6ff; color: #1d4ed8; border: 1.5px solid #bfdbfe; }
-    .status-pill.delivered { background: #f0fdf4; color: #15803d; border: 1.5px solid #bbf7d0; }
-
-    .card-section {
-        background: var(--card);
-        border-radius: var(--radius-lg);
-        border: 1.5px solid var(--border);
-        box-shadow: var(--shadow-sm);
-        overflow: hidden;
-        margin-bottom: 18px;
-    }
-    .card-header {
-        display: flex; align-items: center; gap: 10px;
-        padding: 16px 22px;
-        border-bottom: 1.5px solid var(--border);
-        font-size: 13px; font-weight: 600; color: var(--text-muted);
-        letter-spacing: .4px; text-transform: uppercase;
-    }
-    .card-header i { color: var(--brand); font-size: 14px; }
-    .card-body { padding: 20px 22px; }
-
-    .info-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 14px 24px;
-    }
-    .info-item {}
-    .info-item.full { grid-column: span 2; }
-    .info-lbl {
-        font-size: 11px; font-weight: 600; letter-spacing: .5px;
-        text-transform: uppercase; color: var(--text-muted);
-        margin-bottom: 4px;
-    }
-    .info-val {
-        font-size: 14px; font-weight: 500; color: var(--text-main);
-        line-height: 1.5;
-    }
-    .info-val a {
-        color: var(--brand); text-decoration: none;
-    }
-    .info-val a:hover { text-decoration: underline; }
-
-    .product-table {
-        width: 100%; border-collapse: collapse;
-    }
-    .product-table th {
-        font-size: 11px; font-weight: 600; letter-spacing: .4px;
-        text-transform: uppercase; color: var(--text-muted);
-        padding: 0 10px 12px;
-        text-align: left;
-    }
-    .product-table th:last-child { text-align: right; }
-    .product-table td {
-        padding: 11px 10px;
-        border-top: 1px solid var(--border);
-        font-size: 14px;
-        vertical-align: middle;
-    }
-    .product-table td:last-child { text-align: right; font-weight: 600; }
-    .product-name { font-weight: 500; color: var(--text-main); }
-    .product-qty  { color: var(--text-muted); font-size: 13px; }
-    .product-price { color: var(--text-muted); font-size: 13px; }
-
-    .totals-block {
-        border-top: 2px solid var(--border);
-        margin-top: 8px;
-        padding-top: 14px;
-    }
-    .totals-row {
-        display: flex; justify-content: space-between;
-        align-items: center;
-        padding: 5px 10px;
-        font-size: 14px;
-    }
-    .totals-row.main {
-        font-size: 17px; font-weight: 700;
-        color: var(--text-main);
-        padding-top: 10px;
-    }
-    .totals-lbl { color: var(--text-muted); font-weight: 500; }
-    .totals-val { font-weight: 600; }
-
-    .payment-row {
-        display: flex; align-items: center; justify-content: space-between;
-        gap: 14px;
-    }
-    .payment-method {
-        display: inline-flex; align-items: center; gap: 7px;
-        padding: 7px 16px; border-radius: 40px;
-        font-size: 13px; font-weight: 600;
-    }
-    .payment-method.cod  { background: #fff7ed; color: #c05621; border: 1.5px solid #fed7aa; }
-    .payment-method.bank { background: #eff6ff; color: #1d4ed8; border: 1.5px solid #bfdbfe; }
-
-    .collect-block {
-        text-align: right;
-    }
-    .collect-lbl {
-        font-size: 11px; font-weight: 600; letter-spacing: .4px;
-        text-transform: uppercase; color: var(--text-muted);
-        margin-bottom: 4px;
-    }
-    .collect-amount {
-        font-family: 'IBM Plex Mono', monospace;
-        font-size: 22px; font-weight: 700;
-    }
-    .collect-amount.need-collect { color: var(--brand); }
-    .collect-amount.no-collect   { color: var(--green); }
-
-    /* ── Action section ───────────────────────────────────────── */
-    .action-section {
-        background: var(--card);
-        border-radius: var(--radius-lg);
-        border: 1.5px solid var(--border);
-        box-shadow: var(--shadow-sm);
-        padding: 24px 22px;
-        margin-bottom: 18px;
-    }
-    .action-label {
-        font-size: 11px; font-weight: 600; letter-spacing: .5px;
-        text-transform: uppercase; color: var(--text-muted);
-        margin-bottom: 16px;
-    }
-
-    .progress-steps {
-        display: flex; align-items: center;
-        margin-bottom: 24px;
-        position: relative;
-    }
-    .step {
-        display: flex; flex-direction: column; align-items: center;
-        flex: 1; position: relative; z-index: 1;
-    }
-    .step-dot {
-        width: 36px; height: 36px; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 13px; font-weight: 700;
-        border: 2px solid var(--border);
-        background: var(--surface); color: var(--text-muted);
-        transition: all .3s;
-        margin-bottom: 8px;
-    }
-    .step-dot.done  { background: var(--green);  border-color: var(--green);  color: #fff; }
-    .step-dot.active{ background: var(--brand);  border-color: var(--brand);  color: #fff; }
-    .step-lbl {
-        font-size: 11px; font-weight: 600; text-align: center;
-        color: var(--text-muted);
-        line-height: 1.3;
-    }
-    .step-lbl.done   { color: var(--green); }
-    .step-lbl.active { color: var(--brand); }
-    .step-line {
-        flex: 1; height: 2px;
-        background: var(--border);
-        position: relative; z-index: 0; margin-top: -28px;
-    }
-    .step-line.done { background: var(--green); }
-
-    .btn-action-main {
-        width: 100%; padding: 16px;
-        border: none; border-radius: var(--radius-md);
-        font-size: 15px; font-weight: 700;
-        cursor: pointer;
-        display: flex; align-items: center; justify-content: center; gap: 10px;
-        transition: transform .15s, box-shadow .15s, opacity .15s;
-        letter-spacing: .1px;
-    }
-    .btn-action-main:hover:not(:disabled) {
-        transform: translateY(-1px);
-        box-shadow: 0 8px 24px rgba(0,0,0,.12);
-    }
-    .btn-action-main:active:not(:disabled) { transform: translateY(0); }
-    .btn-action-main:disabled { opacity: .5; cursor: not-allowed; }
-
-    .btn-confirm  {
-        background: linear-gradient(135deg, #f97316, #ea580c);
-        color: #fff;
-        box-shadow: 0 4px 16px rgba(249,115,22,.35);
-    }
-    .btn-shipping {
-        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
-        color: #fff;
-        box-shadow: 0 4px 16px rgba(59,130,246,.35);
-    }
-    .btn-done {
-        background: linear-gradient(135deg, #22c55e, #15803d);
-        color: #fff;
-        box-shadow: 0 4px 16px rgba(34,197,94,.30);
-        cursor: default;
-    }
-
-    .action-hint {
-        font-size: 12px; color: var(--text-muted);
-        text-align: center; margin-top: 10px;
-        line-height: 1.5;
-    }
-
-    
-    .spinner {
-        width: 18px; height: 18px;
-        border: 2px solid rgba(255,255,255,.4);
-        border-top-color: #fff;
-        border-radius: 50%;
-        animation: spin .6s linear infinite;
-        display: none;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-   
-    @media (max-width: 600px) {
-        .info-grid { grid-template-columns: 1fr; }
-        .info-item.full { grid-column: span 1; }
-        .payment-row { flex-direction: column; align-items: flex-start; }
-        .collect-block { text-align: left; }
-    }
-</style>
 @endsection
 
 @section('content')
@@ -291,26 +38,52 @@
     <div class="action-section">
         <div class="action-label"><i class="fas fa-route" style="color:var(--brand)"></i>&nbsp; Tiến trình giao hàng</div>
 
-        {{-- Progress bar --}}
+        {{-- Progress bar — 4 bước: Xác nhận → Đang giao → Đã đến nơi → Hoàn thành --}}
+        @php
+            $daDenNoi = session('da_den_noi_' . $hoaDon->ma_hoa_don, false);
+        @endphp
         <div class="progress-steps">
+            {{-- Bước 1: Xác nhận --}}
             <div class="step">
                 <div class="step-dot done"><i class="fas fa-check"></i></div>
                 <div class="step-lbl done">Xác nhận<br>đơn hàng</div>
             </div>
+
             <div class="step-line {{ in_array($hoaDon->trang_thai, ['SHIPPING','DELIVERED']) ? 'done' : '' }}"></div>
+
+            {{-- Bước 2: Đang vận chuyển --}}
             <div class="step">
-                <div class="step-dot {{ $hoaDon->trang_thai === 'SHIPPING' ? 'active' : ($hoaDon->trang_thai === 'DELIVERED' ? 'done' : '') }}">
-                    @if($hoaDon->trang_thai === 'DELIVERED')
+                <div class="step-dot {{ $hoaDon->trang_thai === 'SHIPPING' && !$daDenNoi ? 'active' : ($hoaDon->trang_thai === 'DELIVERED' || ($hoaDon->trang_thai === 'SHIPPING' && $daDenNoi) ? 'done' : '') }}">
+                    @if($hoaDon->trang_thai === 'DELIVERED' || ($hoaDon->trang_thai === 'SHIPPING' && $daDenNoi))
                         <i class="fas fa-check"></i>
                     @else
                         <i class="fas fa-motorcycle"></i>
                     @endif
                 </div>
-                <div class="step-lbl {{ $hoaDon->trang_thai === 'SHIPPING' ? 'active' : ($hoaDon->trang_thai === 'DELIVERED' ? 'done' : '') }}">
+                <div class="step-lbl {{ $hoaDon->trang_thai === 'SHIPPING' && !$daDenNoi ? 'active' : ($hoaDon->trang_thai === 'DELIVERED' || ($hoaDon->trang_thai === 'SHIPPING' && $daDenNoi) ? 'done' : '') }}">
                     Đang<br>vận chuyển
                 </div>
             </div>
-            <div class="step-line {{ $hoaDon->trang_thai === 'DELIVERED' ? 'done' : '' }}"></div>
+
+            <div class="step-line {{ $daDenNoi || $hoaDon->trang_thai === 'DELIVERED' ? 'done' : '' }}"></div>
+
+            {{-- Bước 3: Đã đến điểm giao --}}
+            <div class="step">
+                <div class="step-dot {{ $hoaDon->trang_thai === 'DELIVERED' ? 'done' : ($daDenNoi ? 'active' : '') }}" id="step-arrived-dot">
+                    @if($hoaDon->trang_thai === 'DELIVERED')
+                        <i class="fas fa-check"></i>
+                    @else
+                        <i class="fas fa-map-marker-alt"></i>
+                    @endif
+                </div>
+                <div class="step-lbl {{ $hoaDon->trang_thai === 'DELIVERED' ? 'done' : ($daDenNoi ? 'active' : '') }}" id="step-arrived-lbl">
+                    Đã đến<br>điểm giao
+                </div>
+            </div>
+
+            <div class="step-line {{ $hoaDon->trang_thai === 'DELIVERED' ? 'done' : '' }}" id="step-line-final"></div>
+
+            {{-- Bước 4: Hoàn thành --}}
             <div class="step">
                 <div class="step-dot {{ $hoaDon->trang_thai === 'DELIVERED' ? 'done' : '' }}">
                     @if($hoaDon->trang_thai === 'DELIVERED')
@@ -339,19 +112,42 @@
             </p>
 
         @elseif($hoaDon->trang_thai === 'SHIPPING')
-            <button class="btn-action-main btn-shipping" id="action-btn"
-                    onclick="handleUpdateStatus({{ $hoaDon->ma_hoa_don }}, 'SHIPPING')">
-                <span class="spinner" id="btn-spinner"></span>
-                <i class="fas fa-map-marker-alt" id="btn-icon"></i>
-                <span id="btn-text">Đã đến điểm giao — Hoàn thành đơn</span>
+            {{-- Nút 1: Đã đến điểm giao --}}
+            <button class="btn-action-main btn-shipping" id="btn-arrived"
+                    onclick="handleDaDenNoi({{ $hoaDon->ma_hoa_don }})"
+                    style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 4px 16px rgba(139,92,246,.35);">
+                <span class="spinner" id="spinner-arrived"></span>
+                <i class="fas fa-map-marker-alt" id="icon-arrived"></i>
+                <span id="text-arrived">Đã đến điểm giao — Thông báo khách</span>
             </button>
-            <p class="action-hint">
+            <p class="action-hint" id="hint-arrived">
                 <i class="fas fa-info-circle"></i>
-                Nhấn khi đã giao hàng thành công cho khách hàng.
-                @if($hoaDon->phuong_thuc_thanh_toan === 'COD')
-                    Nhớ thu <strong>{{ number_format($hoaDon->tong_tien, 0, ',', '.') }} đ</strong> tiền mặt.
-                @endif
+                Nhấn khi đã đến địa chỉ giao. Hệ thống sẽ gửi thông báo để khách hàng xuống nhận.
             </p>
+
+            {{-- Nút 2: Hoàn thành — ẩn cho đến khi ấn nút trên --}}
+            <div id="finish-wrap" style="
+                max-height: 0;
+                overflow: hidden;
+                opacity: 0;
+                transition: max-height .45s ease, opacity .35s ease, margin .35s ease;
+                margin-top: 0;
+            ">
+                <button class="btn-action-main btn-done" id="action-btn"
+                        onclick="handleUpdateStatus({{ $hoaDon->ma_hoa_don }}, 'SHIPPING')"
+                        style="margin-top: 14px;">
+                    <span class="spinner" id="btn-spinner"></span>
+                    <i class="fas fa-check-circle" id="btn-icon"></i>
+                    <span id="btn-text">Hoàn thành đơn hàng</span>
+                </button>
+                <p class="action-hint" style="margin-top:8px;">
+                    <i class="fas fa-info-circle"></i>
+                    Nhấn khi đã giao hàng thành công cho khách hàng.
+                    @if($hoaDon->phuong_thuc_thanh_toan === 'COD' && $hoaDon->trang_thai_thanh_toan === 'CHUA_THANH_TOAN')
+                        Nhớ thu <strong>{{ number_format($hoaDon->tong_tien, 0, ',', '.') }} đ</strong> tiền mặt.
+                    @endif
+                </p>
+            </div>
 
         @else
             <button class="btn-action-main btn-done" disabled>
@@ -517,10 +313,84 @@
 
 @section('scripts')
 <script>
+function handleDaDenNoi(id) {
+    const code = '#HD-' + String(id).padStart(4, '0');
+    if (!confirm(`Xác nhận bạn đã đến điểm giao cho đơn ${code}?\nHệ thống sẽ gửi thông báo đến khách hàng.`)) return;
+
+    const btn     = document.getElementById('btn-arrived');
+    const spinner = document.getElementById('spinner-arrived');
+    const icon    = document.getElementById('icon-arrived');
+    const text    = document.getElementById('text-arrived');
+
+    if (btn) btn.disabled = true;
+    if (spinner) spinner.style.display = 'inline-block';
+    if (icon) icon.style.display = 'none';
+    if (text) text.textContent = 'Đang gửi thông báo…';
+
+    fetch(`/shipper/don-hang/${id}/da-den-noi`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': _csrfToken,
+        },
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (spinner) spinner.style.display = 'none';
+        if (icon) icon.style.display = '';
+
+        if (data.success) {
+            showToast('✅ Đã gửi thông báo đến khách hàng!', 'success');
+
+            const dotArrived = document.getElementById('step-arrived-dot');
+            const lblArrived = document.getElementById('step-arrived-lbl');
+            if (dotArrived) {
+                dotArrived.className = 'step-dot active';
+                dotArrived.innerHTML = '<i class="fas fa-map-marker-alt"></i>';
+            }
+            if (lblArrived) lblArrived.className = 'step-lbl active';
+
+            if (btn) {
+                btn.style.background = 'linear-gradient(135deg, #6b7280, #4b5563)';
+                btn.style.boxShadow  = 'none';
+                btn.style.cursor     = 'default';
+                btn.style.opacity    = '.75';
+                btn.onclick          = null;
+            }
+            if (text) text.textContent = '✓ Đã gửi thông báo đến khách';
+
+            const hint = document.getElementById('hint-arrived');
+            if (hint) {
+                hint.innerHTML = `<i class="fas fa-check-circle" style="color:var(--green)"></i>
+                    Khách hàng đã được thông báo. Hãy chờ khách xuống nhận hàng.`;
+            }
+
+            const wrap = document.getElementById('finish-wrap');
+            if (wrap) {
+                wrap.style.maxHeight = wrap.scrollHeight + 120 + 'px';
+                wrap.style.opacity   = '1';
+                wrap.style.marginTop = '0';
+            }
+
+        } else {
+            showToast(data.message || 'Có lỗi xảy ra.', 'error');
+            if (btn) btn.disabled = false;
+            if (text) text.textContent = 'Đã đến điểm giao — Thông báo khách';
+        }
+    })
+    .catch(() => {
+        showToast('Có lỗi xảy ra, vui lòng thử lại.', 'error');
+        if (btn) btn.disabled = false;
+        if (spinner) spinner.style.display = 'none';
+        if (icon) icon.style.display = '';
+        if (text) text.textContent = 'Đã đến điểm giao — Thông báo khách';
+    });
+}
+
 function handleUpdateStatus(id, currentStatus) {
     const actionMap = {
         'CONFIRMED': { label: 'nhận hàng và bắt đầu giao', next: 'SHIPPING' },
-        'SHIPPING':  { label: 'hoàn thành đơn hàng này', next: 'DELIVERED'  },
+        'SHIPPING':  { label: 'hoàn thành đơn hàng này',   next: 'DELIVERED' },
     };
     const action = actionMap[currentStatus];
     if (!action) return;
@@ -528,7 +398,7 @@ function handleUpdateStatus(id, currentStatus) {
     const code = '#HD-' + String(id).padStart(4, '0');
     if (!confirm(`Xác nhận ${action.label} cho đơn ${code}?`)) return;
 
-    const btn = document.getElementById('action-btn');
+    const btn     = document.getElementById('action-btn');
     const spinner = document.getElementById('btn-spinner');
     const icon    = document.getElementById('btn-icon');
     const text    = document.getElementById('btn-text');
@@ -549,7 +419,6 @@ function handleUpdateStatus(id, currentStatus) {
     .then(data => {
         if (data.success) {
             showToast(data.message, 'success');
-
             if (data.new_status === 'DELIVERED') {
                 setTimeout(() => {
                     window.location.href = '{{ route("shipper.dashboard") }}';
@@ -565,7 +434,7 @@ function handleUpdateStatus(id, currentStatus) {
             if (text) {
                 text.textContent = currentStatus === 'CONFIRMED'
                     ? 'Nhận hàng & bắt đầu giao'
-                    : 'Đã đến điểm giao — Hoàn thành đơn';
+                    : 'Hoàn thành đơn hàng';
             }
         }
     })

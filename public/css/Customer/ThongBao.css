@@ -1,0 +1,221 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+:root {
+    --brand: #e75480;
+    --blue: #3b82f6;
+    --green: #22c55e;
+    --surface: #f5f7fb;
+    --card: #ffffff;
+    --border: #e8ecf0;
+    --text-main: #1a1f36;
+    --text-muted: #6c757d;
+    --radius-md: 12px;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, .06);
+}
+
+html,
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'IBM Plex Sans', sans-serif;
+    background: var(--surface);
+    color: var(--text-main);
+}
+
+.topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: var(--card);
+    border-bottom: 1.5px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 28px;
+    height: 58px;
+}
+
+.topbar-brand {
+    font-weight: 700;
+    font-size: 15px;
+    color: var(--brand);
+}
+
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-decoration: none;
+    padding: 7px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--card);
+    transition: all .15s;
+}
+
+.back-link:hover {
+    color: var(--text-main);
+    border-color: #c8cfd8;
+}
+
+.page-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 36px 20px 60px;
+}
+
+.page-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.page-sub {
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 28px;
+}
+
+.notif-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.notif-card {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-left: 4px solid var(--blue);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+    padding: 18px 48px 18px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    position: relative;
+    transition: opacity .3s, transform .3s;
+}
+
+.notif-card.removing {
+    opacity: 0;
+    transform: translateX(30px);
+}
+
+.notif-icon {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #eff6ff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--blue);
+    font-size: 18px;
+}
+
+.notif-body {
+    flex: 1;
+}
+
+.notif-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--blue);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: .4px;
+}
+
+.notif-content {
+    font-size: 14px;
+    line-height: 1.65;
+    color: var(--text-main);
+}
+
+.notif-time {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 8px;
+}
+
+.btn-close-notif {
+    position: absolute;
+    top: 12px;
+    right: 14px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 50%;
+    width: 26px;
+    height: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-muted);
+    font-size: 11px;
+    transition: all .15s;
+}
+
+.btn-close-notif:hover {
+    background: #fee2e2;
+    border-color: #fca5a5;
+    color: #dc2626;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--text-muted);
+}
+
+.empty-state i {
+    font-size: 52px;
+    color: #e2e8f0;
+    display: block;
+    margin-bottom: 18px;
+}
+
+.empty-state p {
+    font-size: 15px;
+    font-weight: 500;
+    margin: 0;
+}
+
+.empty-state small {
+    font-size: 13px;
+    display: block;
+    margin-top: 6px;
+}
+
+#toast {
+    position: fixed;
+    bottom: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 11px 22px;
+    border-radius: 40px;
+    font-size: 14px;
+    font-weight: 500;
+    background: #1a1f36;
+    color: #fff;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .3s;
+    z-index: 9999;
+}
+
+#toast.show {
+    opacity: 1;
+}
+
+#toast.error {
+    background: #dc2626;
+}

@@ -11,6 +11,7 @@ use App\Http\Controllers\BaoCaoController;
 use App\Http\Controllers\Shipper\ShipperController;
 use App\Http\Controllers\Shipper\NhanDonController;
 use App\Http\Controllers\Shipper\ShipperProfileController;
+use App\Http\Controllers\Shipper\ThongBaoController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Customer\CustomerProfileController;
@@ -157,6 +158,7 @@ Route::middleware(['auth', 'role:SHIPPER'])->group(function () {
     Route::get('/shipper/profile',[ShipperProfileController::class, 'edit'])->name('shipper.profile.edit');
     Route::patch('/shipper/profile',[ShipperProfileController::class, 'update'])->name('shipper.profile.update');
     Route::patch('/shipper/profile/password', [ShipperProfileController::class, 'updatePassword']) ->name('shipper.profile.password');
+    Route::post('/shipper/don-hang/{id}/da-den-noi',[ThongBaoController::class, 'guiThongBao'])->name('shipper.don-hang.da-den-noi');
 });
 
 
@@ -189,9 +191,11 @@ Route::middleware(['auth', 'role:KHACH_HANG'])->group(function () {
 
     Route::post('/customer/gio-hang/apply-points', [GioHangController::class, 'applyPoints'])
         ->name('customer.gio-hang.apply-points');
-    Route::get('/customer/thanh-toan', [ThanhToanController::class, 'index'])
-        ->name('customer.thanh-toan');
+    Route::get('/customer/thanh-toan', [ThanhToanController::class, 'index'])->name('customer.thanh-toan');
 
-    Route::post('/customer/thanh-toan', [ThanhToanController::class, 'store'])
-        ->name('customer.thanh-toan.store');
+    Route::post('/customer/thanh-toan', [ThanhToanController::class, 'store'])->name('customer.thanh-toan.store');
+    Route::get('/customer/thong-bao',[ThongBaoController::class, 'index'])->name('customer.thong-bao');
+    Route::get('/customer/thong-bao/so-chua-doc',[ThongBaoController::class, 'soChuaDoc'])->name('customer.thong-bao.so-chua-doc');
+ 
+    Route::patch('/customer/thong-bao/{id}/xoa',[ThongBaoController::class, 'xoa'])->name('customer.thong-bao.xoa');
 });

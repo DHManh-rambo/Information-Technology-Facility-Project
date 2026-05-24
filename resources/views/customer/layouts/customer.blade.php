@@ -8,93 +8,7 @@
     <title>@yield('title', '🌸 Cửa Hàng Hoa Tươi')</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Be+Vietnam+Pro:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-    <style>
-        #page-transition {
-            position: fixed;
-            inset: 0;
-            z-index: 9999;
-            background: linear-gradient(135deg, #fff0f3 0%, #fce4eb 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.8rem;
-            pointer-events: none;
-            opacity: 0;
-            transition: opacity .25s ease;
-        }
-        #page-transition.active { opacity: 1; pointer-events: all; }
-
-        .main-wrap, .detail-wrap, .breadcrumb, .related-section {
-            animation: fadeUp .35s ease both;
-        }
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(14px); }
-            to   { opacity: 1; transform: translateY(0); }
-        }
-
-        .cart-dropdown-wrapper {
-            position: relative;
-            margin: 0 8px;
-        }
-        .cart-icon-btn {
-            background: none;
-            border: none;
-            font-size: 1.3rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            color: #374151;
-            padding: 6px 10px;
-            border-radius: 30px;
-            transition: background .2s;
-        }
-        .cart-icon-btn:hover {
-            background: #fdf2f8;
-        }
-        .cart-badge {
-            background: #be185d;
-            color: white;
-            font-size: 0.7rem;
-            font-weight: bold;
-            min-width: 18px;
-            height: 18px;
-            border-radius: 30px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0 5px;
-            margin-left: 2px;
-        }
-        .cart-dropdown-menu {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: #fff;
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(190,24,93,.15);
-            min-width: 180px;
-            padding: 8px 0;
-            z-index: 1000;
-            display: none;
-            border: 1px solid #fce7f3;
-        }
-        .cart-dropdown-menu.show {
-            display: block;
-        }
-        .cart-dropdown-menu a {
-            display: block;
-            padding: 10px 18px;
-            color: #1f2937;
-            text-decoration: none;
-            font-size: 0.85rem;
-            transition: background .15s;
-        }
-        .cart-dropdown-menu a:hover {
-            background: #fdf2f8;
-            color: #be185d;
-        }
-    </style>
+    
 
     @yield('head-styles')
 </head>
@@ -139,6 +53,14 @@
         </a>
 
         @auth
+            {{-- NÚT THÔNG BÁO --}}
+            <div class="notif-btn-wrapper">
+                <a href="{{ route('customer.thong-bao') }}" class="notif-icon-btn" id="notifBtn" title="Thông báo đơn hàng">
+                    🔔
+                    <span class="notif-dot" id="notifDot"></span>
+                </a>
+            </div>
+
             {{-- NÚT GIỎ HÀNG VỚI DROPDOWN --}}
             <div class="cart-dropdown-wrapper">
                 <button class="cart-icon-btn" id="cartDropdownBtn">
@@ -342,6 +264,21 @@
             if (count === 0) badge.textContent = '0';
         }
     };
+
+    // Kiểm tra thông báo chưa đọc → hiện chấm đỏ trên chuông
+    @auth
+    (function checkNotifDot() {
+        fetch('/customer/thong-bao/so-chua-doc', {
+            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+        })
+        .then(r => r.json())
+        .then(data => {
+            const dot = document.getElementById('notifDot');
+            if (dot && data.count > 0) dot.classList.add('has-notif');
+        })
+        .catch(() => {});
+    })();
+    @endauth
 </script>
 
 @yield('scripts')
