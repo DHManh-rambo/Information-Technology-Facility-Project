@@ -2,9 +2,28 @@
 
 @section('title', 'Chi tiết đơn #HD-' . str_pad($hoaDon->ma_hoa_don, 4, '0', STR_PAD_LEFT))
 
-@section('extra-styles')
- <link rel="stylesheet" href="{{ asset('css/Shipper/ShipperDashboard.css') }}">
+@section('head-styles')
+{{-- ShipperDashboard.css chứa style cho .detail-wrap, .back-bar, .card-section… --}}
+<link rel="stylesheet" href="{{ asset('css/Shipper/ShipperDashboard.css') }}">
+@endsection
 
+@section('extra-styles')
+<style>
+   
+    :root {
+        --brand:      #e75480 !important;
+        --border:     #e8ecf0 !important;
+        --text-main:  #1a1f36 !important;
+        --text-muted: #6c757d !important;
+        --surface:    #f5f7fb !important;
+        --card:       #ffffff !important;
+        --green:      #22c55e !important;
+        --radius-md:  12px    !important;
+        --radius-lg:  18px    !important;
+        --radius-sm:  8px     !important;
+        --shadow-sm:  0 2px 8px rgba(0,0,0,.06) !important;
+    }
+</style>
 @endsection
 
 @section('content')

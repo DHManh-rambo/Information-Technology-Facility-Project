@@ -13,6 +13,7 @@ use App\Http\Controllers\Shipper\NhanDonController;
 use App\Http\Controllers\Shipper\ShipperProfileController;
 use App\Http\Controllers\Shipper\ThongBaoController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Customer\ThongBaoController as CustomerThongBaoController;
 use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Customer\CustomerProfileController;
 use App\Http\Controllers\Customer\ChiTietSanPhamController;
@@ -194,8 +195,9 @@ Route::middleware(['auth', 'role:KHACH_HANG'])->group(function () {
     Route::get('/customer/thanh-toan', [ThanhToanController::class, 'index'])->name('customer.thanh-toan');
 
     Route::post('/customer/thanh-toan', [ThanhToanController::class, 'store'])->name('customer.thanh-toan.store');
-    Route::get('/customer/thong-bao',[ThongBaoController::class, 'index'])->name('customer.thong-bao');
-    Route::get('/customer/thong-bao/so-chua-doc',[ThongBaoController::class, 'soChuaDoc'])->name('customer.thong-bao.so-chua-doc');
- 
-    Route::patch('/customer/thong-bao/{id}/xoa',[ThongBaoController::class, 'xoa'])->name('customer.thong-bao.xoa');
+    Route::get('/customer/thong-bao',[CustomerThongBaoController::class, 'index'])->name('customer.thong-bao');
+
+    Route::get('/customer/thong-bao/so-chua-doc',[CustomerThongBaoController::class, 'soChuaDoc'])->name('customer.thong-bao.so-chua-doc');
+
+    Route::patch('/customer/thong-bao/{id}/xoa',[CustomerThongBaoController::class, 'xoa'])->name('customer.thong-bao.xoa');
 });

@@ -5,15 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'Shipper') · FlowerStore</title>
-
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
+    {{-- CSS riêng của từng trang (link tags) --}}
+    @yield('head-styles')
+
     <style>
         *, *::before, *::after { box-sizing: border-box; }
 
+        /* ── Biến CSS dùng chung cho layout (NhanDon, Profile…) ── */
         :root {
             --brand:       #e75480;
             --brand-light: #fce8ef;
@@ -21,7 +24,7 @@
             --navy:        #1a1f36;
             --surface:     #f5f7fb;
             --card:        #ffffff;
-            --border:      #e8ecf0;
+            --border:      #e8ecf0;   /* chỉ là màu, dùng với border: 1.5px solid var(--border) */
             --text-main:   #1a1f36;
             --text-muted:  #6c757d;
             --green:       #22c55e;
@@ -43,6 +46,7 @@
             min-height: 100vh;
         }
 
+        /* Topbar cho các trang con (NhanDon, Profile) — không áp dụng cho Dashboard */
         .topbar {
             position: fixed; top: 0; left: 0; right: 0; z-index: 100;
             height: var(--topbar-h);
@@ -101,9 +105,10 @@
         #toast.show { opacity: 1; }
         #toast.success { background: #16a34a; }
         #toast.error   { background: #dc2626; }
-
-        @yield('extra-styles')
     </style>
+
+    {{-- CSS inline tùy chỉnh của từng trang (style blocks) --}}
+    @yield('extra-styles')
 
     @yield('head')
 </head>

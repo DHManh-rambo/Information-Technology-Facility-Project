@@ -22,6 +22,15 @@
     --radius: 2px;
     --mono: 'IBM Plex Mono', monospace;
     --sans: 'IBM Plex Sans', sans-serif;
+
+    --text-muted: #6c757d;
+    --card: #ffffff;
+    --surface: #f5f7fb;
+    --brand: #f97316;
+    --green: #22c55e;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
 }
 
 html,
@@ -763,8 +772,6 @@ body {
     gap: 14px 24px;
 }
 
-.info-item {}
-
 .info-item.full {
     grid-column: span 2;
 }
@@ -926,7 +933,6 @@ body {
     color: var(--green);
 }
 
-/* ── Action section ───────────────────────────────────────── */
 .action-section {
     background: var(--card);
     border-radius: var(--radius-lg);
@@ -1075,7 +1081,6 @@ body {
     line-height: 1.5;
 }
 
-
 .spinner {
     width: 18px;
     height: 18px;
@@ -1091,7 +1096,6 @@ body {
         transform: rotate(360deg);
     }
 }
-
 
 @media (max-width: 600px) {
     .info-grid {
