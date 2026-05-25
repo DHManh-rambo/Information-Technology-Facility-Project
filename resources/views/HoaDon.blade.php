@@ -142,8 +142,9 @@
 
                                 {{-- Nút Xóa: chỉ enabled khi chưa thanh toán hoặc đã hủy --}}
                                 @php
-                                    $canDelete = $hd->trang_thai_thanh_toan === 'CHUA_THANH_TOAN'
-                                              || $hd->trang_thai === 'CANCELLED';
+                                    $canDelete = ($hd->trang_thai_thanh_toan === 'CHUA_THANH_TOAN'
+                                              || $hd->trang_thai === 'CANCELLED')
+                                              && $hd->trang_thai !== 'DELIVERED';
                                 @endphp
                                 <button class="btn btn-delete"
                                         data-id="{{ $hd->ma_hoa_don }}"

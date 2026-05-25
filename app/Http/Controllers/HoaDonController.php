@@ -105,6 +105,13 @@ class HoaDonController extends Controller
     {
         $hoaDon = HoaDon::findOrFail($id);
 
+        if ($hoaDon->trang_thai === 'DELIVERED') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không thể xóa hóa đơn đã giao thành công.',
+            ], 403);
+        }
+
         $coTheXoa = $hoaDon->trang_thai_thanh_toan === 'CHUA_THANH_TOAN'
                  || $hoaDon->trang_thai === 'CANCELLED';
 
