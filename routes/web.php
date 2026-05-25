@@ -83,7 +83,6 @@ Route::middleware(['auth', 'role:ADMIN'])->group(function () {
         Route::get('/san-pham',     [BaoCaoController::class, 'baoCaoSanPham'])->name('san-pham');
         Route::get('/ton-kho',      [BaoCaoController::class, 'index'])->name('ton-kho');
         Route::get('/khach-hang',   [BaoCaoController::class, 'index'])->name('khach-hang');
-        Route::post('/hang-hong',   [BaoCaoController::class, 'baoHangHong'])->name('bao-hang-hong');
     });
 });
 
@@ -147,7 +146,6 @@ Route::get('/bao-cao/san-pham/{id}/hang-hong', [BaoCaoController::class, 'chiTie
 Route::get('/bao-cao/san-pham/{id}/chi-tiet',  [BaoCaoController::class, 'chiTietSanPham'])->name('bao-cao.san-pham.chi-tiet');
 Route::get('/bao-cao/ton-kho',       [BaoCaoController::class, 'index'])->name('bao-cao.ton-kho');
 Route::get('/bao-cao/khach-hang',    [BaoCaoController::class, 'index'])->name('bao-cao.khach-hang');
-Route::post('/bao-cao/hang-hong',    [BaoCaoController::class, 'baoHangHong'])->name('bao-cao.bao-hang-hong');
 
 
 

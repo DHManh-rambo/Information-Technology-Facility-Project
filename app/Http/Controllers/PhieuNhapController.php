@@ -46,8 +46,7 @@ class PhieuNhapController extends Controller
             ->select('ctn.ma_san_pham', DB::raw('SUM(ctn.so_luong_con_lai) as tong_con_lai'))
             ->pluck('tong_con_lai', 'ma_san_pham');
 
-        $danhSachSanPham = SanPham::where('trang_thai', 'DANG_BAN')
-                                  ->orderBy('ten_san_pham')
+        $danhSachSanPham = SanPham::orderBy('ten_san_pham')
                                   ->get()
                                   ->map(function ($sp) use ($tonKhoTheoLo) {
                                       $sp->ton_kho_lo = (int) ($tonKhoTheoLo[$sp->ma_san_pham] ?? 0);

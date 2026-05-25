@@ -233,7 +233,12 @@
         .then(res => res.json())
         .then(data => {
             if (data.success) {
-                location.reload();
+                const alertBox = document.createElement('div');
+                alertBox.className = 'alert alert-success';
+                alertBox.innerHTML = '<span>✓ Xóa người dùng thành công!</span>';
+                alertBox.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;padding:12px 20px;border-radius:6px;background:#d4edda;color:#155724;border:1px solid #c3e6cb;font-weight:500;box-shadow:0 2px 8px rgba(0,0,0,0.15);';
+                document.body.appendChild(alertBox);
+                setTimeout(() => location.reload(), 1200);
             } else {
                 alert('Xóa thất bại: ' + data.message);
             }
