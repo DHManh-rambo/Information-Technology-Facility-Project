@@ -64,7 +64,11 @@
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Lương (VNĐ)</label>
-                        <input type="number" name="luong" id="edit_luong" class="form-control" step="1000">
+                        <input type="number" name="luong" id="edit_luong" class="form-control" step="1000"
+                               min="0" max="999999999999999"
+                               oninput="checkLuong(this)">
+                        <small class="text-muted">Tối đa: 999.999.999.999.999 đ</small>
+                        <small id="luong-feedback" style="display:none; color:#e53e3e;"></small>
                     </div>
                     <div class="col-md-3 mb-3">
                         <label class="form-label">Công việc</label>
@@ -325,6 +329,19 @@
         div.innerHTML = msg + '<button type="button" class="btn-close" data-bs-dismiss="alert"></button>';
         document.querySelector('.container').prepend(div);
         setTimeout(() => div.remove(), 4000);
+    }
+
+    function checkLuong(input) {
+        const MAX = 999999999999999;
+        const fb  = document.getElementById('luong-feedback');
+        if (input.value !== '' && Number(input.value) > MAX) {
+            fb.textContent = '✗ Vượt giới hạn tối đa';
+            fb.style.display = 'block';
+            input.classList.add('is-invalid');
+        } else {
+            fb.style.display = 'none';
+            input.classList.remove('is-invalid');
+        }
     }
 </script>
 </body>

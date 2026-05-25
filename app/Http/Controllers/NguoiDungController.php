@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\NguoiDung;
 use App\Models\KhachHang;
 use App\Models\NhanVien;
+use App\Models\HoaDon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -14,6 +15,15 @@ class NguoiDungController extends Controller
     {
         $nguoiDungs = NguoiDung::with(['khachHang', 'nhanVien'])->get();
         return view('NguoiDung', compact('nguoiDungs'));
+    }
+
+    public function checkUsername(Request $request)
+    {
+        $exists = NguoiDung::where('ten_dang_nhap', $request->ten_dang_nhap)
+            ->when($request->user_id, fn($q) => $q->where('ma_nguoi_dung', '!=', $request->user_id))
+            ->exists();
+
+        return response()->json(['exists' => $exists]);
     }
 
     public function editData($id)
@@ -34,7 +44,7 @@ class NguoiDungController extends Controller
     {
         $request->validate([
             'ten_dang_nhap' => 'required|unique:nguoi_dung',
-            'mat_khau' => 'required|min:4',
+            'mat_khau' => 'required|min:6',
             'vai_tro' => 'required|in:KHACH_HANG,NHAN_VIEN,SHIPPER,ADMIN',
         ]);
 
@@ -83,7 +93,7 @@ class NguoiDungController extends Controller
 
         $request->validate([
             'ten_dang_nhap' => 'required|unique:nguoi_dung,ten_dang_nhap,' . $id . ',ma_nguoi_dung',
-            'mat_khau' => 'nullable|min:4',
+            'mat_khau' => 'nullable|min:6',
         ]);
 
         DB::beginTransaction();
@@ -133,6 +143,17 @@ class NguoiDungController extends Controller
     public function destroy($id)
     {
         $user = NguoiDung::findOrFail($id);
+
+        if ($user->isKhachHang()) {
+            $soHoaDon = HoaDon::where('ma_khach_hang', $id)->count();
+            if ($soHoaDon > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Không thể xóa! Khách hàng này có ' . $soHoaDon . ' hóa đơn liên quan, vui lòng xóa hóa đơn trước.',
+                ], 422);
+            }
+        }
+
         DB::beginTransaction();
         try {
             if ($user->isKhachHang()) {

@@ -40,15 +40,16 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label>Tên đăng nhập *</label>
-                        <input type="text" name="ten_dang_nhap" id="ten_dang_nhap" required>
+                        <input type="text" name="ten_dang_nhap" id="ten_dang_nhap" required autocomplete="off">
+                        <small id="username-feedback"></small>
                     </div>
                     <div class="form-group">
                         <label>Mật khẩu</label>
                         <div class="password-wrapper">
-                            <input type="password" name="mat_khau" id="mat_khau">
+                            <input type="password" name="mat_khau" id="mat_khau" minlength="6">
                             <button type="button" class="toggle-pwd" onclick="togglePassword('mat_khau')">hiện/ẩn</button>
                         </div>
-                        <small>Để trống nếu không muốn đổi khi sửa</small>
+                        <small>Tối thiểu 6 ký tự. Để trống nếu không muốn đổi khi sửa</small>
                     </div>
                     <div class="form-group">
                         <label>Vai trò *</label>
@@ -101,7 +102,7 @@
                                 <option value="SHIPPER">Shipper</option><option value="KHAC">Khác</option>
                             </select>
                         </div>
-                        <div class="form-group"><label>Lương</label><input type="number" step="100000" name="luong" id="luong"></div>
+                        <div class="form-group"><label>Lương</label><input type="number" step="100000" name="luong" id="luong" min="0" max="999999999999999" oninput="checkLuong(this)"><small class="text-muted">Tối đa: 999.999.999.999.999 đ</small><small id="luong-feedback" style="display:none; color:#e53e3e;"></small></div>
                         <div class="form-group"><label>Công việc</label><input type="text" name="cong_viec" id="cong_viec"></div>
                     </div>
                 </div>
@@ -187,6 +188,8 @@
         roleSelect.disabled = false;
         toggleRoleFields();
         document.getElementById('userId').value = '';
+        usernameFeedback.textContent = '';
+        usernameOk = true;
     }
 
     window.editUser = function(id) {
@@ -237,7 +240,64 @@
         });
     }
 
+    const usernameFeedback = document.getElementById('username-feedback');
+    const usernameInput    = document.getElementById('ten_dang_nhap');
+    let usernameOk = true;
+    let usernameTimer = null;
+
+    usernameInput.addEventListener('input', function () {
+        clearTimeout(usernameTimer);
+        const val = this.value.trim();
+        if (!val) {
+            usernameFeedback.textContent = '';
+            usernameOk = true;
+            return;
+        }
+        usernameFeedback.style.color = '#888';
+        usernameFeedback.textContent = 'Đang kiểm tra…';
+
+        usernameTimer = setTimeout(() => {
+            const userId = document.getElementById('userId').value;
+            fetch(`/nguoi-dung/check-username?ten_dang_nhap=${encodeURIComponent(val)}&user_id=${userId}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.exists) {
+                        usernameFeedback.style.color = '#e53e3e';
+                        usernameFeedback.textContent = '✗ Tên đăng nhập đã tồn tại';
+                        usernameOk = false;
+                    } else {
+                        usernameFeedback.style.color = '#38a169';
+                        usernameFeedback.textContent = '✓ Tên đăng nhập hợp lệ';
+                        usernameOk = true;
+                    }
+                })
+                .catch(() => {
+                    usernameFeedback.textContent = '';
+                    usernameOk = true;
+                });
+        }, 400);
+    });
+
+    function checkLuong(input) {
+        const MAX = 999999999999999;
+        const fb  = document.getElementById('luong-feedback');
+        if (input.value !== '' && Number(input.value) > MAX) {
+            fb.textContent = '✗ Vượt giới hạn tối đa';
+            fb.style.display = 'block';
+            input.style.borderColor = '#e53e3e';
+        } else {
+            fb.style.display = 'none';
+            input.style.borderColor = '';
+        }
+    }
+
     form.addEventListener('submit', function(e) {
+        if (!usernameOk) {
+            alert('Tên đăng nhập đã tồn tại, vui lòng chọn tên khác');
+            e.preventDefault();
+            return false;
+        }
+
         let role = roleSelect.value;
         if (!role) {
             alert('Vui lòng chọn vai trò trước khi thêm/sửa');

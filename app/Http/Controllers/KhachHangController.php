@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\KhachHang;
 use App\Models\NguoiDung;
+use App\Models\HoaDon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -57,6 +58,12 @@ class KhachHangController extends Controller
    
     public function destroy($id, Request $request)
 {
+    $soHoaDon = HoaDon::where('ma_khach_hang', $id)->count();
+    if ($soHoaDon > 0) {
+        return redirect()->route('khach-hang.index', ['sort' => $request->sort])
+                         ->with('error', 'Không thể xóa! Khách hàng này có ' . $soHoaDon . ' hóa đơn liên quan, vui lòng xóa hóa đơn trước.');
+    }
+
     DB::beginTransaction();
     try {
         $khachHang = KhachHang::find($id);
