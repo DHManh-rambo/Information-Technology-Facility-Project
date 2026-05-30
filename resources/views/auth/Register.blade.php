@@ -3,16 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng ký tài khoản</title>
+    <title>RoseShop - Đăng ký tài khoản</title>
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-gradient-to-br from-indigo-50 to-white min-h-screen flex items-center justify-center py-10 px-4">
+<body class="bg-gradient-to-br from-white to-rose-50 min-h-screen flex items-center justify-center py-10 px-4">
 
 <div class="w-full max-w-xl bg-white rounded-2xl shadow-lg p-8">
     <div class="text-center mb-6">
-        <h1 class="text-2xl font-bold text-indigo-600">Đăng ký tài khoản</h1>
-        <p class="text-gray-500 text-sm mt-1">Tạo tài khoản khách hàng mới</p>
-    </div>
+        <h1 class="text-2xl font-bold text-rose-600">Đăng ký tài khoản</h1>
+        </div>
 
     {{-- Lỗi chung --}}
     @if ($errors->any())
@@ -33,7 +32,7 @@
             </label>
             <input type="text" name="ten_dang_nhap" value="{{ old('ten_dang_nhap') }}"
                 required autocomplete="off"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300
                        @error('ten_dang_nhap') border-red-400 @enderror"
                 placeholder="Ví dụ: nguyenvana">
         </div>
@@ -45,7 +44,7 @@
             </label>
             <input type="text" name="ten_khach_hang" value="{{ old('ten_khach_hang') }}"
                 required
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300
                        @error('ten_khach_hang') border-red-400 @enderror"
                 placeholder="Ví dụ: Nguyễn Văn A">
         </div>
@@ -57,7 +56,7 @@
             </label>
             <input type="email" name="email" value="{{ old('email') }}"
                 required
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300
                        @error('email') border-red-400 @enderror"
                 placeholder="example@email.com">
         </div>
@@ -69,7 +68,7 @@
             </label>
             <input type="text" name="so_dien_thoai" value="{{ old('so_dien_thoai') }}"
                 required maxlength="10" inputmode="numeric"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300
                        @error('so_dien_thoai') border-red-400 @enderror"
                 placeholder="0xxxxxxxxx">
         </div>
@@ -90,7 +89,7 @@
                 <div>
                     <label class="block text-xs font-medium text-gray-600 mb-1">Quận/Huyện <span class="text-red-500">*</span></label>
                     <select id="quan_huyen" name="quan_huyen" required
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300
                                @error('quan_huyen') border-red-400 @enderror">
                         <option value="">Chọn quận huyện</option>
                     </select>
@@ -98,7 +97,7 @@
                 <div>
                     <label class="block text-xs font-medium text-gray-600 mb-1">Xã/Phường <span class="text-red-500">*</span></label>
                     <select id="xa_phuong" name="xa_phuong" required
-                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300
                                @error('xa_phuong') border-red-400 @enderror">
                         <option value="">Chọn xã/phường</option>
                     </select>
@@ -110,7 +109,7 @@
                 <label class="block text-xs font-medium text-gray-600 mb-1">Địa chỉ chi tiết <span class="text-red-500">*</span></label>
                 <input type="text" name="dia_chi_chi_tiet" value="{{ old('dia_chi_chi_tiet') }}"
                     required
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300"
                     placeholder="Ví dụ: Số 20, ngõ 90">
             </div>
         </div>
@@ -121,7 +120,7 @@
                 Mật khẩu <span class="text-red-500">*</span>
             </label>
             <input type="password" name="mat_khau" required minlength="6"
-                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400
+                  class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-rose-300
                        @error('mat_khau') border-red-400 @enderror"
                 placeholder="Ít nhất 6 ký tự">
         </div>
@@ -137,13 +136,13 @@
         </div>
 
         <button type="submit"
-            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 rounded-lg transition text-sm">
+            class="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-2.5 rounded-lg transition text-sm">
             Đăng ký
         </button>
 
         <p class="text-center text-sm text-gray-500">
             Đã có tài khoản?
-            <a href="{{ route('login') }}" class="text-indigo-600 hover:underline font-medium">Đăng nhập</a>
+            <a href="{{ route('login') }}" class="text-rose-600 hover:underline font-medium">Đăng nhập</a>
         </p>
     </form>
 </div>

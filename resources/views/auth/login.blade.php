@@ -29,7 +29,7 @@
         <div class="block mt-4">
             <label for="remember_me" class="inline-flex items-center">
                 <input id="remember_me" type="checkbox"
-                    class="rounded border-gray-300 text-indigo-600 shadow-sm focus:ring-indigo-500"
+                    class="rounded border-gray-300 text-rose-600 shadow-sm focus:ring-rose-300"
                     name="remember">
                 <span class="ms-2 text-sm text-gray-600">{{ __('Ghi nhớ đăng nhập') }}</span>
             </label>
@@ -38,7 +38,7 @@
         <div class="flex items-center justify-between mt-4">
             <!-- Nút đăng ký -->
             <a href="{{ route('register') }}"
-                class="text-sm text-indigo-600 hover:text-indigo-800 underline">
+                class="text-sm text-rose-600 hover:text-rose-800 underline">
                 {{ __('Chưa có tài khoản? Đăng ký') }}
             </a>
 

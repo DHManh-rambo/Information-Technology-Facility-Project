@@ -3,105 +3,104 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Quản Lý</title>
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <title>RoseShop Admin</title>
+
+    @vite([
+        'resources/css/app.css',
+        'resources/css/admin-dashboard.css',
+        'resources/js/app.js'
+    ])
 </head>
-<body class="bg-gray-100">
 
-{{-- ── Navbar ────────────────────────────────────────────────────────────── --}}
-<nav class="bg-white shadow px-6 py-4 flex justify-between items-center">
-    <span class="font-bold text-xl text-indigo-700">
-        🏪 Quản Lý Cửa Hàng
-    </span>
-    <div class="flex items-center gap-4">
-        <span class="text-sm text-gray-600">
-            Xin chào, <strong>{{ Auth::user()->ten_dang_nhap }}</strong>
-            <span class="ml-1 px-2 py-0.5 rounded text-xs font-semibold
-                {{ Auth::user()->vai_tro === 'ADMIN' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700' }}">
-                {{ strtoupper(Auth::user()->vai_tro) }}
-            </span>
-        </span>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button class="text-sm text-gray-500 hover:text-red-600">Đăng xuất</button>
-        </form>
-    </div>
-</nav>
+<body>
+<div class="admin-layout">
 
-{{-- ── Main ─────────────────────────────────────────────────────────────── --}}
-<main class="max-w-7xl mx-auto px-6 py-8">
-    <h1 class="text-2xl font-bold text-gray-800 mb-6">
-        {{ Auth::user()->vai_tro === 'ADMIN' ? '⚙️ Admin Dashboard' : '🗂️ Nhân Viên Dashboard' }}
-    </h1>
+    <aside class="sidebar">
+        <div>
+            <div class="brand">
+                <img src="{{ asset('img/logo.png') }}" alt="Logo" class="brand-logo">
+                <div>
+                    <h2>ADMIN</h2>
+                    <p>RoseShop</p>
+                </div>
+            </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <nav class="menu">
+                @if(Auth::user()->vai_tro === 'ADMIN')
+                    <a href="#" data-url="{{ route('nguoi-dung.index') }}" class="menu-item">👥 Quản lý tài khoản</a>
+                    <a href="#" data-url="{{ route('khach-hang.index') }}" class="menu-item">👤 Quản lý khách hàng</a>
+                @endif
 
-        {{-- ══ Chức năng chung cho Admin + Nhân viên ══ --}}
+                <a href="#" data-url="{{ route('san-pham.index') }}" class="menu-item">🌷 Quản lý sản phẩm</a>
+                <a href="#" data-url="{{ route('phieu-nhap.index') }}" class="menu-item">🧾 Quản lý nhập hàng</a>
+                <a href="#" data-url="{{ route('don-hang.index') }}" class="menu-item">🛒 Quản lý đơn hàng</a>
+                <a href="#" data-url="{{ route('hoa-don.index') }}" class="menu-item">📄 Quản lý hóa đơn</a>
 
-        {{-- Sản phẩm --}}
-        <a href="{{ route('san-pham.index') }}"
-           class="bg-white rounded-xl shadow p-5 hover:shadow-md transition flex flex-col items-center gap-2 text-center">
-            <span class="text-3xl">📦</span>
-            <span class="font-semibold text-gray-700">Sản Phẩm</span>
-        </a>
+                @if(Auth::user()->vai_tro === 'ADMIN')
+                    <a href="#" data-url="{{ route('nhan-vien.index') }}" class="menu-item">🧑‍💼 Quản lý nhân viên</a>
+                    <a href="#" data-url="{{ route('bao-cao.index') }}" class="menu-item">📊 Báo cáo thống kê</a>
+                @endif
+            </nav>
+        </div>
 
-        {{-- Hóa đơn --}}
-        <a href="{{ route('hoa-don.index') }}"
-           class="bg-white rounded-xl shadow p-5 hover:shadow-md transition flex flex-col items-center gap-2 text-center">
-            <span class="text-3xl">🧾</span>
-            <span class="font-semibold text-gray-700">Hóa Đơn</span>
-        </a>
+        <div class="admin-footer">
+            <div>
+                <p class="admin-name">{{ Auth::user()->ten_dang_nhap }}</p>
+                <p class="admin-role">{{ Auth::user()->vai_tro }}</p>
+            </div>
 
-        {{-- Đơn hàng --}}
-        <a href="{{ route('don-hang.index') }}"
-           class="bg-white rounded-xl shadow p-5 hover:shadow-md transition flex flex-col items-center gap-2 text-center">
-            <span class="text-3xl">🛒</span>
-            <span class="font-semibold text-gray-700">Đơn Hàng</span>
-        </a>
+            <form method="POST" action="{{ route('logout') }}">
+                @csrf
+                <button type="submit">Đăng xuất</button>
+            </form>
+        </div>
+    </aside>
 
-        {{-- Phiếu nhập (dành cho cả Admin và Nhân viên) --}}
-        <a href="{{ route('phieu-nhap.index') }}"
-           class="bg-white rounded-xl shadow p-5 hover:shadow-md transition flex flex-col items-center gap-2 text-center">
-            <span class="text-3xl">📋</span>
-            <span class="font-semibold text-gray-700">Phiếu Nhập</span>
-        </a>
+    <main class="content">
+        <div id="welcomeBox" class="welcome-box">
+            <h1>Chào mừng đến RoseShop Admin</h1>
+            <p>Em hãy chọn một chức năng ở menu bên trái để bắt đầu.</p>
+        </div>
 
-        {{-- ══ Chỉ Admin mới thấy từ đây ══ --}}
-        @if(Auth::user()->vai_tro === 'ADMIN')
+        <iframe
+            id="contentFrame"
+            name="contentFrame"
+            src="about:blank"
+            class="admin-iframe">
+        </iframe>
+    </main>
 
-            {{-- Khách hàng --}}
-            <a href="{{ route('khach-hang.index') }}"
-               class="bg-white rounded-xl shadow p-5 hover:shadow-md transition flex flex-col items-center gap-2 text-center">
-                <span class="text-3xl">👥</span>
-                <span class="font-semibold text-gray-700">Khách Hàng</span>
-            </a>
+</div>
 
-            {{-- Nhân viên --}}
-            <a href="{{ route('nhan-vien.index') }}"
-               class="bg-white rounded-xl shadow p-5 hover:shadow-md transition flex flex-col items-center gap-2 text-center">
-                <span class="text-3xl">🧑‍💼</span>
-                <span class="font-semibold text-gray-700">Nhân Viên</span>
-            </a>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const menuItems = document.querySelectorAll('.menu-item');
+    const iframe = document.getElementById('contentFrame');
+    const welcomeBox = document.getElementById('welcomeBox');
 
-            {{-- Người dùng --}}
-            <a href="{{ route('nguoi-dung.index') }}"
-               class="bg-white rounded-xl shadow p-5 hover:shadow-md transition flex flex-col items-center gap-2 text-center">
-                <span class="text-3xl">👤</span>
-                <span class="font-semibold text-gray-700">Người Dùng</span>
-            </a>
+    menuItems.forEach(item => {
+        item.addEventListener('click', function (e) {
+            e.preventDefault();
 
-            {{-- Báo cáo --}}
-            <a href="{{ route('bao-cao.index') }}"
-               class="bg-white rounded-xl shadow p-5 hover:shadow-md transition flex flex-col items-center gap-2 text-center">
-                <span class="text-3xl">📊</span>
-                <span class="font-semibold text-gray-700">Báo Cáo</span>
-            </a>
+            const url = this.getAttribute('data-url');
 
-        @endif
-        {{-- ══ Hết phần Admin ══ --}}
+            if (!url) {
+                console.error('Menu thiếu data-url:', this);
+                return;
+            }
 
-    </div>
-</main>
+            iframe.src = url;
+            iframe.style.display = 'block';
 
+            if (welcomeBox) {
+                welcomeBox.style.display = 'none';
+            }
+
+            menuItems.forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+        });
+    });
+});
+</script>
 </body>
 </html>
