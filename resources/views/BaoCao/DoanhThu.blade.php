@@ -6,27 +6,34 @@
     <title>Báo Cáo Doanh Thu</title>
 
     <link rel="stylesheet" href="{{ asset('css/BaoCao.css') }}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
 
 </head>
 <body>
+    <div class="page-container">
 
-<div class="wrapper">
-
-   <div class="page-header">
-
-    <div>
-        <h1>Báo Cáo Doanh Thu</h1>
-        <p>Thống kê doanh thu, vốn và lợi nhuận</p>
+    <div class="page-header-section">
+        <div class="header-actions">
+            @if(Route::has('bao-cao.doanh-thu.export'))
+                <a href="{{ route('bao-cao.doanh-thu.export', request()->query()) }}" class="btn-excel">
+                    <i class="bi bi-file-earmark-excel-fill"></i>
+                    Xuất Excel
+                </a>
+            @endif
+        </div>
     </div>
 
-    
-</div>
+
 
     {{-- FILTER --}}
    <form method="GET" action="{{ route('bao-cao.doanh-thu') }}">
-    <div class="filter-bar">
+    <div class="filter-card">
+    <div class="filter-card-header">
+        <i class="bi bi-funnel"></i>LỌC THEO THỜI GIAN
+    </div>
 
+    <div class="filter-content">
         <div>
             <label>Từ ngày</label>
             <input type="date" name="tu_ngay" value="{{ $tuNgay ?? now()->startOfMonth()->format('Y-m-d') }}">
@@ -60,13 +67,13 @@
         </select>
         </div>
 
-        <button type="submit" class="btn btn-pink">Lọc dữ liệu</button>
-
-        <a href="{{ route('bao-cao.doanh-thu.export', request()->query()) }}" class="btn btn-light">
-            Xuất Excel
-        </a>
+        <button type="submit" class="btn-filter">
+            <i class="bi bi-funnel"></i>
+            Lọc dữ liệu
+        </button>
 
     </div>
+</div>
 </form>
 {{-- CARD --}}
 <div class="stats-grid">
@@ -177,9 +184,10 @@
             <tr>
                 <th>STT</th>
                 <th>Sản phẩm</th>
+                <th>Số lượng bán</th>
                 <th>Doanh thu</th>
             </tr>
-        </thead>
+        </thead>    
 
         <tbody>
 
@@ -204,7 +212,7 @@
             @empty
 
                 <tr>
-                    <td colspan="3">
+                    <td colspan="4">
                         Không có dữ liệu
                     </td>
                 </tr>
@@ -216,7 +224,7 @@
     </table>
 
 </div>
-
+</div>
 
 </body>
 </html>

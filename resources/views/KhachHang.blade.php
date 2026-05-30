@@ -8,7 +8,6 @@
 </head>
 <body>
 <div class="container">
-    <h1>DANH SÁCH KHÁCH HÀNG</h1>
 
     @if(session('success'))
         <div class="alert alert-success">{{ session('success') }}</div>

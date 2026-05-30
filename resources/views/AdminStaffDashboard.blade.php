@@ -37,8 +37,21 @@
                 <a href="#" data-url="{{ route('hoa-don.index') }}" class="menu-item">📄 Quản lý hóa đơn</a>
 
                 @if(Auth::user()->vai_tro === 'ADMIN')
-                    <a href="#" data-url="{{ route('nhan-vien.index') }}" class="menu-item">🧑‍💼 Quản lý nhân viên</a>
-                    <a href="#" data-url="{{ route('bao-cao.index') }}" class="menu-item">📊 Báo cáo thống kê</a>
+                <a href="#" data-url="{{ route('nhan-vien.index') }}" class="menu-item">
+                    🧑‍💼 Quản lý nhân viên
+                </a>
+
+                <div class="menu-item report-title">
+                    📊 Báo cáo thống kê
+                </div>
+
+                <a href="#" data-url="{{ route('bao-cao.doanh-thu') }}" class="submenu-item">
+                    📈 Báo cáo doanh thu
+                </a>
+
+                <a href="#" data-url="{{ route('bao-cao.san-pham') }}" class="submenu-item">
+                    📦 Báo cáo sản phẩm
+                </a>
                 @endif
             </nav>
         </div>
@@ -74,7 +87,7 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const menuItems = document.querySelectorAll('.menu-item');
+    const menuItems = document.querySelectorAll('.menu-item, .submenu-item');
     const iframe = document.getElementById('contentFrame');
     const welcomeBox = document.getElementById('welcomeBox');
 

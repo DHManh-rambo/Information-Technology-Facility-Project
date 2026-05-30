@@ -4,19 +4,11 @@
     <meta charset="UTF-8">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('css/NguoiDung.css') }}">
-    <title>Quản lý người dùng</title>
+
     
 </head>
 <body>
-<div class="container">
-    <h2> Quản lý người dùng</h2>
-
-    @if(session('success'))
-    <div class="alert alert-success" id="alert-success">
-        <span>{{ session('success') }}</span>
-        <button type="button" class="close-alert" onclick="this.parentElement.style.display='none';">&times;</button>
-    </div>
-    @endif
+  
     @if($errors->any())
     <div class="alert alert-error" id="alert-error">
         <ul style="margin:0; padding-left:1.2rem;">

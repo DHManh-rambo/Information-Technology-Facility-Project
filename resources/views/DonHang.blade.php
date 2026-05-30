@@ -14,22 +14,13 @@
 <body>
 
 {{-- ════════ HEADER ════════ --}}
-<header class="page-header">
-    <div>
-        <h1>Flower Store</h1>
-        <span class="sub">Admin Panel</span>
-    </div>
-    <nav class="header-nav">
-        <a href="{{ route('hoa-don.index') }}">Hóa Đơn</a>
-        <a href="{{ route('don-hang.index') }}" class="active">Đơn Hàng</a>
-    </nav>
-</header>
+
 
 <div class="page-body">
 
     {{-- ════════ Ô 1: BỘ LỌC & TÌM KIẾM ════════ --}}
     <div>
-        <p class="section-label">[ 01 ] Bộ lọc &amp; Tìm kiếm</p>
+        <!-- <p class="section-label">[ 01 ] Bộ lọc &amp; Tìm kiếm</p> -->
         <div class="filter-box">
             <form method="GET" action="{{ route('don-hang.index') }}">
                 <div class="filter-grid">
@@ -95,7 +86,7 @@
 
     {{-- ════════ Ô 2: BẢNG ĐƠN HÀNG ĐANG CHỜ ════════ --}}
     <div>
-        <p class="section-label">[ 02 ] Đơn hàng chờ xử lý — chỉ hiển thị trạng thái PENDING</p>
+        <!-- <p class="section-label">[ 02 ] Đơn hàng chờ xử lý — chỉ hiển thị trạng thái PENDING</p> -->
         <div class="table-box">
 
             <div class="table-meta">

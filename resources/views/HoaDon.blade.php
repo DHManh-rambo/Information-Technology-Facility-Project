@@ -12,10 +12,7 @@
 </head>
 <body>
 
-<header class="page-header">
-    <h1>Quản Lý Hóa Đơn</h1>
-    <span class="sub">Flower Store · Admin</span>
-</header>
+
 
 <div class="page-body" id="page-body">
 

@@ -26,7 +26,7 @@
 
  body {
      font-family: var(--font-sans);
-     background: var(--paper);
+     background: #ffffff;
      color: var(--ink);
      font-size: 14px;
      line-height: 1.5;

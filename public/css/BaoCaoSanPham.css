@@ -502,3 +502,28 @@ body {
         width:100%;
     }
 }
+/* FIX FILTER BÁO CÁO SẢN PHẨM - DÀN ĐỀU */
+
+.filter-card form .d-flex,
+.filter-card .d-flex {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 220px 160px !important;
+    gap: 24px !important;
+    align-items: end !important;
+    width: 100% !important;
+}
+
+.filter-card .d-flex > div {
+    width: 100% !important;
+}
+
+.filter-card .filter-input {
+    width: 100% !important;
+    height: 42px !important;
+}
+
+.filter-card .btn-filter,
+.filter-card .btn-reset {
+    width: 100% !important;
+    height: 42px !important;
+}

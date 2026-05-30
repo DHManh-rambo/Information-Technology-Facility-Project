@@ -137,3 +137,33 @@ body {
     display: none;
     background: #fff;
 }
+.report-title {
+    margin-bottom: 8px;
+}
+
+.submenu-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-left: 25px;
+    margin-right: 15px;
+    margin-bottom: 6px;
+
+    padding: 10px 15px;
+
+    border-radius: 12px;
+
+    color: #4b5563;
+    text-decoration: none;
+    font-size: 15px;
+    font-weight: 600;
+
+    transition: all 0.2s ease;
+}
+
+.submenu-item:hover,
+.submenu-item.active {
+    background: #fce7f3;
+    color: #ec4899;
+}

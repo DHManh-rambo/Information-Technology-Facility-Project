@@ -79,6 +79,7 @@ Route::middleware(['auth', 'role:ADMIN'])->group(function () {
     Route::prefix('bao-cao')->name('bao-cao.')->group(function () {
         Route::get('/',             [BaoCaoController::class, 'index'])->name('index');
         Route::get('/doanh-thu',    [BaoCaoController::class, 'doanhThu'])->name('doanh-thu');
+Route::get('/doanh-thu/export', [BaoCaoController::class, 'exportDoanhThu'])->name('doanh-thu.export');
         Route::get('/loi-nhuan',    [BaoCaoController::class, 'index'])->name('loi-nhuan');
         Route::get('/san-pham',     [BaoCaoController::class, 'baoCaoSanPham'])->name('san-pham');
         Route::get('/ton-kho',      [BaoCaoController::class, 'index'])->name('ton-kho');

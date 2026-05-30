@@ -14,28 +14,13 @@
 <body>
 
 {{-- ═══════════════════════ TOPBAR ═══════════════════════ --}}
-<div class="topbar">
-    <div class="topbar-brand">
-        <i class="bi bi-flower1 me-2" style="color:#e91e8c;font-size:1.3rem;"></i>
-        <span>Flower Shop Admin</span>
-    </div>
-    <div class="topbar-right">
-        <span class="notif-btn"><i class="bi bi-bell-fill"></i></span>
-        <span class="admin-info"><i class="bi bi-person-circle me-1"></i> Admin</span>
-    </div>
-</div>
+
 
 <div class="page-container">
 
     {{-- ═══════════════════════ PAGE HEADER ═══════════════════════ --}}
     <div class="page-header-section mb-4">
-        <div>
-            <h1 class="page-title">BÁO CÁO SẢN PHẨM</h1>
-            <p class="page-subtitle">
-                Thống kê tình hình nhập, bán, hỏng và tồn kho của sản phẩm theo khoảng thời gian đã chọn.
-            </p>
-        </div>
-
+       
         <div class="header-actions">
             <a href="{{ route('bao-cao.san-pham.export', array_filter([
                     'ngay_bat_dau' => $ngayBatDau->format('Y-m-d'),

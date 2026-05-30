@@ -681,3 +681,306 @@ body {
 .excel-btn i{
     font-size:28px;
 }
+.page-container {
+    padding: 32px;
+    background: #f8f9fb;
+    min-height: 100vh;
+}
+
+.page-header-section {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 24px;
+}
+
+.btn-excel {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: #1f7a3f;
+    color: #fff;
+    padding: 13px 24px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.btn-excel:hover {
+    background: #166534;
+}
+
+.filter-card {
+    border: 2px solid #ec4899;
+    border-radius: 12px;
+    background: #fff;
+    padding: 24px;
+    margin-bottom: 28px;
+}
+
+.filter-card-header {
+    color: #ec4899;
+    font-weight: 800;
+    margin-bottom: 18px;
+}
+
+.filter-content {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 18px;
+    align-items: end;
+}
+/* FIX LAYOUT BÁO CÁO DOANH THU */
+
+.page-container {
+    padding: 32px !important;
+    background: #f8f9fb !important;
+    min-height: 100vh !important;
+}
+
+.page-header-section {
+    margin-bottom: 24px !important;
+}
+
+.filter-card {
+    margin: 0 0 24px 0 !important;
+    padding: 24px !important;
+    border: 2px solid #ec4899 !important;
+    border-radius: 14px !important;
+    background: #ffffff !important;
+}
+
+.filter-content {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: end !important;
+    gap: 20px !important;
+}
+
+.stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(5, minmax(180px, 1fr)) !important;
+    gap: 24px !important;
+    margin: 0 0 24px 0 !important;
+}
+
+.stat-card {
+    min-height: 120px !important;
+    padding: 24px !important;
+    border-radius: 18px !important;
+    background: #ffffff !important;
+}
+
+.table-card,
+.chart-card,
+.card {
+    margin: 0 0 24px 0 !important;
+    padding: 24px !important;
+    border-radius: 18px !important;
+    background: #ffffff !important;
+}
+/* FIX STYLE DOANH THU GIỐNG BÁO CÁO SẢN PHẨM */
+
+.page-container {
+    max-width: 1340px !important;
+    margin: 0 auto !important;
+    padding: 1.75rem 1.5rem 3rem !important;
+    background: #f8f9fa !important;
+    min-height: 100vh !important;
+}
+
+.page-header-section {
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.btn-excel {
+    background: #217346 !important;
+    color: #fff !important;
+    border-radius: 6px !important;
+    padding: 8px 18px !important;
+    font-size: 0.88rem !important;
+    font-weight: 600 !important;
+    text-decoration: none !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+    transition: background .2s !important;
+}
+
+.btn-excel:hover {
+    background: #185a34 !important;
+}
+
+.filter-card {
+    background: #fff !important;
+    border: 1.5px solid #e91e8c !important;
+    border-radius: 10px !important;
+    padding: 1.25rem 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.filter-card-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    margin-bottom: 1rem !important;
+}
+
+.filter-title {
+    font-weight: 700 !important;
+    color: #e91e8c !important;
+    font-size: 0.88rem !important;
+    letter-spacing: .4px !important;
+    text-transform: uppercase !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+}
+
+.filter-content {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr 1fr 220px !important;
+    gap: 24px !important;
+    align-items: end !important;
+}
+
+.filter-content label {
+    display: block !important;
+    font-size: 0.8rem !important;
+    color: #495057 !important;
+    margin-bottom: 4px !important;
+    font-weight: 500 !important;
+}
+
+.filter-content input,
+.filter-content select {
+    width: 100% !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 6px !important;
+    padding: 7px 10px !important;
+    font-size: 0.88rem !important;
+    min-width: 160px !important;
+    background: #fff !important;
+    color: #212529 !important;
+}
+
+.filter-content input:focus,
+.filter-content select:focus {
+    border-color: #e91e8c !important;
+    box-shadow: 0 0 0 3px rgba(233,30,140,.15) !important;
+    outline: none !important;
+}
+
+.btn-filter {
+    background: #e91e8c !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 8px 18px !important;
+    font-weight: 600 !important;
+    font-size: 0.88rem !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 6px !important;
+}
+
+.btn-filter:hover {
+    background: #c2185b !important;
+}
+
+.stats-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)) !important;
+    gap: 1rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.stat-card {
+    background: #fff !important;
+    border: 1px solid #e9ecef !important;
+    border-radius: 10px !important;
+    padding: 1.25rem !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04) !important;
+}
+
+.stat-card .label {
+    font-size: 0.8rem !important;
+    color: #6c757d !important;
+    text-transform: uppercase !important;
+    letter-spacing: .4px !important;
+    margin-bottom: 8px !important;
+}
+
+.stat-card .value {
+    font-size: 1.55rem !important;
+    font-weight: 800 !important;
+    color: #212529 !important;
+}
+
+.table-card {
+    background: #fff !important;
+    border-radius: 10px !important;
+    border: 1px solid #e9ecef !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 4px rgba(0,0,0,.04) !important;
+    padding: 1.25rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.table-card h3 {
+    font-size: 1rem !important;
+    font-weight: 800 !important;
+    color: #212529 !important;
+    margin-bottom: 1rem !important;
+}
+
+.table-card table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    font-size: 0.875rem !important;
+}
+
+.table-card table th {
+    background: #fdf0f7 !important;
+    color: #495057 !important;
+    font-weight: 700 !important;
+    font-size: 0.78rem !important;
+    text-align: center !important;
+    padding: 11px 8px !important;
+    border-bottom: 2px solid #f0c0d8 !important;
+    white-space: nowrap !important;
+}
+
+.table-card table td {
+    padding: 10px 8px !important;
+    border-bottom: 1px solid #f1f3f5 !important;
+    vertical-align: middle !important;
+    text-align: center !important;
+    color: #212529 !important;
+}
+
+.table-card table tbody tr:hover {
+    background: #fff5f9 !important;
+}
+
+.total-row td {
+    background: #fff9fb !important;
+    color: #e91e8c !important;
+    font-weight: 700 !important;
+    border-top: 2px solid #f0c0d8 !important;
+}
+.filter-card-header {
+    display: flex !important;
+    justify-content: flex-start !important;
+    align-items: center !important;
+    gap: 8px !important;
+    margin-bottom: 1rem !important;
+}
+.filter-content .btn-filter {
+    width: 100% !important;
+    height: 40px !important;
+    justify-content: center !important;
+}
