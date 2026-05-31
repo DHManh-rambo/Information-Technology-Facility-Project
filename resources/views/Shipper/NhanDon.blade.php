@@ -3,13 +3,11 @@
 @section('title', 'Chi tiết đơn #HD-' . str_pad($hoaDon->ma_hoa_don, 4, '0', STR_PAD_LEFT))
 
 @section('head-styles')
-{{-- ShipperDashboard.css chứa style cho .detail-wrap, .back-bar, .card-section… --}}
 <link rel="stylesheet" href="{{ asset('css/Shipper/ShipperDashboard.css') }}">
 @endsection
 
 @section('extra-styles')
 <style>
-   
     :root {
         --brand:      #e75480 !important;
         --border:     #e8ecf0 !important;
@@ -23,6 +21,68 @@
         --radius-sm:  8px     !important;
         --shadow-sm:  0 2px 8px rgba(0,0,0,.06) !important;
     }
+
+    .countdown-box {
+        background: linear-gradient(135deg, #fff7ed, #fef3c7);
+        border: 2px solid #f59e0b;
+        border-radius: 14px;
+        padding: 16px 20px;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+    }
+    .countdown-box.danger-zone {
+        background: linear-gradient(135deg, #fef2f2, #fee2e2);
+        border-color: #ef4444;
+        animation: pulse-danger 1s infinite;
+    }
+    @keyframes pulse-danger {
+        0%, 100% { box-shadow: 0 0 0 0 rgba(239,68,68,.2); }
+        50%       { box-shadow: 0 0 0 8px rgba(239,68,68,.0); }
+    }
+    .countdown-icon {
+        font-size: 28px;
+        flex-shrink: 0;
+    }
+    .countdown-label {
+        font-size: 12px;
+        font-weight: 600;
+        color: #92400e;
+        text-transform: uppercase;
+        letter-spacing: .4px;
+        margin-bottom: 4px;
+    }
+    .countdown-box.danger-zone .countdown-label { color: #991b1b; }
+    .countdown-timer {
+        font-family: 'IBM Plex Mono', monospace;
+        font-size: 26px;
+        font-weight: 700;
+        color: #b45309;
+        letter-spacing: 1px;
+        line-height: 1;
+    }
+    .countdown-box.danger-zone .countdown-timer { color: #dc2626; }
+    .countdown-sub {
+        font-size: 12px;
+        color: #a16207;
+        margin-top: 4px;
+    }
+    .countdown-box.danger-zone .countdown-sub { color: #991b1b; }
+
+    .timeout-applied {
+        background: #fef2f2;
+        border: 2px solid #ef4444;
+        border-radius: 14px;
+        padding: 14px 18px;
+        margin-bottom: 16px;
+        font-size: 14px;
+        color: #991b1b;
+        display: flex;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .timeout-applied i { margin-top: 2px; flex-shrink: 0; }
 </style>
 @endsection
 
@@ -45,6 +105,30 @@
                 'DELIVERED' => 'Đã giao',
                 default     => $hoaDon->trang_thai,
             };
+
+            // Phát hiện hoa tươi
+            $coHoaTuoi = $hoaDon->chiTietHoaDon->contains(function ($item) {
+                $ten = strtolower($item->sanPham->ten_san_pham ?? '');
+                return str_contains($ten, 'hoa') || str_contains($ten, 'flower') || str_contains($ten, 'bó');
+            });
+
+            // Lấy thời gian bắt đầu giao từ cache
+            $shippingStartAt = null;
+            $remainingSeconds = null;
+            $timeoutApplied = false;
+
+            if ($hoaDon->trang_thai === 'SHIPPING') {
+                $startCacheKey  = "shipping_start_{$hoaDon->ma_hoa_don}";
+                $penaltyCacheKey = "shipping_penalty_done_{$hoaDon->ma_hoa_don}";
+                $startTimeRaw   = \Illuminate\Support\Facades\Cache::get($startCacheKey);
+                $timeoutApplied = \Illuminate\Support\Facades\Cache::has($penaltyCacheKey);
+
+                if ($startTimeRaw) {
+                    $shippingStartAt  = \Carbon\Carbon::parse($startTimeRaw);
+                    $elapsed          = now()->diffInSeconds($shippingStartAt);
+                    $remainingSeconds = (int) max(0, 10800 - $elapsed); // 3h = 10800s
+                }
+            }
         @endphp
         <span class="status-pill {{ $st === 'confirmed' ? 'confirmed' : ($st === 'shipping' ? 'shipping' : 'delivered') }}"
               id="status-pill">
@@ -53,16 +137,40 @@
         </span>
     </div>
 
+    {{-- ── Countdown 3h (chỉ hiện khi đang giao và là hoa tươi) ── --}}
+    @if($hoaDon->trang_thai === 'SHIPPING' && $coHoaTuoi && $remainingSeconds !== null)
+        @if($timeoutApplied)
+            <div class="timeout-applied">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>
+                    <strong>Đã quá 3 tiếng.</strong> Hệ thống đã tự động cộng 15 điểm tích lũy cho khách hàng
+                    và trừ thêm 15.000 đ vào khoản bạn cần nộp do giao hoa trễ.
+                </span>
+            </div>
+        @else
+            <div class="countdown-box {{ $remainingSeconds < 1800 ? 'danger-zone' : '' }}" id="countdown-wrap">
+                <div class="countdown-icon">
+                    {{ $remainingSeconds < 1800 ? '🚨' : '⏰' }}
+                </div>
+                <div>
+                    <div class="countdown-label">Thời gian giao hoa tươi còn lại</div>
+                    <div class="countdown-timer" id="countdown-display">--:--:--</div>
+                    <div class="countdown-sub">
+                        Hoa tươi cần được giao trong 3 tiếng để đảm bảo chất lượng.
+                    </div>
+                </div>
+            </div>
+        @endif
+    @endif
+
     {{-- ── Action / Progress ─────────────────────────────────── --}}
     <div class="action-section">
         <div class="action-label"><i class="fas fa-route" style="color:var(--brand)"></i>&nbsp; Tiến trình giao hàng</div>
 
-        {{-- Progress bar — 4 bước: Xác nhận → Đang giao → Đã đến nơi → Hoàn thành --}}
         @php
             $daDenNoi = session('da_den_noi_' . $hoaDon->ma_hoa_don, false);
         @endphp
         <div class="progress-steps">
-            {{-- Bước 1: Xác nhận --}}
             <div class="step">
                 <div class="step-dot done"><i class="fas fa-check"></i></div>
                 <div class="step-lbl done">Xác nhận<br>đơn hàng</div>
@@ -70,7 +178,6 @@
 
             <div class="step-line {{ in_array($hoaDon->trang_thai, ['SHIPPING','DELIVERED']) ? 'done' : '' }}"></div>
 
-            {{-- Bước 2: Đang vận chuyển --}}
             <div class="step">
                 <div class="step-dot {{ $hoaDon->trang_thai === 'SHIPPING' && !$daDenNoi ? 'active' : ($hoaDon->trang_thai === 'DELIVERED' || ($hoaDon->trang_thai === 'SHIPPING' && $daDenNoi) ? 'done' : '') }}">
                     @if($hoaDon->trang_thai === 'DELIVERED' || ($hoaDon->trang_thai === 'SHIPPING' && $daDenNoi))
@@ -86,7 +193,6 @@
 
             <div class="step-line {{ $daDenNoi || $hoaDon->trang_thai === 'DELIVERED' ? 'done' : '' }}"></div>
 
-            {{-- Bước 3: Đã đến điểm giao --}}
             <div class="step">
                 <div class="step-dot {{ $hoaDon->trang_thai === 'DELIVERED' ? 'done' : ($daDenNoi ? 'active' : '') }}" id="step-arrived-dot">
                     @if($hoaDon->trang_thai === 'DELIVERED')
@@ -102,7 +208,6 @@
 
             <div class="step-line {{ $hoaDon->trang_thai === 'DELIVERED' ? 'done' : '' }}" id="step-line-final"></div>
 
-            {{-- Bước 4: Hoàn thành --}}
             <div class="step">
                 <div class="step-dot {{ $hoaDon->trang_thai === 'DELIVERED' ? 'done' : '' }}">
                     @if($hoaDon->trang_thai === 'DELIVERED')
@@ -128,10 +233,12 @@
             <p class="action-hint">
                 <i class="fas fa-info-circle"></i>
                 Nhấn để xác nhận bạn đã lấy hàng tại kho và bắt đầu giao đến khách.
+                @if($coHoaTuoi)
+                    <strong style="color:#b45309"> Đơn có hoa tươi — đồng hồ 3 tiếng sẽ bắt đầu ngay khi bạn nhận hàng.</strong>
+                @endif
             </p>
 
         @elseif($hoaDon->trang_thai === 'SHIPPING')
-            {{-- Nút 1: Đã đến điểm giao --}}
             <button class="btn-action-main btn-shipping" id="btn-arrived"
                     onclick="handleDaDenNoi({{ $hoaDon->ma_hoa_don }})"
                     style="background: linear-gradient(135deg, #8b5cf6, #6d28d9); box-shadow: 0 4px 16px rgba(139,92,246,.35);">
@@ -144,7 +251,6 @@
                 Nhấn khi đã đến địa chỉ giao. Hệ thống sẽ gửi thông báo để khách hàng xuống nhận.
             </p>
 
-            {{-- Nút 2: Hoàn thành — ẩn cho đến khi ấn nút trên --}}
             <div id="finish-wrap" style="
                 max-height: 0;
                 overflow: hidden;
@@ -241,6 +347,13 @@
                             <td>
                                 <div class="product-name">
                                     {{ $item->sanPham->ten_san_pham ?? 'Sản phẩm #' . $item->ma_san_pham }}
+                                    @php
+                                        $tenSP = strtolower($item->sanPham->ten_san_pham ?? '');
+                                        $isHoa = str_contains($tenSP, 'hoa') || str_contains($tenSP, 'flower') || str_contains($tenSP, 'bó');
+                                    @endphp
+                                    @if($isHoa)
+                                        <span style="font-size:10px; background:#fef3c7; color:#92400e; border-radius:4px; padding:1px 6px; margin-left:4px; font-weight:600;">🌸 Hoa tươi</span>
+                                    @endif
                                 </div>
                             </td>
                             <td style="text-align:center">
@@ -332,6 +445,77 @@
 
 @section('scripts')
 <script>
+const _maHoaDon    = {{ $hoaDon->ma_hoa_don }};
+const _coHoaTuoi   = {{ $coHoaTuoi ? 'true' : 'false' }};
+const _trangThai   = '{{ $hoaDon->trang_thai }}';
+const _remainingSec = {{ $remainingSeconds ?? 'null' }};
+const _timeoutApplied = {{ $timeoutApplied ? 'true' : 'false' }};
+
+let _countdown = _remainingSec;
+let _countdownInterval = null;
+
+function formatTime(sec) {
+    sec = Math.floor(sec);
+    if (sec <= 0) return '00:00:00';
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+
+function startCountdown() {
+    if (!_coHoaTuoi || _trangThai !== 'SHIPPING' || _timeoutApplied || _countdown === null) return;
+
+    const display = document.getElementById('countdown-display');
+    const wrap    = document.getElementById('countdown-wrap');
+    if (!display) return;
+
+    display.textContent = formatTime(Math.max(0, _countdown));
+
+    _countdownInterval = setInterval(() => {
+        _countdown--;
+
+        if (wrap && _countdown < 1800 && !wrap.classList.contains('danger-zone')) {
+            wrap.classList.add('danger-zone');
+            wrap.querySelector('.countdown-icon').textContent = '🚨';
+        }
+
+        display.textContent = formatTime(Math.max(0, _countdown));
+
+        if (_countdown <= 0) {
+            clearInterval(_countdownInterval);
+            triggerTimeoutCheck();
+        }
+    }, 1000);
+}
+
+function triggerTimeoutCheck() {
+    fetch(`/shipper/don-hang/${_maHoaDon}/check-timeout`, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': _csrfToken },
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.status === 'penalty_applied') {
+            showToast('⚠️ Đã quá 3 tiếng! Hệ thống đã cộng điểm cho khách và trừ 15.000 đ của bạn.', 'error');
+            setTimeout(() => location.reload(), 2500);
+        }
+    })
+    .catch(() => {});
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    startCountdown();
+
+    if (_coHoaTuoi && _trangThai === 'SHIPPING' && !_timeoutApplied && _remainingSec !== null) {
+        setInterval(() => {
+            if (_countdown <= 0) {
+                triggerTimeoutCheck();
+            }
+        }, 60000);
+    }
+});
+
 function handleDaDenNoi(id) {
     const code = '#HD-' + String(id).padStart(4, '0');
     if (!confirm(`Xác nhận bạn đã đến điểm giao cho đơn ${code}?\nHệ thống sẽ gửi thông báo đến khách hàng.`)) return;
@@ -348,10 +532,7 @@ function handleDaDenNoi(id) {
 
     fetch(`/shipper/don-hang/${id}/da-den-noi`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': _csrfToken,
-        },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': _csrfToken },
     })
     .then(r => r.json())
     .then(data => {
@@ -390,7 +571,6 @@ function handleDaDenNoi(id) {
                 wrap.style.opacity   = '1';
                 wrap.style.marginTop = '0';
             }
-
         } else {
             showToast(data.message || 'Có lỗi xảy ra.', 'error');
             if (btn) btn.disabled = false;
@@ -429,10 +609,7 @@ function handleUpdateStatus(id, currentStatus) {
 
     fetch(`/shipper/don-hang/${id}/cap-nhat`, {
         method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': _csrfToken,
-        },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': _csrfToken },
     })
     .then(r => r.json())
     .then(data => {

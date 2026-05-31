@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -60,13 +59,55 @@
 
         <div id="notif-list">
             @forelse($thongBaos as $tb)
-                <div class="notif-card" id="notif-{{ $tb['id'] }}">
-                    <div class="notif-icon">
-                        <i class="fas fa-map-marker-alt"></i>
+                @php
+                    $loai = $tb['loai'] ?? '';
+                    $notifConfig = match($loai) {
+                        'shipping' => [
+                            'label'      => 'Đơn hàng bắt đầu giao',
+                            'icon'       => 'fa-motorcycle',
+                            'border'     => '#3b82f6',
+                            'icon_bg'    => '#eff6ff',
+                            'icon_color' => '#3b82f6',
+                        ],
+                        'confirmed' => [
+                            'label'      => 'Đơn hàng đã được xác nhận',
+                            'icon'       => 'fa-check-circle',
+                            'border'     => '#22c55e',
+                            'icon_bg'    => '#f0fdf4',
+                            'icon_color' => '#16a34a',
+                        ],
+                        'cancelled' => [
+                            'label'      => 'Đơn hàng bị từ chối',
+                            'icon'       => 'fa-times-circle',
+                            'border'     => '#ef4444',
+                            'icon_bg'    => '#fef2f2',
+                            'icon_color' => '#dc2626',
+                        ],
+                        'apology' => [
+                            'label'      => 'Xin lỗi về sự chậm trễ',
+                            'icon'       => 'fa-heart',
+                            'border'     => '#f59e0b',
+                            'icon_bg'    => '#fffbeb',
+                            'icon_color' => '#f59e0b',
+                        ],
+                        default => [
+                            'label'      => 'Shipper đã đến nơi',
+                            'icon'       => 'fa-map-marker-alt',
+                            'border'     => '#e75480',
+                            'icon_bg'    => '#fce8ef',
+                            'icon_color' => '#e75480',
+                        ],
+                    };
+                @endphp
+                <div class="notif-card" id="notif-{{ $tb['id'] }}"
+                     style="border-left: 3px solid {{ $notifConfig['border'] }};">
+                    <div class="notif-icon"
+                         style="background:{{ $notifConfig['icon_bg'] }}; color:{{ $notifConfig['icon_color'] }};">
+                        <i class="fas {{ $notifConfig['icon'] }}"></i>
                     </div>
                     <div class="notif-body">
-                        <div class="notif-title">
-                            <i class="fas fa-truck"></i> Shipper đã đến nơi
+                        <div class="notif-title" style="color:{{ $notifConfig['icon_color'] }};">
+                            <i class="fas {{ $notifConfig['icon'] }}"></i> {{ $notifConfig['label'] }}
                         </div>
                         <div class="notif-content">{{ $tb['noi_dung'] }}</div>
                         <div class="notif-time">
@@ -446,7 +487,6 @@
 <script>
 const _csrf = document.querySelector('meta[name="csrf-token"]')?.content ?? '';
 
-/* ── TOAST ── */
 function showToast(msg, type = '') {
     const el = document.getElementById('toast');
     el.textContent = msg;
@@ -454,7 +494,6 @@ function showToast(msg, type = '') {
     setTimeout(() => { el.className = ''; }, 3000);
 }
 
-/* ── SWITCH TAB ── */
 function switchTab(tab) {
     document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
     document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -463,14 +502,12 @@ function switchTab(tab) {
     history.replaceState(null, '', '?tab=' + tab);
 }
 
-/* ── TOGGLE ORDER DETAIL ── */
 function toggleOrder(id) {
     const card = document.getElementById(id);
     if (!card) return;
     card.classList.toggle('open');
 }
 
-/* ── FILTER ĐƠN HIỆN TẠI ── */
 function filterDon(btn, status) {
     document.querySelectorAll('#tab-don-hien-tai .filter-chip').forEach(c => c.classList.remove('active'));
     btn.classList.add('active');

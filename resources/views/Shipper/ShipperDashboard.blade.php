@@ -9,6 +9,65 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ── Chuông thông báo ── */
+        .notif-bell {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            text-decoration: none;
+            color: #6c757d;
+            font-size: 18px;
+            transition: color .2s;
+            padding: 4px;
+        }
+        .notif-bell:hover { color: #e75480; }
+        .notif-badge {
+            position: absolute;
+            top: -2px;
+            right: -4px;
+            background: #ef4444;
+            color: white;
+            font-size: 10px;
+            font-weight: 700;
+            min-width: 16px;
+            height: 16px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0 3px;
+            line-height: 1;
+        }
+
+        /* ── Block tiền phạt ── */
+        .penalty-block {
+            background: #fef2f2;
+            border: 1.5px solid #fca5a5;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-top: 12px;
+        }
+        .penalty-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: #991b1b;
+            text-transform: uppercase;
+            letter-spacing: .4px;
+            margin-bottom: 4px;
+        }
+        .penalty-amount {
+            font-size: 20px;
+            font-weight: 700;
+            color: #dc2626;
+            font-family: 'IBM Plex Mono', monospace;
+        }
+        .penalty-sub {
+            font-size: 11px;
+            color: #b91c1c;
+            margin-top: 4px;
+        }
+    </style>
 </head>
 <body>
 
@@ -19,15 +78,23 @@
             <span class="dot-green"></span>
             Đang hoạt động
         </span>
- 
-        {{-- ── Link hồ sơ (THÊM MỚI) ── --}}
+
+        {{-- ── Chuông thông báo shipper ── --}}
+        <a href="{{ route('shipper.thong-bao') }}" class="notif-bell" title="Thông báo">
+            <i class="fas fa-bell"></i>
+            @if(isset($soThongBao) && $soThongBao > 0)
+                <span class="notif-badge">{{ $soThongBao > 9 ? '9+' : $soThongBao }}</span>
+            @endif
+        </a>
+
+        {{-- ── Link hồ sơ ── --}}
         <a href="{{ route('shipper.profile.edit') }}"
            style="color:#6c757d; font-size:14px; text-decoration:none; display:flex; align-items:center; gap:6px; transition:color .2s;"
            onmouseover="this.style.color='#e83e8c'" onmouseout="this.style.color='#6c757d'">
             <i class="fas fa-user-circle"></i> Hồ sơ
         </a>
- 
-        {{-- Nút đăng xuất (giữ nguyên) --}}
+
+        {{-- Nút đăng xuất --}}
         <form method="POST" action="{{ route('logout') }}" style="margin:0;">
             @csrf
             <button type="submit" style="background:none; border:none; color:#6c757d; cursor:pointer; font-size:14px; display:flex; align-items:center; gap:6px;">
@@ -36,13 +103,12 @@
         </form>
     </div>
 </div>
- 
+
 
 <div class="layout">
 
-    {{-- LEFT PANEL: Profile + Tiền + Lịch sử --}}
+    {{-- LEFT PANEL --}}
     <aside class="left-panel">
-        {{-- ... giữ nguyên nội dung phần left panel ... --}}
         <div class="profile-header">
             <div class="profile-avatar">
                 {{ mb_strtoupper(mb_substr($shipper->ten_nhan_vien, 0, 1)) }}
@@ -87,7 +153,7 @@
                 @endif
             </div>
             <div class="money-block">
-                <div class="money-label">Tổng cần nộp</div>
+                <div class="money-label">Tổng cần nộp (COD)</div>
                 <div class="money-amount {{ $tienCanTra == 0 ? 'zero' : '' }}">
                     {{ number_format($tienCanTra, 0, ',', '.') }}&thinsp;đ
                 </div>
@@ -109,6 +175,18 @@
                     <div class="money-alert ok">
                         <i class="fas fa-check-circle" style="margin-top:2px;flex-shrink:0"></i>
                         <span>Không có khoản tiền nào cần nộp. Cảm ơn bạn!</span>
+                    </div>
+                @endif
+
+                {{-- ── Tiền phạt giao trễ ── --}}
+                @if(isset($tienPhat) && $tienPhat > 0)
+                    <div class="penalty-block">
+                        <div class="penalty-label">⚠️ Phạt giao hoa trễ</div>
+                        <div class="penalty-amount">{{ number_format($tienPhat, 0, ',', '.') }} đ</div>
+                        <div class="penalty-sub">
+                            Khoản này sẽ được cộng vào lần nộp tiền tiếp theo.
+                            Kiểm tra <a href="{{ route('shipper.thong-bao') }}" style="color:#dc2626;font-weight:600;">thông báo</a> để biết thêm chi tiết.
+                        </div>
                     </div>
                 @endif
 
@@ -146,11 +224,11 @@
                                 {{ number_format($dh->tong_tien, 0, ',', '.') }}&thinsp;đ
                             </div>
                             @if($dh->trang_thai_thanh_toan === 'DA_NOP')
-                                     <div class="history-tag done">Đã nộp</div>
-                        @elseif($dh->trang_thai_thanh_toan === 'DA_THANH_TOAN' && $dh->phuong_thuc_thanh_toan === 'COD')
-                                 <div class="history-tag unpaid">Chưa nộp</div>
-                                    @else
-                             <div class="history-tag done">Đã nộp</div>
+                                <div class="history-tag done">Đã nộp</div>
+                            @elseif($dh->trang_thai_thanh_toan === 'DA_THANH_TOAN' && $dh->phuong_thuc_thanh_toan === 'COD')
+                                <div class="history-tag unpaid">Chưa nộp</div>
+                            @else
+                                <div class="history-tag done">Đã nộp</div>
                             @endif
                         </div>
                     </div>
@@ -184,6 +262,16 @@
 
         <div class="orders-scroll">
             @forelse($donHangCanShip as $dh)
+                @php
+                    // Phát hiện hoa tươi trong đơn
+                    $hasFlower = false;
+                    foreach ($dh->chiTietHoaDon ?? [] as $ct) {
+                        $ten = strtolower($ct->sanPham->ten_san_pham ?? '');
+                        if (str_contains($ten, 'hoa') || str_contains($ten, 'flower') || str_contains($ten, 'bó')) {
+                            $hasFlower = true; break;
+                        }
+                    }
+                @endphp
                 <div class="order-card" id="order-row-{{ $dh->ma_hoa_don }}">
                     <div class="order-left">
                         <div class="order-num">#HD-{{ str_pad($dh->ma_hoa_don, 4, '0', STR_PAD_LEFT) }}</div>
@@ -194,6 +282,9 @@
                         <span class="badge {{ $dh->phuong_thuc_thanh_toan === 'COD' ? 'badge-cod' : 'badge-bank' }}">
                             {{ $dh->phuong_thuc_thanh_toan }}
                         </span>
+                        @if($hasFlower)
+                            <span class="badge" style="background:#fffbeb; color:#92400e; border:1px solid #fcd34d;">🌸 Hoa tươi</span>
+                        @endif
                     </div>
 
                     <div class="order-middle">
@@ -210,16 +301,22 @@
                             <span>{{ $dh->so_dien_thoai }}</span>
                         </div>
                         @endif
+                        @if($hasFlower)
+                        <div class="order-detail" style="color:#b45309; font-size:12px; font-weight:500;">
+                            <i class="fas fa-clock"></i>
+                            <span>Giao trong 3 tiếng để đảm bảo chất lượng hoa</span>
+                        </div>
+                        @endif
                     </div>
 
                     <div class="order-right">
-    <div class="order-price">{{ number_format($dh->tong_tien, 0, ',', '.') }}&thinsp;đ</div>
-    <a href="{{ route('shipper.don-hang.chi-tiet', $dh->ma_hoa_don) }}" 
-       class="btn-action btn-detail"
-       style="background:#6c757d; color:white; text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:40px; font-size:13px; font-weight:500;">
-        <i class="fas fa-info-circle"></i> Chi tiết
-    </a>
-</div>
+                        <div class="order-price">{{ number_format($dh->tong_tien, 0, ',', '.') }}&thinsp;đ</div>
+                        <a href="{{ route('shipper.don-hang.chi-tiet', $dh->ma_hoa_don) }}"
+                           class="btn-action btn-detail"
+                           style="background:#6c757d; color:white; text-decoration:none; display:inline-flex; align-items:center; gap:6px; padding:8px 16px; border-radius:40px; font-size:13px; font-weight:500;">
+                            <i class="fas fa-info-circle"></i> Chi tiết
+                        </a>
+                    </div>
                 </div>
             @empty
                 <div class="empty-state" style="padding:80px 28px">
@@ -252,10 +349,7 @@ function updateStatus(id, currentStatus) {
 
     fetch(`/shipper/don-hang/${id}/cap-nhat`, {
         method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': csrfToken,
-        },
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
     })
     .then(r => r.json())
     .then(data => {

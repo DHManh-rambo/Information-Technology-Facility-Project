@@ -12,6 +12,7 @@ use App\Http\Controllers\Shipper\ShipperController;
 use App\Http\Controllers\Shipper\NhanDonController;
 use App\Http\Controllers\Shipper\ShipperProfileController;
 use App\Http\Controllers\Shipper\ThongBaoController;
+use App\Http\Controllers\Shipper\ShipperThongBaoController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Customer\ThongBaoController as CustomerThongBaoController;
 use App\Http\Controllers\Customer\CustomerController;
@@ -159,6 +160,18 @@ Route::middleware(['auth', 'role:SHIPPER'])->group(function () {
     Route::patch('/shipper/profile',[ShipperProfileController::class, 'update'])->name('shipper.profile.update');
     Route::patch('/shipper/profile/password', [ShipperProfileController::class, 'updatePassword']) ->name('shipper.profile.password');
     Route::post('/shipper/don-hang/{id}/da-den-noi',[ThongBaoController::class, 'guiThongBao'])->name('shipper.don-hang.da-den-noi');
+    Route::get('/shipper/thong-bao', [ShipperThongBaoController::class, 'index'])
+    ->name('shipper.thong-bao');
+ 
+    Route::get('/shipper/thong-bao/so-chua-doc', [ShipperThongBaoController::class, 'soChuaDoc'])
+    ->name('shipper.thong-bao.so-chua-doc');
+ 
+    Route::patch('/shipper/thong-bao/{id}/xoa', [ShipperThongBaoController::class, 'xoa'])
+    ->name('shipper.thong-bao.xoa');
+ 
+
+    Route::post('/shipper/don-hang/{maHoaDon}/check-timeout', [ShipperThongBaoController::class, 'checkTimeout'])
+    ->name('shipper.don-hang.check-timeout');
 });
 
 
