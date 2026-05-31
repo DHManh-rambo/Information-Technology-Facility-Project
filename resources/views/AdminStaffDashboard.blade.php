@@ -6,8 +6,8 @@
 
     <div class="home-header">
         <div>
-            <h1>Chào mừng trở lại, {{ Auth::user()->ten_dang_nhap }} 👋</h1>
-            <p>Dưới đây là tổng quan hoạt động của cửa hàng hôm nay.</p>
+            <!-- <h1>Chào mừng trở lại, {{ Auth::user()->ten_dang_nhap }} 👋</h1>
+            <p>Dưới đây là tổng quan hoạt động của cửa hàng hôm nay.</p> -->
         </div>
 
         <div class="home-date">
