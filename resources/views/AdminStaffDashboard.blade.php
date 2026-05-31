@@ -130,7 +130,7 @@
             <table class="home-table">
                 <thead>
                     <tr>
-                        <th>#</th>
+                        <th>STT</th>
                         <th>Sản phẩm</th>
                         <th>Đã bán</th>
                         <th>Doanh thu</th>

@@ -1,21 +1,26 @@
-Giới thiệu
+# README
+
+## Giới thiệu
 
 RoseShop là hệ thống quản lý cửa hàng hoa được xây dựng bằng Laravel, hỗ trợ quản lý sản phẩm, nhập hàng, khách hàng, đơn hàng, hóa đơn và báo cáo thống kê.
 
-Công nghệ sử dụng
-Laravel
-PHP
-MySQL
-HTML/CSS
-JavaScript
-Bootstrap
+## Công nghệ sử dụng
 
-I. # Các công việc đã thực hiện fontend
+* Laravel
+* PHP
+* MySQL
+* HTML/CSS
+* JavaScript
+* Bootstrap
+
+# I. Các công việc đã thực hiện (Frontend)
 
 ## 1. Xây dựng Dashboard quản trị
 
+### Chức năng Dashboard
+
 * Thiết kế giao diện Dashboard tổng quan cho hệ thống RoseShop.
-* Bổ sung menu "Tổng quan" trên Sidebar.
+* Bổ sung menu **Tổng quan** trên Sidebar.
 * Hiển thị các chỉ số tổng quan:
 
   * Tổng sản phẩm.
@@ -26,6 +31,49 @@ I. # Các công việc đã thực hiện fontend
 * Hiển thị Top sản phẩm bán chạy.
 * Hiển thị danh sách sản phẩm sắp hết hàng.
 * Xây dựng biểu đồ doanh thu theo thời gian.
+
+### Quy tắc thống kê Dashboard
+
+#### Tổng đơn hàng
+
+Chỉ số **Tổng đơn hàng** trên Dashboard được tính từ toàn bộ bản ghi trong bảng `hoa_don`, bao gồm tất cả các trạng thái:
+
+* DELIVERED (Đã giao)
+* PENDING (Chờ xử lý)
+* CONFIRMED (Đã xác nhận)
+* SHIPPING (Đang giao)
+* CANCELLED (Đã hủy)
+
+Ví dụ:
+
+| Trạng thái    | Số lượng |
+| ------------- | -------- |
+| DELIVERED     | 14       |
+| PENDING       | 9        |
+| CONFIRMED     | 3        |
+| SHIPPING      | 1        |
+| CANCELLED     | 1        |
+| **Tổng cộng** | **28**   |
+
+Do đó:
+
+* Tổng đơn hàng = 28
+* Đơn hàng đã giao = 14
+
+Hai chỉ số này mang ý nghĩa khác nhau và được sử dụng cho các mục đích thống kê khác nhau.
+
+#### Doanh thu
+
+Doanh thu chỉ được tính từ các đơn hàng đã hoàn thành giao hàng thành công (`DELIVERED`).
+
+Các đơn hàng ở trạng thái:
+
+* PENDING
+* CONFIRMED
+* SHIPPING
+* CANCELLED
+
+không được cộng vào doanh thu thực tế.
 
 ## 2. Kết nối Dashboard với cơ sở dữ liệu
 
@@ -86,9 +134,9 @@ Tất cả được chuyển sang sử dụng layout chung để đảm bảo Si
 * Kiểm tra thống kê Dashboard với dữ liệu thực trong cơ sở dữ liệu.
 * Đối chiếu số lượng đơn hàng theo trạng thái:
 
-  * DELIVERED.
-  * PENDING.
-  * CONFIRMED.
-  * SHIPPING.
-  * CANCELLED.
+  * DELIVERED
+  * PENDING
+  * CONFIRMED
+  * SHIPPING
+  * CANCELLED
 * Đảm bảo Dashboard hiển thị chính xác số liệu toàn hệ thống.

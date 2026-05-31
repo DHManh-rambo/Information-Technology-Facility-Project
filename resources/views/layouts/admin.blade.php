@@ -32,38 +32,46 @@
             </div>
 
             <nav class="menu">
-                <a href="{{ route('admin.dashboard') }}" class="menu-item">
+                <a href="{{ route('admin.dashboard') }}" 
+                 class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                     🏠 Tổng quan
                 </a>
 
                 @if(Auth::user()->vai_tro === 'ADMIN')
-                    <a href="{{ route('nguoi-dung.index') }}" class="menu-item">
+                    <a href="{{ route('nguoi-dung.index') }}" 
+                     class="menu-item {{ request()->routeIs('nguoi-dung.*') ? 'active' : '' }}">
                         👥 Quản lý tài khoản
                     </a>
 
-                    <a href="{{ route('khach-hang.index') }}" class="menu-item">
+                    <a href="{{ route('khach-hang.index') }}"
+                     class="menu-item {{ request()->routeIs('khach-hang.*') ? 'active' : '' }}">
                         👤 Quản lý khách hàng
                     </a>
                 @endif
 
-                <a href="{{ route('san-pham.index') }}" class="menu-item">
+                <a href="{{ route('san-pham.index') }}" 
+                 class="menu-item {{ request()->routeIs('san-pham.*') ? 'active' : '' }}">
                     🌷 Quản lý sản phẩm
                 </a>
 
-                <a href="{{ route('phieu-nhap.index') }}" class="menu-item">
+                <a href="{{ route('phieu-nhap.index') }}" 
+                 class="menu-item {{ request()->routeIs('phieu-nhap.*') ? 'active' : '' }}">
                     🧾 Quản lý nhập hàng
                 </a>
 
-                <a href="{{ route('don-hang.index') }}" class="menu-item">
+                <a href="{{ route('don-hang.index') }}"
+                class="menu-item {{ request()->routeIs('don-hang.*') ? 'active' : '' }}">
                     🛒 Quản lý đơn hàng
                 </a>
 
-                <a href="{{ route('hoa-don.index') }}" class="menu-item">
+                <a href="{{ route('hoa-don.index') }}" 
+                class="menu-item {{ request()->routeIs('hoa-don.*') ? 'active' : '' }}">
                     📄 Quản lý hóa đơn
                 </a>
 
                 @if(Auth::user()->vai_tro === 'ADMIN')
-                    <a href="{{ route('nhan-vien.index') }}" class="menu-item">
+                    <a href="{{ route('nhan-vien.index') }}" 
+                    class="menu-item {{ request()->routeIs('nhan-vien.*') ? 'active' : '' }}">
                         🧑‍💼 Quản lý nhân viên
                     </a>
 
@@ -71,11 +79,11 @@
                         📊 Báo cáo thống kê
                     </div>
 
-                    <a href="{{ route('bao-cao.doanh-thu') }}" class="submenu-item">
+                    <a href="{{ route('bao-cao.doanh-thu') }}" class="submenu-item {{ request()->routeIs('bao-cao.doanh-thu') ? 'active' : '' }}">
                         📈 Báo cáo doanh thu
                     </a>
 
-                    <a href="{{ route('bao-cao.san-pham') }}" class="submenu-item">
+                    <a href="{{ route('bao-cao.san-pham') }}" class="submenu-item {{ request()->routeIs('bao-cao.san-pham') ? 'active' : '' }}">
                         📦 Báo cáo sản phẩm
                     </a>
                 @endif

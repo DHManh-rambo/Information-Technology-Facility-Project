@@ -391,12 +391,12 @@ body {
     color:#6b7280;
 }
 .dashboard-chart{
-    height:260px;
-    display:flex;
-    align-items:flex-end;
-    justify-content:space-around;
-    gap:16px;
-    padding:20px 10px;
+    height: 100%;
+    display: flex;
+    align-items: flex-end; /* quan trọng */
+    justify-content: center;
+    gap: 90px;
+    padding-bottom: 40px;
 }
 
 .chart-bar-item{
@@ -408,7 +408,7 @@ body {
 }
 
 .bar{
-    width:40px;
+    width:90px;
     border-radius:12px 12px 0 0;
     background:linear-gradient(
         180deg,
@@ -423,12 +423,14 @@ body {
 }
 
 .chart-bar-item strong{
-    font-size:12px;
+    font-size: 15px;
+    font-weight: 800;
     color:#374151;
 }
 
 .chart-bar-item span{
-    font-size:12px;
+    font-size: 14px;
+    font-weight: 600;    
     color:#9ca3af;
 }
 
