@@ -751,7 +751,6 @@ $chiTietDoanhThu = $mocThoiGian->unique()->map(function ($moc) use ($duLieuTheoM
         ->selectRaw("
             sp.ten_san_pham,
             sp.hinh_anh,
-            SUM(ct.so_luong) as tong_san_pham_ban,
             SUM(ct.so_luong * ct.gia_ban_snapshot) as doanh_thu
         ")
         ->groupBy('sp.ma_san_pham', 'sp.ten_san_pham', 'sp.hinh_anh')

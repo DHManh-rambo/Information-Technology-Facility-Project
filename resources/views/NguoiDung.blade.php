@@ -1,13 +1,13 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="stylesheet" href="{{ asset('css/NguoiDung.css') }}">
+@extends('layouts.admin')
 
-    
-</head>
-<body>
+@push('styles')
+    <link rel="stylesheet" href="{{ asset('css/NguoiDung.css') }}">
+@endpush
+
+@section('content')
+
+<div class="nguoi-dung-container">
+
   
     @if($errors->any())
     <div class="alert alert-error" id="alert-error">
@@ -322,5 +322,4 @@
         }
     });
 </script>
-</body>
-</html>
+@endsection

@@ -1,35 +1,27 @@
-* {
-    margin: 0;
-    padding: 0;
+.nguoi-dung-container * {
     box-sizing: border-box;
 }
 
-body {
-    background: #fff;
-    color: #000;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    padding: 30px;
-}
-
-.container {
+.nguoi-dung-container {
     max-width: 1400px;
     margin: auto;
+    padding: 0 16px;
 }
 
-h2 {
+.nguoi-dung-container h2 {
     border-left: 6px solid #000;
     padding-left: 15px;
     margin-bottom: 20px;
 }
 
-.card {
+.nguoi-dung-container .card {
     background: #fff;
     border: 1px solid #ddd;
     margin-bottom: 30px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
-.card-header {
+.nguoi-dung-container .card-header {
     background: #f9f9f9;
     padding: 12px 20px;
     font-weight: bold;
@@ -37,31 +29,31 @@ h2 {
     font-size: 1.1rem;
 }
 
-.card-body {
+.nguoi-dung-container .card-body {
     padding: 20px;
 }
 
-.form-row {
+.nguoi-dung-container .form-row {
     display: flex;
     flex-wrap: wrap;
     gap: 15px;
     margin-bottom: 15px;
 }
 
-.form-group {
+.nguoi-dung-container .form-group {
     flex: 1;
     min-width: 200px;
 }
 
-label {
+.nguoi-dung-container label {
     display: block;
     margin-bottom: 5px;
     font-weight: 500;
 }
 
-input,
-select,
-textarea {
+.nguoi-dung-container input,
+.nguoi-dung-container select,
+.nguoi-dung-container textarea {
     width: 100%;
     padding: 8px 10px;
     border: 1px solid #ccc;
@@ -70,15 +62,15 @@ textarea {
     border-radius: 4px;
 }
 
-input:focus,
-select:focus,
-textarea:focus {
+.nguoi-dung-container input:focus,
+.nguoi-dung-container select:focus,
+.nguoi-dung-container textarea:focus {
     outline: none;
     border-color: #000;
 }
 
-button,
-.btn {
+.nguoi-dung-container button,
+.nguoi-dung-container .btn {
     background: #000;
     color: #fff;
     border: none;
@@ -89,76 +81,76 @@ button,
     transition: 0.2s;
 }
 
-button:hover,
-.btn:hover {
+.nguoi-dung-container button:hover,
+.nguoi-dung-container .btn:hover {
     background: #333;
 }
 
-.btn-secondary {
+.nguoi-dung-container .btn-secondary {
     background: #6c757d;
 }
 
-.btn-secondary:hover {
+.nguoi-dung-container .btn-secondary:hover {
     background: #5a6268;
 }
 
-.btn-danger {
+.nguoi-dung-container .btn-danger {
     background: #dc3545;
 }
 
-.btn-danger:hover {
+.nguoi-dung-container .btn-danger:hover {
     background: #c82333;
 }
 
-.btn-sm {
+.nguoi-dung-container .btn-sm {
     padding: 4px 10px;
     font-size: 13px;
 }
 
-table {
+.nguoi-dung-container table {
     width: 100%;
     border-collapse: collapse;
 }
 
-th,
-td {
+.nguoi-dung-container th,
+.nguoi-dung-container td {
     border: 1px solid #ddd;
     padding: 10px 8px;
     text-align: left;
 }
 
-th {
+.nguoi-dung-container th {
     background: #f2f2f2;
     font-weight: 600;
 }
 
-.action-buttons button {
+.nguoi-dung-container .action-buttons button {
     margin-right: 5px;
 }
 
-.alert {
+.nguoi-dung-container .alert {
     padding: 12px;
     border-left: 4px solid;
     margin-bottom: 20px;
 }
 
-.alert-success {
+.nguoi-dung-container .alert-success {
     background: #e9f6ec;
     border-color: #2e7d32;
     color: #1e4620;
 }
 
-.alert-error {
+.nguoi-dung-container .alert-error {
     background: #fdecea;
     border-color: #d32f2f;
     color: #b71c1c;
 }
 
-.password-wrapper {
+.nguoi-dung-container .password-wrapper {
     position: relative;
 }
 
-.toggle-pwd {
+.nguoi-dung-container .toggle-pwd {
     position: absolute;
     right: 8px;
     top: 32px;
@@ -170,28 +162,28 @@ th {
     padding: 0 5px;
 }
 
-hr {
+.nguoi-dung-container hr {
     margin: 15px 0;
 }
 
-.inline-group {
+.nguoi-dung-container .inline-group {
     display: flex;
     gap: 10px;
     align-items: center;
 }
 
-.hidden-field {
+.nguoi-dung-container .hidden-field {
     display: none;
 }
 
-.alert {
+.nguoi-dung-container .alert {
     position: relative;
     padding: 0.75rem 2rem 0.75rem 1rem;
     margin-bottom: 1rem;
     border-radius: 4px;
 }
 
-.close-alert {
+.nguoi-dung-container .close-alert {
     position: absolute;
     top: 0.5rem;
     right: 0.75rem;
@@ -203,13 +195,13 @@ hr {
     color: inherit;
 }
 
-.alert-success {
+.nguoi-dung-container .alert-success {
     background-color: #d4edda;
     color: #155724;
     border: 1px solid #c3e6cb;
 }
 
-.alert-error {
+.nguoi-dung-container .alert-error {
     background-color: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
