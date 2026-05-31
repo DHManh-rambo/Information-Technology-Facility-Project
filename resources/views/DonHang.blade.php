@@ -1,17 +1,17 @@
-{{-- resources/views/DonHang.blade.php --}}
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <link rel="stylesheet" href="{{ asset('css/DonHang.css') }}">
-    <title>Quản Lý Đơn Hàng – Flower Store</title>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=IM+Fell+English:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+@extends('layouts.admin')
 
-    
-</head>
-<body>
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/DonHang.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=IM+Fell+English:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+@endpush
+
+@section('content')
+
+<div class="don-hang-container">
+{{-- resources/views/DonHang.blade.php --}}
+
+
+
 
 {{-- ════════ HEADER ════════ --}}
 
@@ -246,8 +246,11 @@
 
 {{-- ════════ TOAST NOTIFICATION ════════ --}}
 <div class="toast" id="toast"></div>
+</div>
 
+@endsection
 
+@push('scripts')
 <script>
     const CSRF = document.querySelector('meta[name="csrf-token"]').content;
     let currentCancelId = null;
@@ -371,5 +374,4 @@
         sel.addEventListener('change', () => sel.classList.remove('error'));
     });
 </script>
-</body>
-</html>
+@endpush

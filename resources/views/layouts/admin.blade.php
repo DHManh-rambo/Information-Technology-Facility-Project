@@ -99,6 +99,7 @@
         @yield('content')
     </main>
 
+    @stack('scripts')
 </div>
 </body>
 </html>

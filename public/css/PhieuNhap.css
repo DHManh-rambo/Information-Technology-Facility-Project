@@ -1,128 +1,79 @@
-body {
+.nhap-hang-container{
     background: #f0f0f0;
     font-family: 'Segoe UI', sans-serif;
-}
-
-.card {
+}.nhap-hang-container .card{
     border: 1px solid #ccc;
     border-radius: 0;
     box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.12);
-}
-
-
-.header-them {
+}.nhap-hang-container .header-them{
     background: #1a1a1a;
     color: #fff;
-}
-
-.header-sua {
+}.nhap-hang-container .header-sua{
     background: #4a4a4a;
     color: #fff;
-}
-
-.header-danh-sach {
+}.nhap-hang-container .header-danh-sach{
     background: #2d2d2d;
     color: #fff;
-}
-
-.header-filter {
+}.nhap-hang-container .header-filter{
     background: #555;
     color: #fff;
-}
-
-.card-header {
+}.nhap-hang-container .card-header{
     border-radius: 0 !important;
     font-weight: 600;
     padding: 10px 16px;
-}
-
-
-table {
+}.nhap-hang-container table{
     font-size: 0.88rem;
-}
-
-thead {
+}.nhap-hang-container thead{
     background: #333;
     color: #fff;
-}
-
-thead th {
+}.nhap-hang-container thead th{
     font-weight: 600;
     border-color: #555 !important;
-}
-
-tbody tr:hover {
+}.nhap-hang-container tbody tr:hover{
     background: #f8f8f8;
-}
-
-
-.badge-draft {
+}.nhap-hang-container .badge-draft{
     background: #e8e8e8;
     color: #333;
     border: 1px solid #aaa;
     font-size: 0.78rem;
-}
-
-.badge-confirmed {
+}.nhap-hang-container .badge-confirmed{
     background: #1a1a1a;
     color: #fff;
     font-size: 0.78rem;
-}
-
-
-.btn-sua {
+}.nhap-hang-container .btn-sua{
     background: #555;
     color: #fff;
     border-color: #555;
-}
-
-.btn-sua:hover {
+}.nhap-hang-container .btn-sua:hover{
     background: #333;
     color: #fff;
-}
-
-.btn-xoa {
+}.nhap-hang-container .btn-xoa{
     background: #fff;
     color: #c0392b;
     border: 1px solid #c0392b;
-}
-
-.btn-xoa:hover {
+}.nhap-hang-container .btn-xoa:hover{
     background: #c0392b;
     color: #fff;
-}
-
-.btn-xacnhan {
+}.nhap-hang-container .btn-xacnhan{
     background: #1a1a1a;
     color: #fff;
     border-color: #1a1a1a;
-}
-
-.btn-xacnhan:hover {
+}.nhap-hang-container .btn-xacnhan:hover{
     background: #333;
-}
-
-.btn-chitiet {
+}.nhap-hang-container .btn-chitiet{
     background: #f5f5f5;
     color: #333;
     border: 1px solid #aaa;
-}
-
-.btn-chitiet:hover {
+}.nhap-hang-container .btn-chitiet:hover{
     background: #e0e0e0;
-}
-
-
-.dong-chi-tiet {
+}.nhap-hang-container .dong-chi-tiet{
     background: #f9f9f9;
     border: 1px solid #ddd;
     border-radius: 4px;
     padding: 10px;
     margin-bottom: 8px;
     position: relative;
-}
-
-.btn-xoa-dong {
+}.nhap-hang-container .btn-xoa-dong{
     position: absolute;
     top: 8px;
     right: 8px;
@@ -131,33 +82,20 @@ tbody tr:hover {
     color: #c0392b;
     font-size: 1.1rem;
     cursor: pointer;
-}
-
-.btn-xoa-dong:hover {
+}.nhap-hang-container .btn-xoa-dong:hover{
     color: #922b21;
-}
-
-.form-label {
+}.nhap-hang-container .form-label{
     font-weight: 500;
     font-size: 0.85rem;
     margin-bottom: 3px;
-}
-
-.form-control,
-.form-select {
+}.nhap-hang-container .form-control, .nhap-hang-container .form-select{
     border-radius: 0;
     border-color: #bbb;
     font-size: 0.88rem;
-}
-
-.form-control:focus,
-.form-select:focus {
+}.nhap-hang-container .form-control:focus, .nhap-hang-container .form-select:focus{
     border-color: #333;
     box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
-}
-
-
-.tieu-de-chi-tiet {
+}.nhap-hang-container .tieu-de-chi-tiet{
     font-weight: 600;
     font-size: 0.9rem;
     color: #333;

@@ -1,4 +1,4 @@
-:root {
+.hoa-don-container{
     --black: #0a0a0a;
     --white: #f5f2ec;
     --gray-1: #1c1c1c;
@@ -15,73 +15,52 @@
     --font-serif: 'IM Fell English', Georgia, serif;
     --panel-w: 420px;
     --transition: 0.28s cubic-bezier(.4, 0, .2, 1);
-}
-
-*,
-*::before,
-*::after {
+}.hoa-don-container *, .hoa-don-container *::before, .hoa-don-container *::after{
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-}
-
-html,
-body {
+}.hoa-don-container, .hoa-don-container{
     height: 100%;
     background: #ffffff;
     color: var(--black);
     font-family: var(--font-mono);
     font-size: 13px;
     line-height: 1.6;
-}
-
-/* ── HEADER ── */
-.page-header {
+}.hoa-don-container /* ── HEADER ── */
+.page-header{
     display: flex;
     align-items: baseline;
     gap: 18px;
     padding: 28px 32px 18px;
     border-bottom: 2px solid var(--black);
     background: var(--white);
-}
-
-.page-header h1 {
+}.hoa-don-container .page-header h1{
     font-family: var(--font-serif);
     font-size: 26px;
     letter-spacing: .5px;
     font-style: italic;
-}
-
-.page-header .sub {
+}.hoa-don-container .page-header .sub{
     font-size: 11px;
     color: var(--gray-4);
     letter-spacing: 2px;
     text-transform: uppercase;
-}
-
-/* ── MAIN LAYOUT ── */
-.page-body {
+}.hoa-don-container /* ── MAIN LAYOUT ── */
+.page-body{
     display: flex;
     flex-direction: column;
     gap: 0;
     padding: 24px 32px;
     transition: margin-right var(--transition);
-}
-
-.page-body.panel-open {
+}.hoa-don-container .page-body.panel-open{
     margin-right: var(--panel-w);
-}
-
-/* ── FILTER BOX ── */
-.filter-box {
+}.hoa-don-container /* ── FILTER BOX ── */
+.filter-box{
     border: 1.5px solid var(--black);
     padding: 18px 22px;
     margin-bottom: 20px;
     background: var(--white);
     position: relative;
-}
-
-.filter-box::before {
+}.hoa-don-container .filter-box::before{
     content: '◆ BỘ LỌC TÌM KIẾM';
     position: absolute;
     top: -9px;
@@ -91,31 +70,22 @@ body {
     font-size: 10px;
     letter-spacing: 2px;
     font-weight: 700;
-}
-
-.filter-grid {
+}.hoa-don-container .filter-grid{
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 14px 18px;
     align-items: end;
-}
-
-.filter-group {
+}.hoa-don-container .filter-group{
     display: flex;
     flex-direction: column;
     gap: 5px;
-}
-
-.filter-group label {
+}.hoa-don-container .filter-group label{
     font-size: 10px;
     letter-spacing: 1.5px;
     text-transform: uppercase;
     color: var(--gray-3);
     font-weight: 700;
-}
-
-.filter-group select,
-.filter-group input[type="date"] {
+}.hoa-don-container .filter-group select, .hoa-don-container .filter-group input[type="date"]{
     border: 1.5px solid var(--border);
     background: var(--white);
     color: var(--black);
@@ -128,32 +98,21 @@ body {
     transition: border-color .15s;
     appearance: none;
     -webkit-appearance: none;
-}
-
-.filter-group select:focus,
-.filter-group input[type="date"]:focus {
+}.hoa-don-container .filter-group select:focus, .hoa-don-container .filter-group input[type="date"]:focus{
     border-color: var(--black);
     background: #faf9f6;
-}
-
-.filter-group select {
+}.hoa-don-container .filter-group select{
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%230a0a0a'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 10px center;
     padding-right: 28px;
-}
-
-.filter-row-date {
+}.hoa-don-container .filter-row-date{
     display: contents;
-}
-
-.filter-actions {
+}.hoa-don-container .filter-actions{
     display: flex;
     gap: 10px;
     align-items: flex-end;
-}
-
-.btn {
+}.hoa-don-container .btn{
     font-family: var(--font-mono);
     font-size: 11px;
     font-weight: 700;
@@ -164,67 +123,44 @@ body {
     cursor: pointer;
     transition: background .15s, color .15s;
     white-space: nowrap;
-}
-
-.btn-primary {
+}.hoa-don-container .btn-primary{
     background: var(--black);
     color: var(--white);
-}
-
-.btn-primary:hover {
+}.hoa-don-container .btn-primary:hover{
     background: var(--gray-2);
-}
-
-.btn-reset {
+}.hoa-don-container .btn-reset{
     background: var(--white);
     color: var(--black);
-}
-
-.btn-reset:hover {
+}.hoa-don-container .btn-reset:hover{
     background: var(--gray-6);
-}
-
-.btn-detail {
+}.hoa-don-container .btn-detail{
     background: var(--white);
     color: var(--black);
     border: 1.5px solid var(--black);
     padding: 5px 12px;
     font-size: 10px;
-}
-
-.btn-detail:hover,
-.btn-detail.active {
+}.hoa-don-container .btn-detail:hover, .hoa-don-container .btn-detail.active{
     background: var(--black);
     color: var(--white);
-}
-
-.btn-delete {
+}.hoa-don-container .btn-delete{
     background: var(--white);
     color: var(--gray-3);
     border: 1.5px solid var(--gray-4);
     padding: 5px 12px;
     font-size: 10px;
-}
-
-.btn-delete:hover:not(:disabled) {
+}.hoa-don-container .btn-delete:hover:not(:disabled){
     background: var(--black);
     color: var(--white);
     border-color: var(--black);
-}
-
-.btn-delete:disabled {
+}.hoa-don-container .btn-delete:disabled{
     opacity: .35;
     cursor: not-allowed;
-}
-
-/* ── TABLE BOX ── */
-.table-box {
+}.hoa-don-container /* ── TABLE BOX ── */
+.table-box{
     border: 1.5px solid var(--black);
     overflow: hidden;
     position: relative;
-}
-
-.table-box::before {
+}.hoa-don-container .table-box::before{
     content: '◆ DANH SÁCH HÓA ĐƠN';
     display: block;
     padding: 10px 18px;
@@ -234,18 +170,12 @@ body {
     border-bottom: 1.5px solid var(--black);
     background: var(--black);
     color: var(--white);
-}
-
-.table-wrap {
+}.hoa-don-container .table-wrap{
     overflow-x: auto;
-}
-
-table {
+}.hoa-don-container table{
     width: 100%;
     border-collapse: collapse;
-}
-
-thead th {
+}.hoa-don-container thead th{
     padding: 9px 13px;
     text-align: left;
     font-size: 10px;
@@ -255,38 +185,24 @@ thead th {
     background: var(--gray-6);
     white-space: nowrap;
     font-weight: 700;
-}
-
-tbody tr {
+}.hoa-don-container tbody tr{
     border-bottom: 1px solid var(--gray-5);
     transition: background .1s;
-}
-
-tbody tr:last-child {
+}.hoa-don-container tbody tr:last-child{
     border-bottom: none;
-}
-
-tbody tr:hover {
+}.hoa-don-container tbody tr:hover{
     background: #edeae3;
-}
-
-tbody tr.highlighted {
+}.hoa-don-container tbody tr.highlighted{
     background: #e0dcd4;
-}
-
-td {
+}.hoa-don-container td{
     padding: 9px 13px;
     vertical-align: middle;
     white-space: nowrap;
-}
-
-td.wrap {
+}.hoa-don-container td.wrap{
     white-space: normal;
     max-width: 180px;
-}
-
-/* badges */
-.badge {
+}.hoa-don-container /* badges */
+.badge{
     display: inline-block;
     padding: 2px 8px;
     font-size: 9px;
@@ -294,62 +210,42 @@ td.wrap {
     text-transform: uppercase;
     font-weight: 700;
     border: 1px solid currentColor;
-}
-
-.badge-pending {
+}.hoa-don-container .badge-pending{
     color: #666;
     border-color: #aaa;
-}
-
-.badge-confirmed {
+}.hoa-don-container .badge-confirmed{
     color: #111;
     border-color: #333;
     background: #eee;
-}
-
-.badge-shipping {
+}.hoa-don-container .badge-shipping{
     color: #111;
     border-color: #111;
     background: #ddd;
-}
-
-.badge-delivered {
+}.hoa-don-container .badge-delivered{
     color: var(--white);
     background: var(--black);
     border-color: var(--black);
-}
-
-.badge-cancelled {
+}.hoa-don-container .badge-cancelled{
     color: #888;
     border-color: #ccc;
     text-decoration: line-through;
-}
-
-.badge-paid {
+}.hoa-don-container .badge-paid{
     color: var(--white);
     background: var(--black);
     border-color: var(--black);
-}
-
-.badge-unpaid {
+}.hoa-don-container .badge-unpaid{
     color: #666;
     border-color: #bbb;
-}
-
-.id-col {
+}.hoa-don-container .id-col{
     font-size: 11px;
     color: var(--gray-3);
     font-weight: 700;
-}
-
-.money {
+}.hoa-don-container .money{
     font-family: var(--font-mono);
     font-size: 12px;
     font-weight: 700;
-}
-
-/* ── PAGINATION ── */
-.pagination-wrap {
+}.hoa-don-container /* ── PAGINATION ── */
+.pagination-wrap{
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -357,15 +253,10 @@ td.wrap {
     border-top: 1.5px solid var(--black);
     font-size: 11px;
     color: var(--gray-3);
-}
-
-.pagination-wrap .pages {
+}.hoa-don-container .pagination-wrap .pages{
     display: flex;
     gap: 2px;
-}
-
-.pagination-wrap a,
-.pagination-wrap span {
+}.hoa-don-container .pagination-wrap a, .hoa-don-container .pagination-wrap span{
     display: inline-block;
     padding: 4px 10px;
     border: 1px solid var(--gray-5);
@@ -374,34 +265,24 @@ td.wrap {
     font-size: 11px;
     font-family: var(--font-mono);
     transition: background .12s;
-}
-
-.pagination-wrap a:hover {
+}.hoa-don-container .pagination-wrap a:hover{
     background: var(--gray-6);
-}
-
-.pagination-wrap span.active-page {
+}.hoa-don-container .pagination-wrap span.active-page{
     background: var(--black);
     color: var(--white);
     border-color: var(--black);
-}
-
-.pagination-wrap span.disabled {
+}.hoa-don-container .pagination-wrap span.disabled{
     color: var(--gray-4);
     pointer-events: none;
-}
-
-/* ── EMPTY ── */
-.empty-row td {
+}.hoa-don-container /* ── EMPTY ── */
+.empty-row td{
     text-align: center;
     padding: 40px;
     color: var(--gray-4);
     font-style: italic;
     letter-spacing: 1px;
-}
-
-/* ── TOAST ── */
-#toast {
+}.hoa-don-container /* ── TOAST ── */
+#toast{
     position: fixed;
     bottom: 28px;
     left: 50%;
@@ -417,20 +298,14 @@ td.wrap {
     transition: opacity .25s, transform .25s;
     z-index: 9999;
     border: 1px solid var(--gray-3);
-}
-
-#toast.show {
+}.hoa-don-container #toast.show{
     opacity: 1;
     transform: translateX(-50%) translateY(0);
-}
-
-#toast.error {
+}.hoa-don-container #toast.error{
     background: #1c1c1c;
     border-color: #555;
-}
-
-/* ── DETAIL PANEL ── */
-#detail-panel {
+}.hoa-don-container /* ── DETAIL PANEL ── */
+#detail-panel{
     position: fixed;
     top: 0;
     right: 0;
@@ -444,13 +319,9 @@ td.wrap {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-}
-
-#detail-panel.open {
+}.hoa-don-container #detail-panel.open{
     transform: translateX(0);
-}
-
-.panel-header {
+}.hoa-don-container .panel-header{
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -459,16 +330,12 @@ td.wrap {
     background: var(--black);
     color: var(--white);
     flex-shrink: 0;
-}
-
-.panel-header h2 {
+}.hoa-don-container .panel-header h2{
     font-family: var(--font-serif);
     font-size: 16px;
     font-style: italic;
     letter-spacing: .5px;
-}
-
-.panel-close {
+}.hoa-don-container .panel-close{
     background: none;
     border: 1px solid rgba(255, 255, 255, .4);
     color: var(--white);
@@ -478,35 +345,21 @@ td.wrap {
     padding: 4px 10px;
     letter-spacing: 1px;
     transition: background .15s;
-}
-
-.panel-close:hover {
+}.hoa-don-container .panel-close:hover{
     background: rgba(255, 255, 255, .15);
-}
-
-.panel-body {
+}.hoa-don-container .panel-body{
     flex: 1;
     overflow-y: auto;
     padding: 20px;
-}
-
-.panel-body::-webkit-scrollbar {
+}.hoa-don-container .panel-body::-webkit-scrollbar{
     width: 5px;
-}
-
-.panel-body::-webkit-scrollbar-track {
+}.hoa-don-container .panel-body::-webkit-scrollbar-track{
     background: var(--gray-6);
-}
-
-.panel-body::-webkit-scrollbar-thumb {
+}.hoa-don-container .panel-body::-webkit-scrollbar-thumb{
     background: var(--gray-4);
-}
-
-.panel-section {
+}.hoa-don-container .panel-section{
     margin-bottom: 20px;
-}
-
-.panel-section-title {
+}.hoa-don-container .panel-section-title{
     font-size: 9px;
     letter-spacing: 2.5px;
     text-transform: uppercase;
@@ -515,42 +368,30 @@ td.wrap {
     margin-bottom: 10px;
     padding-bottom: 6px;
     border-bottom: 1px solid var(--gray-5);
-}
-
-.info-row {
+}.hoa-don-container .info-row{
     display: flex;
     justify-content: space-between;
     align-items: baseline;
     padding: 5px 0;
     border-bottom: 1px dotted var(--gray-5);
     gap: 12px;
-}
-
-.info-row:last-child {
+}.hoa-don-container .info-row:last-child{
     border-bottom: none;
-}
-
-.info-label {
+}.hoa-don-container .info-label{
     font-size: 10px;
     color: var(--gray-4);
     letter-spacing: .8px;
     flex-shrink: 0;
-}
-
-.info-value {
+}.hoa-don-container .info-value{
     font-size: 12px;
     font-weight: 700;
     text-align: right;
-}
-
-/* product table inside panel */
-.product-table {
+}.hoa-don-container /* product table inside panel */
+.product-table{
     width: 100%;
     border-collapse: collapse;
     font-size: 11px;
-}
-
-.product-table th {
+}.hoa-don-container .product-table th{
     padding: 5px 8px;
     text-align: left;
     font-size: 9px;
@@ -558,25 +399,17 @@ td.wrap {
     text-transform: uppercase;
     border-bottom: 1.5px solid var(--black);
     color: var(--gray-3);
-}
-
-.product-table td {
+}.hoa-don-container .product-table td{
     padding: 6px 8px;
     border-bottom: 1px solid var(--gray-6);
     white-space: normal;
-}
-
-.product-table tbody tr:last-child td {
+}.hoa-don-container .product-table tbody tr:last-child td{
     border-bottom: none;
-}
-
-.product-table .total-row td {
+}.hoa-don-container .product-table .total-row td{
     font-weight: 700;
     border-top: 1.5px solid var(--black);
     border-bottom: none;
-}
-
-.panel-loading {
+}.hoa-don-container .panel-loading{
     display: flex;
     align-items: center;
     justify-content: center;
@@ -584,9 +417,7 @@ td.wrap {
     color: var(--gray-4);
     font-size: 11px;
     letter-spacing: 2px;
-}
-
-.panel-loading::after {
+}.hoa-don-container .panel-loading::after{
     content: '';
     display: inline-block;
     width: 16px;
@@ -598,8 +429,7 @@ td.wrap {
     margin-left: 10px;
 }
 
-@keyframes spin {
-    to {
+@keyframes spin {.hoa-don-container to{
         transform: rotate(360deg);
     }
 }

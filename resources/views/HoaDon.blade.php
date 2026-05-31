@@ -1,19 +1,13 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-        <link rel="stylesheet" href="{{ asset('css/HoaDon.css') }}">
+@extends('layouts.admin')
 
-    <title>Quản Lý Hóa Đơn</title>
-    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=IM+Fell+English:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
-    
-</head>
-<body>
+@push('styles')
+<link rel="stylesheet" href="{{ asset('css/HoaDon.css') }}">
+<link href="https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=IM+Fell+English:ital@0;1&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+@endpush
 
+@section('content')
 
-
+<div class="hoa-don-container">
 <div class="page-body" id="page-body">
 
     {{-- ── Ô 1: BỘ LỌC ── --}}
@@ -207,7 +201,11 @@
 
 {{-- ── TOAST ── --}}
 <div id="toast"></div>
+</div>
 
+@endsection
+
+@push('scripts')
 <script>
     const CSRF = document.querySelector('meta[name="csrf-token"]').content;
     let activeDetailId = null;
@@ -372,5 +370,4 @@
         });
     }
 </script>
-</body>
-</html>
+@endpush
