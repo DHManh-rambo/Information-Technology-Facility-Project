@@ -26,8 +26,7 @@
             <div class="brand">
                 <img src="{{ asset('img/logo.png') }}" alt="Logo" class="brand-logo">
                 <div>
-                    <h2>ADMIN</h2>
-                    <p>RoseShop</p>
+                    <h2>RoseShop</h2>
                 </div>
             </div>
 

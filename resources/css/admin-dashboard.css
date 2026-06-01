@@ -450,17 +450,59 @@ body {
     background: white;
 }
 .sidebar {
-    height: 100vh;
-    overflow: hidden;
+    width: 285px !important;
+    min-width: 285px !important;
+    height: 100vh !important;
+    background: #fff !important;
+    border-right: 1px solid #f9cfe1 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+}
+
+.sidebar > div:first-child {
+    flex: 1 !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
 }
 
 .menu {
-    overflow-y: auto;
-    max-height: calc(100vh - 180px);
+    flex: 1 !important;
+    min-height: 0 !important;
+    overflow-y: auto !important;
+    max-height: none !important;
+    padding: 0 14px 16px !important;
 }
 
 .admin-footer {
-    flex-shrink: 0;
+    height: 67px !important;
+    min-height: 67px !important;
+    flex-shrink: 0 !important;
+    padding: 18px 18px 22px !important;
+    border-top: 1px solid #fce7f3 !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    gap: 10px !important;
+    background: #fff !important;
+}
+
+.admin-name {
+    margin: 0 !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+}
+
+.admin-role {
+    margin: 8px 0 0 !important;
+    font-size: 13px !important;
+    line-height: 1.2 !important;
+    color: #9ca3af !important;
+}
+
+.admin-footer button {
+    margin-top: 0 !important;
 }.content {
     flex: 1;
     height: 100vh;
@@ -486,6 +528,9 @@ body {
     flex-direction: column !important;
     justify-content: flex-start !important;
 }
+.sidebar > div:first-child {
+    flex: 1 !important;
+}
 
 .admin-footer {
     padding: 16px 18px !important;
@@ -494,6 +539,8 @@ body {
     justify-content: space-between !important;
     align-items: flex-start !important;
     gap: 10px !important;
+    margin-top: auto !important;
+
 }
 
 .admin-footer button {
