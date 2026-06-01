@@ -24,7 +24,7 @@ body {
     border-right: 1px solid #f9cfe1;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: flex-start;
 }
 
 .brand {
@@ -484,7 +484,20 @@ body {
     border-right: 1px solid #f9cfe1 !important;
     display: flex !important;
     flex-direction: column !important;
+    justify-content: flex-start !important;
+}
+
+.admin-footer {
+    padding: 16px 18px !important;
+    border-top: 1px solid #fce7f3 !important;
+    display: flex !important;
     justify-content: space-between !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+}
+
+.admin-footer button {
+    margin-top: 0 !important;
 }
 
 .brand {
