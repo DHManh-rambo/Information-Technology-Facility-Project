@@ -75,7 +75,7 @@
             @elseif($soLuong <= 5)
                 <span class="stock-badge low-stock">⚠️ Còn {{ $soLuong }} sản phẩm – Sắp hết!</span>
             @else
-                <span class="stock-badge in-stock">✅ Còn hàng ({{ $soLuong }} sp)</span>
+                <!-- <span class="stock-badge in-stock">✅ Còn hàng ({{ $soLuong }} sp)</span> -->
             @endif
         </div>
 
@@ -99,30 +99,57 @@
                         <th>Chọn</th>
                     </tr>
                 </thead>
-                <tbody>
-                    @foreach($loGia as $loIndex => $lo)
-                    <tr class="{{ $lo->so_luong_con_lai <= 5 ? 'row-low' : '' }}" id="lo-row-{{ $loIndex }}">
-                        <td class="price-val">{{ number_format($lo->gia_ban, 0, ',', '.') }}₫</td>
-                        <td>
-                            <span class="stock-pill {{ $lo->so_luong_con_lai <= 5 ? 'low' : '' }}">
-                                {{ $lo->so_luong_con_lai }} sp
-                            </span>
-                        </td>
-                        <td>
-                            <div class="lo-qty-row">
-                                <button class="lo-minus-btn" onclick="changeLo({{ $loIndex }}, -1)"
-                                        id="lo-minus-{{ $loIndex }}" style="display:none;">−</button>
-                                <span class="lo-qty-count" id="lo-qty-{{ $loIndex }}">0</span>
-                                <button class="lo-plus-btn"
-                                        onclick="changeLo({{ $loIndex }}, 1)"
-                                        data-max="{{ $lo->so_luong_con_lai }}"
-                                        data-gia="{{ $lo->gia_ban }}"
-                                        data-id="{{ $lo->ma_chi_tiet_nhap }}">+</button>
-                            </div>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
+                    <tbody>
+
+@php
+    $loGiaConHang = $loGia->where('so_luong_con_lai', '>', 0);
+
+    $giaApDung = $loGiaConHang->max('gia_ban');
+    $tongTon = $loGiaConHang->sum('so_luong_con_lai');
+
+    $loDaiDien = $loGiaConHang
+        ->where('gia_ban', $giaApDung)
+        ->sortBy('ma_chi_tiet_nhap')
+        ->first();
+@endphp
+
+@if($loDaiDien && $tongTon > 0)
+<tr id="lo-row-0">
+    <td class="price-val">
+        {{ number_format($giaApDung, 0, ',', '.') }}₫
+    </td>
+
+    <td>
+        <span class="stock-pill {{ $tongTon <= 5 ? 'low' : '' }}">
+            {{ $tongTon }} sp
+        </span>
+    </td>
+
+   <td>
+    <div class="lo-qty-row">
+        <button class="lo-minus-btn"
+                onclick="changeLo(0, -1)"
+                id="lo-minus-0"
+                style="display:none;">
+            −
+        </button>
+
+        <span class="lo-qty-count" id="lo-qty-0">0</span>
+
+        <button class="lo-plus-btn"
+                onclick="changeLo(0, 1)"
+                data-max="{{ $loDaiDien->so_luong_con_lai }}"
+                data-gia="{{ $giaApDung }}"
+                data-id="{{ $loDaiDien->ma_chi_tiet_nhap }}">
+            +
+        </button>
+    </div>
+</td>
+</tr>
+@endif
+
+</tbody>
+          
             </table>
 
             {{-- Cart summary --}}
@@ -238,31 +265,41 @@
 
 @section('scripts')
 <script>
-    const CSRF         = document.querySelector('meta[name=csrf-token]')?.content ?? '';
-    const ADD_CART_URL = '{{ route("customer.gio-hang.add") }}';
-    const CART_URL     = '{{ route("customer.gio-hang") }}';
-    const CHECKOUT_URL = '{{ route("customer.thanh-toan") }}';
-    const IS_AUTH      = {{ auth()->check() ? 'true' : 'false' }};
+    const CSRF          = document.querySelector('meta[name=csrf-token]')?.content ?? '';
+    const ADD_CART_URL  = '{{ route("customer.gio-hang.add") }}';
+    const BUY_NOW_URL   = '{{ route("customer.mua-ngay") }}';
+    const CHECKOUT_URL  = '{{ route("customer.thanh-toan") }}';
 
     const fmt = v => new Intl.NumberFormat('vi-VN').format(v) + '₫';
 
     const cart = {};
 
     function changeLo(idx, delta) {
-        const plusEl = document.getElementById('lo-row-' + idx)?.querySelector('.lo-plus-btn');
+        const row = document.getElementById('lo-row-' + idx);
+        if (!row) return;
+
+        const plusEl = row.querySelector('.lo-plus-btn');
         if (!plusEl) return;
+
         const max = parseInt(plusEl.dataset.max ?? 0);
         const gia = parseFloat(plusEl.dataset.gia ?? 0);
         const id  = parseInt(plusEl.dataset.id ?? 0);
 
-        if (!cart[idx]) cart[idx] = { qty: 0, maxQty: max, giaBan: gia, maChiTietNhap: id };
+        if (!cart[idx]) {
+            cart[idx] = {
+                qty: 0,
+                maxQty: max,
+                giaBan: gia,
+                maChiTietNhap: id
+            };
+        }
 
         cart[idx].qty = Math.max(0, Math.min(cart[idx].qty + delta, cart[idx].maxQty));
 
         const qtyEl   = document.getElementById('lo-qty-' + idx);
         const minusEl = document.getElementById('lo-minus-' + idx);
 
-        if (qtyEl)   qtyEl.textContent = cart[idx].qty;
+        if (qtyEl) qtyEl.textContent = cart[idx].qty;
         if (minusEl) minusEl.style.display = cart[idx].qty > 0 ? '' : 'none';
 
         renderSummary();
@@ -271,62 +308,77 @@
     function resetCart() {
         Object.keys(cart).forEach(idx => {
             cart[idx].qty = 0;
+
             const qtyEl   = document.getElementById('lo-qty-' + idx);
             const minusEl = document.getElementById('lo-minus-' + idx);
-            if (qtyEl)   qtyEl.textContent = 0;
+
+            if (qtyEl) qtyEl.textContent = 0;
             if (minusEl) minusEl.style.display = 'none';
         });
+
         renderSummary();
     }
 
     function renderSummary() {
-        const summary  = document.getElementById('cartSummary');
-        const linesEl  = document.getElementById('cartLines');
-        const totalEl  = document.getElementById('cartTotal');
-        const btnCart  = document.getElementById('btnAddCart');
-        const btnBuy   = document.getElementById('btnBuyNow');
+        const summary = document.getElementById('cartSummary');
+        const linesEl = document.getElementById('cartLines');
+        const totalEl = document.getElementById('cartTotal');
+        const btnCart = document.getElementById('btnAddCart');
+        const btnBuy  = document.getElementById('btnBuyNow');
 
-        let totalQty   = 0;
+        let totalQty = 0;
         let totalPrice = 0;
-        let linesHtml  = '';
+        let linesHtml = '';
 
         Object.entries(cart).forEach(([idx, item]) => {
             if (item.qty > 0) {
-                const sub   = item.qty * item.giaBan;
-                totalQty   += item.qty;
+                const sub = item.qty * item.giaBan;
+
+                totalQty += item.qty;
                 totalPrice += sub;
-                linesHtml  += `<div class="cart-line">
-                    <span>${fmt(item.giaBan)} × ${item.qty} sp</span>
-                    <span>${fmt(sub)}</span>
-                </div>`;
+
+                linesHtml += `
+                    <div class="cart-line">
+                        <span>${fmt(item.giaBan)} × ${item.qty} sp</span>
+                        <span>${fmt(sub)}</span>
+                    </div>
+                `;
             }
         });
 
         if (totalQty > 0) {
-            linesEl.innerHTML  = linesHtml;
-            totalEl.textContent = fmt(totalPrice);
-            summary.style.display = 'block';
+            if (linesEl) linesEl.innerHTML = linesHtml;
+            if (totalEl) totalEl.textContent = fmt(totalPrice);
+            if (summary) summary.style.display = 'block';
+
             if (btnCart) {
-                btnCart.disabled    = false;
+                btnCart.disabled = false;
                 btnCart.textContent = `🛒 Thêm vào giỏ (${totalQty} sp – ${fmt(totalPrice)})`;
             }
-            if (btnBuy) btnBuy.disabled = false;
+
+            if (btnBuy) {
+                btnBuy.disabled = false;
+            }
         } else {
-            summary.style.display = 'none';
+            if (summary) summary.style.display = 'none';
+
             if (btnCart) {
-                btnCart.disabled    = true;
+                btnCart.disabled = true;
                 btnCart.textContent = '🛒 Thêm vào giỏ hàng';
             }
-            if (btnBuy) btnBuy.disabled = true;
+
+            if (btnBuy) {
+                btnBuy.disabled = true;
+            }
         }
     }
 
     function buildItems() {
         return Object.values(cart)
-            .filter(i => i.qty > 0)
-            .map(i => ({
-                ma_chi_tiet_nhap: i.maChiTietNhap,
-                so_luong: i.qty,
+            .filter(item => item.qty > 0)
+            .map(item => ({
+                ma_chi_tiet_nhap: item.maChiTietNhap,
+                so_luong: item.qty
             }));
     }
 
@@ -335,35 +387,51 @@
         if (!items.length) return;
 
         const btn = document.getElementById('btnAddCart');
-        btn.disabled    = true;
-        btn.textContent = '⏳ Đang thêm...';
+        const btnBuy = document.getElementById('btnBuyNow');
+
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = '⏳ Đang thêm...';
+        }
 
         try {
-            const res  = await fetch(ADD_CART_URL, {
-                method:  'POST',
+            const res = await fetch(ADD_CART_URL, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': CSRF,
+                    'Accept': 'application/json'
                 },
-                body: JSON.stringify({ items }),
+                body: JSON.stringify({ items })
             });
+
             const data = await res.json();
 
             if (data.success) {
                 if (typeof updateCartBadge === 'function') {
                     updateCartBadge(data.so_san_pham);
                 }
-                showToast('✅ Đã thêm ' + items.reduce((s, i) => s + i.so_luong, 0) + ' sp vào giỏ hàng!');
+
+                showSuccessToast('Đã thêm sản phẩm vào giỏ hàng thành công!');
+
                 resetCart();
+
+                if (btn) {
+                    btn.disabled = true;
+                    btn.textContent = '🛒 Thêm vào giỏ hàng';
+                }
+
+                if (btnBuy) {
+                    btnBuy.disabled = true;
+                }
             } else {
-                showToast('❌ ' + (data.message ?? 'Có lỗi xảy ra, vui lòng thử lại.'));
-                btn.disabled    = false;
-                btn.textContent = '🛒 Thêm vào giỏ hàng';
+                alert(data.message || 'Có lỗi xảy ra!');
+                renderSummary();
             }
-        } catch (e) {
-            showToast('❌ Không thể kết nối, vui lòng thử lại.');
-            btn.disabled    = false;
-            btn.textContent = '🛒 Thêm vào giỏ hàng';
+        } catch (error) {
+            console.error(error);
+            alert('Không thể kết nối tới máy chủ!');
+            renderSummary();
         }
     }
 
@@ -372,37 +440,36 @@
         if (!items.length) return;
 
         const btn = document.getElementById('btnBuyNow');
-        btn.disabled    = true;
-        btn.textContent = '⏳ Đang xử lý...';
+
+        if (btn) {
+            btn.disabled = true;
+            btn.textContent = '⏳ Đang xử lý...';
+        }
 
         try {
-            const res  = await fetch(ADD_CART_URL, {
-                method:  'POST',
+            const res = await fetch(BUY_NOW_URL, {
+                method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRF-TOKEN': CSRF,
+                    'Accept': 'application/json'
                 },
-                body: JSON.stringify({ items }),
+                body: JSON.stringify({ items })
             });
+
             const data = await res.json();
 
             if (data.success) {
-                if (typeof updateCartBadge === 'function') {
-                    updateCartBadge(data.so_san_pham);
-                }
                 navigateTo(CHECKOUT_URL);
             } else {
-                showToast('❌ ' + (data.message ?? 'Có lỗi xảy ra, vui lòng thử lại.'));
-                btn.disabled    = false;
-                btn.textContent = '⚡ Mua ngay';
+                alert(data.message || 'Có lỗi xảy ra!');
+                renderSummary();
             }
-        } catch (e) {
-            showToast('❌ Không thể kết nối, vui lòng thử lại.');
-            btn.disabled    = false;
-            btn.textContent = '⚡ Mua ngay';
+        } catch (error) {
+            console.error(error);
+            alert('Không thể kết nối tới máy chủ!');
+            renderSummary();
         }
     }
 </script>
-
-
 @endsection

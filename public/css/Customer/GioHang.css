@@ -43,6 +43,17 @@
     text-align: right;
 }
 
+.cart-table thead th input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    transform: translateY(2px);
+}
+
+.select-item {
+    width: 18px;
+    height: 18px;
+}
+
 .cart-table tbody tr {
     border-bottom: 1px solid #fce7f3;
     transition: background .15s;

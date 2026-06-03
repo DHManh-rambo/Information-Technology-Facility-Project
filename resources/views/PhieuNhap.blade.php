@@ -269,7 +269,7 @@
                 <table class="table table-bordered table-hover mb-0">
                     <thead>
                         <tr>
-                            <th style="width:60px">#</th>
+                            <th style="width:60px">STT</th>
                             <th>Ngày nhập</th>
                             <th>Nhân viên</th>
                             <th>Nhà cung cấp</th>
@@ -329,7 +329,7 @@
                                         {{-- NÚT XÁC NHẬN (chỉ hiện khi DRAFT) --}}
                                         <form action="{{ route('phieu-nhap.confirm', $pn->ma_phieu_nhap) }}"
                                               method="POST" class="d-inline"
-                                              onsubmit="return confirm('Xác nhận phiếu nhập #{{ $pn->ma_phieu_nhap }}?\nSố lượng kho sẽ được cập nhật và không thể hoàn tác!')">
+                                              onsubmit="return confirm('Xác nhận phiếu nhập STT{{ $pn->ma_phieu_nhap }}?\nSố lượng kho sẽ được cập nhật và không thể hoàn tác!')">
                                             @csrf
                                             <button type="submit" class="btn btn-xacnhan btn-sm" title="Xác nhận nhập kho">
                                                 <i class="bi bi-check2-circle me-1"></i>Xác nhận
@@ -339,7 +339,7 @@
                                         {{-- NÚT XÓA (chỉ hiện khi DRAFT) --}}
                                         <form action="{{ route('phieu-nhap.destroy', $pn->ma_phieu_nhap) }}"
                                               method="POST" class="d-inline"
-                                              onsubmit="return confirm('Bạn chắc chắn muốn xóa phiếu nhập #{{ $pn->ma_phieu_nhap }}?')">
+                                              onsubmit="return confirm('Bạn chắc chắn muốn xóa phiếu nhập STT{{ $pn->ma_phieu_nhap }}?')">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="btn btn-xoa btn-sm" title="Xóa phiếu nhập">
@@ -623,15 +623,16 @@
 
                         rowsSanPham += `
                             <tr>
-                                <td>${tenSP}</td>
-                                <td class="text-center">${ct.so_luong}</td>
-                                <td class="text-end">${Number(ct.gia_nhap).toLocaleString('vi-VN')} ₫</td>
-                                <td class="text-end">${giaBanHtml}</td>
-                                <td class="text-end fw-semibold">${thanhTien.toLocaleString('vi-VN')} ₫</td>
-                            </tr>`;
+                                    <td>${tenSP}</td>
+                                    <td class="text-center">${ct.so_luong}</td>
+                                    <td class="text-end">${Number(ct.gia_nhap).toLocaleString('vi-VN')} ₫</td>
+                                    <td class="text-end">${giaBanHtml}</td>
+                                    <td class="text-end">${Number((ct.gia_ban_ap_dung ?? ct.gia_ban)).toLocaleString('vi-VN')} ₫</td>
+                                    <td class="text-end fw-semibold">${thanhTien.toLocaleString('vi-VN')} ₫</td>
+                                </tr>`;
                     });
                 } else {
-                    rowsSanPham = '<tr><td colspan="5" class="text-center text-muted">Không có sản phẩm nào</td></tr>';
+                    rowsSanPham = '<tr><td colspan="6" class="text-center text-muted">Không có sản phẩm nào</td></tr>';
                 }
 
                 const trangThaiHtml = pn.trang_thai === 'DRAFT'
@@ -666,14 +667,15 @@
                                     <th>Tên sản phẩm</th>
                                     <th class="text-center">Số lượng</th>
                                     <th class="text-end">Giá nhập</th>
-                                    <th class="text-end">Giá bán</th>
+                                    <th class="text-end">Giá bán phiếu nhập</th>
+                                    <th class="text-end">Giá bán áp dụng</th>
                                     <th class="text-end">Thành tiền (nhập)</th>
                                 </tr>
                             </thead>
                             <tbody>${rowsSanPham}</tbody>
                             <tfoot>
                                 <tr style="background:#f0f0f0; font-weight:600;">
-                                    <td colspan="4" class="text-end">Tổng tiền nhập:</td>
+                                    <td colspan="5" class="text-end">Tổng tiền nhập:</td>
                                     <td class="text-end">${tongTienNhap.toLocaleString('vi-VN')} ₫</td>
                                 </tr>
                             </tfoot>

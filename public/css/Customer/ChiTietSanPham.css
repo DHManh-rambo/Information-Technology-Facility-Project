@@ -615,4 +615,33 @@
 .lo-minus-btn:hover {
     background: #fdf2f8;
     border-color: #be185d;
+}.success-toast{
+    position: fixed;
+    right: 25px;
+    bottom: 25px;
+
+    background: #16a34a;
+    color: white;
+
+    padding: 14px 20px;
+    border-radius: 12px;
+
+    font-size: 15px;
+    font-weight: 600;
+
+    box-shadow: 0 8px 25px rgba(0,0,0,.15);
+
+    z-index: 99999;
+
+    opacity: 0;
+    transform: translateY(20px);
+
+    pointer-events: none;
+
+    transition: all .3s ease;
+}
+
+.success-toast.show{
+    opacity: 1;
+    transform: translateY(0);
 }

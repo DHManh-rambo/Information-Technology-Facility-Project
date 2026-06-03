@@ -179,6 +179,8 @@ Route::middleware(['auth', 'role:SHIPPER'])->group(function () {
 //Khach hàng
 Route::get('/customer/dashboard', [CustomerController::class, 'dashboard'])
     ->name('customer.dashboard');
+Route::get('/customer/hoa-tuoi', [CustomerController::class, 'hoaTuoi'])
+    ->name('customer.hoa-tuoi');
 Route::get('/customer/san-pham/{id}', [ChiTietSanPhamController::class, 'show'])
     ->name('customer.san-pham.chi-tiet');
 
@@ -204,6 +206,8 @@ Route::middleware(['auth', 'role:KHACH_HANG'])->group(function () {
 
     Route::post('/customer/gio-hang/apply-points', [GioHangController::class, 'applyPoints'])
         ->name('customer.gio-hang.apply-points');
+    Route::post('/customer/gio-hang/checkout', [GioHangController::class, 'checkout'])
+        ->name('customer.gio-hang.checkout');
     Route::get('/customer/thanh-toan', [ThanhToanController::class, 'index'])->name('customer.thanh-toan');
 
     Route::post('/customer/thanh-toan', [ThanhToanController::class, 'store'])->name('customer.thanh-toan.store');
@@ -213,3 +217,25 @@ Route::middleware(['auth', 'role:KHACH_HANG'])->group(function () {
 
     Route::patch('/customer/thong-bao/{id}/xoa',[CustomerThongBaoController::class, 'xoa'])->name('customer.thong-bao.xoa');
 });
+//
+Route::post('/customer/mua-ngay', [GioHangController::class, 'buyNow'])
+    ->name('customer.mua-ngay');
+// tin tức chi tiết
+Route::get('/customer/tin-tuc', function () {
+    return view('customer.TinTuc');
+})->name('customer.tin-tuc');
+Route::get('/customer/tin-tuc/{slug}', function ($slug) {
+    return view('customer.ChiTietTinTuc', compact('slug'));
+})->name('customer.tin-tuc.chi-tiet');
+// Phụ kiện
+Route::get('/customer/phu-kien', [CustomerController::class, 'phuKien'])
+    ->name('customer.phu-kien');
+    // Quà tặng
+Route::get('/customer/qua-tang', [CustomerController::class, 'quaTang'])
+    ->name('customer.qua-tang');
+// gioi thieu
+Route::get('/customer/gioi-thieu', [CustomerController::class, 'gioiThieu'])
+    ->name('customer.gioi-thieu');
+// Liên hệ
+Route::get('/customer/lien-he', [CustomerController::class, 'lienHe'])
+    ->name('customer.lien-he');

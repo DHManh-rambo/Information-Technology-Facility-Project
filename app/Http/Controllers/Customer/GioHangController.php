@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class GioHangController extends Controller
 {
-    const DIEM_QUY_DOI = 1000; 
+    const DIEM_QUY_DOI = 1000;
 
     public function index()
     {
@@ -37,9 +37,12 @@ class GioHangController extends Controller
                 ->whereHas('phieuNhap', fn($q) => $q->where('trang_thai', 'CONFIRMED'))
                 ->first();
 
-            if (!$chiTiet || !$chiTiet->sanPham) continue;
+            if (!$chiTiet || !$chiTiet->sanPham) {
+                continue;
+            }
 
             $key = 'lo_' . $chiTiet->ma_chi_tiet_nhap;
+
             $soLuongMoi = ($gioHang[$key]['so_luong'] ?? 0) + (int) $item['so_luong'];
             $soLuongMoi = min($soLuongMoi, $chiTiet->so_luong_con_lai);
 
@@ -65,6 +68,49 @@ class GioHangController extends Controller
         ]);
     }
 
+    public function buyNow(Request $request)
+    {
+        $request->validate([
+            'items'                    => 'required|array|min:1',
+            'items.*.ma_chi_tiet_nhap' => 'required|integer|exists:chi_tiet_nhap,ma_chi_tiet_nhap',
+            'items.*.so_luong'         => 'required|integer|min:1',
+        ]);
+
+        $muaNgay = [];
+
+        foreach ($request->items as $item) {
+            $chiTiet = ChiTietNhap::with('sanPham')
+                ->where('ma_chi_tiet_nhap', $item['ma_chi_tiet_nhap'])
+                ->where('so_luong_con_lai', '>', 0)
+                ->whereHas('phieuNhap', fn($q) => $q->where('trang_thai', 'CONFIRMED'))
+                ->first();
+
+            if (!$chiTiet || !$chiTiet->sanPham) {
+                continue;
+            }
+
+            $key = 'lo_' . $chiTiet->ma_chi_tiet_nhap;
+
+            $muaNgay[$key] = [
+                'ma_chi_tiet_nhap' => $chiTiet->ma_chi_tiet_nhap,
+                'ma_san_pham'      => $chiTiet->ma_san_pham,
+                'ten_san_pham'     => $chiTiet->sanPham->ten_san_pham,
+                'hinh_anh'         => $chiTiet->sanPham->hinh_anh,
+                'gia_ban'          => (float) $chiTiet->gia_ban,
+                'gia_nhap'         => (float) $chiTiet->gia_nhap,
+                'so_luong'         => min((int) $item['so_luong'], $chiTiet->so_luong_con_lai),
+                'so_luong_con_lai' => $chiTiet->so_luong_con_lai,
+            ];
+        }
+
+        session(['mua_ngay' => $muaNgay]);
+        session()->forget('diem_su_dung');
+
+        return response()->json([
+            'success' => true,
+        ]);
+    }
+
     public function update(Request $request)
     {
         $request->validate([
@@ -75,7 +121,10 @@ class GioHangController extends Controller
         $gioHang = session('gio_hang', []);
 
         if (!isset($gioHang[$request->key])) {
-            return response()->json(['success' => false, 'message' => 'Không tìm thấy sản phẩm.'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy sản phẩm.'
+            ], 404);
         }
 
         if ((int) $request->so_luong === 0) {
@@ -100,7 +149,9 @@ class GioHangController extends Controller
     public function remove(Request $request)
     {
         $gioHang = session('gio_hang', []);
+
         unset($gioHang[$request->key]);
+
         session(['gio_hang' => $gioHang]);
         session()->forget('diem_su_dung');
 
@@ -113,16 +164,52 @@ class GioHangController extends Controller
         ]);
     }
 
+    public function checkout(Request $request)
+    {
+        $request->validate([
+            'selected_items' => 'required|array|min:1',
+            'selected_items.*' => 'required|string'
+        ]);
+
+        $gioHang = session('gio_hang', []);
+
+        $checkout = [];
+        foreach ($request->selected_items as $key) {
+            if (isset($gioHang[$key])) {
+                $checkout[$key] = $gioHang[$key];
+            }
+        }
+
+        if (empty($checkout)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Không có sản phẩm hợp lệ được chọn.'
+            ], 400);
+        }
+
+        // Save selected items for checkout
+        session(['checkout_items' => $checkout]);
+
+        return response()->json(['success' => true]);
+    }
+
     public function applyPoints(Request $request)
     {
-        $request->validate(['diem' => 'required|integer|min:0']);
+        $request->validate([
+            'diem' => 'required|integer|min:0'
+        ]);
 
         $khachHang = Auth::user()->khachHang;
+
         if (!$khachHang) {
-            return response()->json(['success' => false, 'message' => 'Không tìm thấy thông tin khách hàng.'], 404);
+            return response()->json([
+                'success' => false,
+                'message' => 'Không tìm thấy thông tin khách hàng.'
+            ], 404);
         }
 
         $diem = min((int) $request->diem, $khachHang->diem_tich_luy);
+
         session(['diem_su_dung' => $diem]);
 
         return response()->json([

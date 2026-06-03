@@ -38,6 +38,9 @@
             <table class="cart-table">
                 <thead>
                     <tr>
+                        <th style="width:40px; text-align: center;">
+                            <input type="checkbox" id="selectAll" title="Chọn tất cả">
+                        </th>
                         <th>Sản Phẩm</th>
                         <th>Giá</th>
                         <th>Số Lượng</th>
@@ -48,6 +51,9 @@
                 <tbody id="cartTableBody">
                     @foreach($gioHang as $key => $item)
                     <tr id="row-{{ $key }}">
+                        <td style="text-align:center;">
+                            <input type="checkbox" class="select-item" data-key="{{ $key }}" id="sel-{{ $key }}">
+                        </td>
                         <td>
                             <div class="cart-product-cell">
                                 @if($item['hinh_anh'])
@@ -103,6 +109,11 @@
         {{-- RIGHT: Tóm tắt đơn hàng --}}
         <div class="cart-summary-panel">
             <h3>💳 Tổng Cộng Giỏ Hàng</h3>
+
+            <div class="summary-row">
+                <span>Đã chọn</span>
+                <span class="val" id="selectedCount">0</span>
+            </div>
 
             <div class="summary-row">
                 <span>Tạm tính</span>
@@ -164,9 +175,9 @@
             </div>
 
             @auth
-                <a href="{{ route('customer.thanh-toan') }}" class="btn-checkout">
+                <button class="btn-checkout" id="btnProceed" onclick="proceedToCheckout()">
                     💳 Tiến Hành Thanh Toán
-                </a>
+                </button>
             @else
                 <a href="{{ route('login') }}" class="btn-checkout">
                     🔑 Đăng nhập để thanh toán
@@ -188,6 +199,8 @@
 <script>
     const CSRF = document.querySelector('meta[name=csrf-token]').content;
     const fmt  = v => new Intl.NumberFormat('vi-VN').format(v) + '₫';
+    const CHECKOUT_POST_URL = '{{ route("customer.gio-hang.checkout") }}';
+    const CHECKOUT_PAGE_URL = '{{ route("customer.thanh-toan") }}';
 
     let diemSuDung = {{ $diemSuDung }};
 
@@ -202,17 +215,30 @@
         '{{ $key }}': {{ $item['so_luong'] }},
         @endforeach
     };
+    // track selected items for checkout
+    let selectedItems = {};
+
+    // initialize selectedItems (none selected by default)
+    @foreach($gioHang as $key => $item)
+    selectedItems['{{ $key }}'] = false;
+    @endforeach
 
     function recalcSummary() {
+        // calculate based only on selected items
         let subtotal = 0;
+        let count = 0;
         Object.keys(quantities).forEach(k => {
-            subtotal += (prices[k] || 0) * (quantities[k] || 0);
+            if (selectedItems[k]) {
+                subtotal += (prices[k] || 0) * (quantities[k] || 0);
+                count += 1;
+            }
         });
         const giam  = diemSuDung * 1000;
         const total = Math.max(0, subtotal - giam);
 
         document.getElementById('summarySubtotal').textContent = fmt(subtotal);
         document.getElementById('summaryTotal').textContent    = fmt(total);
+        document.getElementById('selectedCount').textContent   = count;
 
         const discRow = document.getElementById('discountRow');
         if (discRow) {
@@ -262,6 +288,54 @@
             if (Object.keys(quantities).length === 0) {
                 location.reload();
             }
+        }
+    }
+
+    // Selection handling
+    document.addEventListener('change', function (e) {
+        if (e.target && e.target.classList.contains('select-item')) {
+            const key = e.target.dataset.key;
+            selectedItems[key] = e.target.checked;
+            // update selectAll checkbox
+            const all = Array.from(document.querySelectorAll('.select-item'));
+            const selAll = document.getElementById('selectAll');
+            if (selAll) selAll.checked = all.length > 0 && all.every(i => i.checked);
+            recalcSummary();
+        }
+        if (e.target && e.target.id === 'selectAll') {
+            const checked = e.target.checked;
+            document.querySelectorAll('.select-item').forEach(i => { i.checked = checked; selectedItems[i.dataset.key] = checked; });
+            recalcSummary();
+        }
+    });
+
+    async function proceedToCheckout() {
+        const keys = Object.keys(selectedItems).filter(k => selectedItems[k]);
+        if (!keys.length) {
+            showToast('❌ Vui lòng chọn ít nhất một sản phẩm để thanh toán.');
+            return;
+        }
+
+        const btn = document.getElementById('btnProceed');
+        if (btn) { btn.disabled = true; btn.textContent = '⏳ Đang chuyển...'; }
+
+        try {
+            const res = await fetch(CHECKOUT_POST_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': CSRF },
+                body: JSON.stringify({ selected_items: keys })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+                window.location.href = CHECKOUT_PAGE_URL;
+            } else {
+                showToast('❌ ' + (data.message || 'Không thể chuyển đến trang thanh toán.'));
+                if (btn) { btn.disabled = false; btn.textContent = '💳 Tiến Hành Thanh Toán'; }
+            }
+        } catch (err) {
+            showToast('❌ Không thể kết nối, vui lòng thử lại.');
+            if (btn) { btn.disabled = false; btn.textContent = '💳 Tiến Hành Thanh Toán'; }
         }
     }
 
