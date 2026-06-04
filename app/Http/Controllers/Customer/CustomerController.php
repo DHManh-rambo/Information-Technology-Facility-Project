@@ -13,15 +13,25 @@ class CustomerController extends Controller
     {
         $user = auth()->check() ? Auth::user()->load('khachHang') : null;
 
-        $sanPhams = SanPham::where('trang_thai', 'DANG_BAN')
-            ->with(['chiTietNhaps' => function ($q) {
-                $q->where('so_luong_con_lai', '>', 0)
-                    ->whereHas('phieuNhap', fn($q2) => $q2->where('trang_thai', 'CONFIRMED'))
-                    ->orderBy('gia_ban', 'asc');
-            }])
-            ->orderBy('ma_san_pham', 'desc')
-            ->get();
+       $keyword = trim($request->get('q', ''));
 
+$sanPhams = SanPham::where('trang_thai', 'DANG_BAN')
+    ->with(['chiTietNhaps' => function ($q) {
+        $q->where('so_luong_con_lai', '>', 0)
+            ->whereHas('phieuNhap', fn($q2) => $q2->where('trang_thai', 'CONFIRMED'))
+            ->orderBy('gia_ban', 'asc');
+    }])
+    ->when($keyword, function ($query) use ($keyword) {
+        $query->where(function ($sub) use ($keyword) {
+            $sub->where('ten_san_pham', 'like', "%{$keyword}%")
+                ->orWhere('loai_san_pham', 'like', "%{$keyword}%");
+
+            // nếu có cột mo_ta mới để dòng này
+            // ->orWhere('mo_ta', 'like', "%{$keyword}%");
+        });
+    })
+    ->orderBy('ma_san_pham', 'desc')
+    ->get();
         $hoaTuoiBanChay = SanPham::where('trang_thai', 'DANG_BAN')
             ->whereNotIn('loai_san_pham', ['PHU_KIEN', 'QUA_TANG'])
             ->with(['chiTietNhaps' => function ($q) {

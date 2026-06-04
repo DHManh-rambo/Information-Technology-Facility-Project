@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\GioHang;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class NguoiDung extends Authenticatable
 {
@@ -69,4 +71,9 @@ class NguoiDung extends Authenticatable
     {
         $this->attributes['mat_khau'] = bcrypt($value);
     }
+
+public function cartItems(): HasMany
+{
+    return $this->hasMany(GioHang::class, 'ma_nguoi_dung', 'ma_nguoi_dung');
+}
 }

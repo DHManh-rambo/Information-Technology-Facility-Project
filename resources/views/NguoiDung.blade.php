@@ -39,7 +39,7 @@
                         <label>Mật khẩu</label>
                         <div class="password-wrapper">
                             <input type="password" name="mat_khau" id="mat_khau" minlength="6">
-                            <button type="button" class="toggle-pwd" onclick="togglePassword('mat_khau')">hiện/ẩn</button>
+                            <button type="button" class="toggle-pwd" onclick="togglePassword('mat_khau')">👁</button>
                         </div>
                         <small>Tối thiểu 6 ký tự. Để trống nếu không muốn đổi khi sửa</small>
                     </div>

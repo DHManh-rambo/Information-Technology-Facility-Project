@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="stylesheet" href="{{ asset('css/Customer/ThongBao.css') }}">
-    <title>Thông báo & Đơn hàng · FlowerStore</title>
+    <title>Thông báo & Đơn hàng · RoseShop</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -14,7 +14,7 @@
 <body>
 
 <header class="topbar">
-    <span class="topbar-brand">🌸 FlowerStore</span>
+    <span class="topbar-brand">🌸 RoseShop</span>
     <a href="{{ route('customer.dashboard') }}" class="back-link">
         <i class="fas fa-arrow-left"></i> Quay lại cửa hàng
     </a>

@@ -238,12 +238,35 @@
                         Chưa có đơn hàng nào.
                     </div>
                 @endforelse
+@if($lichSuDonHang->hasPages())
+    <div class="shipper-pagination">
+        <div class="pagination-info">
+            {{ $lichSuDonHang->firstItem() }}-{{ $lichSuDonHang->lastItem() }}
+            / {{ $lichSuDonHang->total() }} kết quả
+        </div>
 
-                @if($lichSuDonHang->hasPages())
-                    <div style="padding:8px 16px">
-                        {{ $lichSuDonHang->links() }}
-                    </div>
-                @endif
+        <div class="pagination-buttons">
+            @if($lichSuDonHang->onFirstPage())
+                <span class="page-btn disabled">‹</span>
+            @else
+                <a href="{{ $lichSuDonHang->previousPageUrl() }}" class="page-btn">‹</a>
+            @endif
+
+            @for($i = 1; $i <= $lichSuDonHang->lastPage(); $i++)
+                <a href="{{ $lichSuDonHang->url($i) }}"
+                   class="page-btn {{ $lichSuDonHang->currentPage() == $i ? 'active' : '' }}">
+                    {{ $i }}
+                </a>
+            @endfor
+
+            @if($lichSuDonHang->hasMorePages())
+                <a href="{{ $lichSuDonHang->nextPageUrl() }}" class="page-btn">›</a>
+            @else
+                <span class="page-btn disabled">›</span>
+            @endif
+        </div>
+    </div>
+@endif
             </div>
         </div>
     </aside>

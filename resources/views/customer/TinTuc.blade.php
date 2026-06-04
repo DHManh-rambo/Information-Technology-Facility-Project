@@ -15,7 +15,7 @@
 
     <div class="news-list">
         <article class="news-item">
-            <img src="{{ asset('img/hoa hong.jpeg') }}" alt="Cách bảo quản hoa hồng">
+            <img src="{{ asset('img/TULIP.jpg') }}" alt="Cách bảo quản hoa hồng">
             <div>
                 <h2>Cách bảo quản hoa hồng lâu tàn</h2>
                 <p>Mẹo nhỏ giúp hoa hồng tươi lâu hơn và giữ màu đẹp.</p>

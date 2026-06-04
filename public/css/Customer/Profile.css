@@ -324,21 +324,27 @@ body {
 }
 
 .diem-badge {
-    display: inline-flex;
+   display: flex;
     align-items: center;
-    gap: 8px;
+
+    height: 40px; /* bằng với input bên phải */
+    width: 100%;
+
+    gap: 10px;
+
     background: linear-gradient(135deg, #fef3c7, #fde68a);
     border: 1px solid #fbbf24;
-    border-radius: 10px;
-    padding: 10px 16px;
-    font-size: 0.9rem;
+    border-radius: 12px;
+
+    padding: 0 20px;
+
+    font-size: 16px;
     font-weight: 700;
     color: #92400e;
-    margin-top: 4px;
 }
 
 .diem-badge .diem-val {
-    font-size: 1.2rem;
+    font-size: 1rem;
     color: #b45309;
 }
 

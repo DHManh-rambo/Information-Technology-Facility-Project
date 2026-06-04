@@ -496,33 +496,41 @@ public function exportDoanhThu(Request $request)
 //     }
 // }
 // 6. Giá bán hiện tại: giá bán cao nhất của lô nhập còn hàng đã xác nhận
+// 6. Giá bán hiện tại + giá nhập mới nhất
 $giaHienTaiData = collect();
 
+$giaBanMoiNhat = DB::table('chi_tiet_nhap as ctn')
+    ->join('phieu_nhap as pn', 'ctn.ma_phieu_nhap', '=', 'pn.ma_phieu_nhap')
+    ->where('ctn.so_luong_con_lai', '>', 0)
+    ->where('pn.trang_thai', 'CONFIRMED')
+    ->select(
+        'ctn.ma_san_pham',
+        DB::raw('MAX(ctn.gia_ban) as gia_ban')
+    )
+    ->groupBy('ctn.ma_san_pham')
+    ->get()
+    ->keyBy('ma_san_pham');
+
+$giaNhapMoiNhat = DB::table('chi_tiet_nhap as ctn')
+    ->join('phieu_nhap as pn', 'ctn.ma_phieu_nhap', '=', 'pn.ma_phieu_nhap')
+    ->where('pn.trang_thai', 'CONFIRMED')
+    ->orderByDesc('pn.ngay_nhap')
+    ->orderByDesc('ctn.ma_chi_tiet_nhap')
+    ->get()
+    ->unique('ma_san_pham')
+    ->keyBy('ma_san_pham');
+
 foreach ($sanPhams as $sp) {
+    $giaBan = $giaBanMoiNhat[$sp->ma_san_pham]->gia_ban ?? null;
+    $giaNhap = $giaNhapMoiNhat[$sp->ma_san_pham]->gia_nhap ?? null;
 
-    $giaHienTai = DB::table('chi_tiet_nhap as ctn')
-        ->join('phieu_nhap as pn', 'ctn.ma_phieu_nhap', '=', 'pn.ma_phieu_nhap')
-        ->where('ctn.ma_san_pham', $sp->ma_san_pham)
-        ->where('ctn.so_luong_con_lai', '>', 0)
-        ->where('pn.trang_thai', 'CONFIRMED')
-        ->max('ctn.gia_ban');
-
-    $giaNhapMoiNhat = DB::table('chi_tiet_nhap as ctn')
-        ->join('phieu_nhap as pn', 'ctn.ma_phieu_nhap', '=', 'pn.ma_phieu_nhap')
-        ->where('ctn.ma_san_pham', $sp->ma_san_pham)
-        ->where('pn.trang_thai', 'CONFIRMED')
-        ->orderByDesc('pn.ngay_nhap')
-        ->orderByDesc('ctn.ma_chi_tiet_nhap')
-        ->value('ctn.gia_nhap');
-
-    if ($giaHienTai !== null || $giaNhapMoiNhat !== null) {
+    if ($giaBan !== null || $giaNhap !== null) {
         $giaHienTaiData[$sp->ma_san_pham] = (object) [
-            'gia_ban' => $giaHienTai !== null ? (float) $giaHienTai : null,
-            'gia_nhap' => $giaNhapMoiNhat !== null ? (float) $giaNhapMoiNhat : null,
+            'gia_ban' => $giaBan !== null ? (float) $giaBan : null,
+            'gia_nhap' => $giaNhap !== null ? (float) $giaNhap : null,
         ];
     }
 }
-
         // 7. Ghép dữ liệu thành bảng báo cáo chính
         $baoCaoSanPham = $sanPhams->map(function ($sp) use (
             $nhapThemData,

@@ -13,7 +13,7 @@
     <div class="checkout-heading">💳 Thanh Toán</div>
 
     <div class="checkout-steps">
-        <span class="step-done">✅ Giỏ hàng</span>
+        <span class="step-done">Giỏ hàng</span>
         <span class="sep">›</span>
         <span class="step-active">💳 Thông tin thanh toán</span>
         <span class="sep">›</span>
@@ -219,9 +219,9 @@
                     ← Quay lại giỏ hàng
                 </a>
 
-                <div class="privacy-note">
+                <!-- <div class="privacy-note">
                     Thông tin của bạn được bảo mật an toàn. Bằng việc đặt hàng, bạn đồng ý với điều khoản sử dụng của chúng tôi.
-                </div>
+                </div> -->
             </div>
 
         </div>

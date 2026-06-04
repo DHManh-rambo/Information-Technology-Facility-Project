@@ -14,7 +14,7 @@
 
 {{-- TOPBAR --}}
 <div class="topbar">
-    <span class="topbar-brand">🌸 Hoa Tươi Shop</span>
+    <span class="topbar-brand">🌸 RoseShop</span>
     <div class="topbar-right">
         <span><i class="fas fa-user"></i> {{ $user->ten_dang_nhap }}</span>
         <form class="logout-form" method="POST" action="{{ route('logout') }}">

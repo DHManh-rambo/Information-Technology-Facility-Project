@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+    <link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -21,7 +23,7 @@
 {{-- TOP BAR --}}
 <div class="topbar">
     <div class="topbar-left">
-        <span>📞 Hotline: <strong>0357 634 696</strong></span>
+        <span>📞 Hotline: 0964023510</span>
         <span>💬 Zalo: <a href="https://zalo.me/0357634696" target="_blank">0357 634 696</a></span>
     </div>
 
@@ -43,31 +45,50 @@
     </a>
 
     <div class="search-wrap">
-        <input type="text" id="searchInput" placeholder="Tìm sản phẩm... (vd: hồng, lan, tươi)">
-        <button class="search-btn" onclick="handleSearch()">Tìm kiếm</button>
-    </div>
+    <input
+        type="text"
+        id="searchInput"
+        placeholder="Tìm sản phẩm... "
+    >
+
+    <button
+        type="button"
+        class="search-btn"
+        onclick="handleSearch()"
+    >
+        Tìm kiếm
+    </button>
+</div>
 
     <div class="header-right">
-        <a href="https://www.facebook.com/duong.manh.19423" target="_blank" class="header-icon">
+        <!-- <a href="https://www.facebook.com/duong.manh.19423" target="_blank" class="header-icon">
             <span class="icon">📘</span>
             <span>Facebook</span>
-        </a>
+        </a> -->
 
-        <a href="https://zalo.me/0357634696" target="_blank" class="header-icon">
+        <!-- <a href="https://zalo.me/0357634696" target="_blank" class="header-icon">
             <span class="icon">💬</span>
             <span>Zalo</span>
-        </a>
+        </a> -->
 
         @auth
-            <a href="{{ route('customer.thong-bao') }}" class="header-icon">
+            <!-- <a href="{{ route('customer.thong-bao') }}" class="header-icon">
                 <span class="icon">🔔</span>
             </a>
 
             <div class="cart-dropdown-wrapper">
-                <button class="cart-icon-btn" id="cartDropdownBtn">
-                    <span class="icon">🛒</span>
-                    <span class="cart-badge" id="cartBadge">
-                        {{ session('gio_hang') ? count(session('gio_hang')) : 0 }}
+    <button class="cart-icon-btn" id="cartDropdownBtn">
+        <span class="icon">🛒</span>
+        <span class="cart-badge" id="cartBadge">
+            {{ count(session('gio_hang', [])) }}
+        </span>
+    </button>
+
+    <div class="cart-dropdown-menu" id="cartDropdownMenu">
+        <a href="{{ route('customer.gio-hang') }}">🛒 Xem giỏ hàng</a>
+        <a href="{{ route('customer.thanh-toan') }}">💳 Thanh toán</a>
+    </div>
+</div>
                     </span>
                 </button>
 
@@ -77,23 +98,72 @@
                 </div>
             </div>
 
-            <a href="{{ route('customer.profile.edit') }}" class="header-icon">
-                <span class="icon">👤</span>
-                <span>Hồ sơ</span>
-            </a>
+            <a href="{{ route('customer.profile.edit') }}" class="user-profile-link">
+    <span class="user-avatar">👤</span>
 
-            <div class="user-greeting">
-                <span>Xin chào,</span>
-                <strong>{{ $user->ten_dang_nhap ?? auth()->user()->ten_dang_nhap ?? '' }}</strong>
-            </div>
-
+    <div class="user-info">
+        <span>Xin chào,</span>
+        <strong>
+            {{ $user->ten_dang_nhap ?? auth()->user()->ten_dang_nhap ?? '' }}
+        </strong>
+    </div>
+</a>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit" class="logout-btn">Đăng xuất</button>
-            </form>
-        @else
-            <a href="{{ route('login') }}" class="logout-btn">Đăng nhập</a>
-        @endauth
+            </form> -->
+            <div class="header-actions">
+
+    <div class="header-action-item">
+    <a href="{{ route('customer.thong-bao') }}" class="notification-item">
+        <i class="fa-regular fa-bell"></i>
+    </a>
+</div>
+
+    <div class="header-action-item">
+        <div class="cart-dropdown-wrapper">
+            <button class="cart-icon-btn" id="cartDropdownBtn">
+                <span class="icon">🛒</span>
+                <span class="cart-badge" id="cartBadge">
+                    {{ session('gio_hang') ? count(session('gio_hang')) : 0 }}
+                </span>
+            </button>
+
+            <div class="cart-dropdown-menu" id="cartDropdownMenu">
+                <a href="{{ route('customer.gio-hang') }}">🛒 Xem giỏ hàng</a>
+                <a href="{{ route('customer.thanh-toan') }}">💳 Thanh toán</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-action-item">
+        <a href="{{ route('customer.profile.edit') }}" class="user-profile-link">
+            <span class="user-avatar">👤</span>
+
+            <div class="user-info">
+                <span>Xin chào,</span>
+                <strong>{{ $user->ten_dang_nhap ?? auth()->user()->ten_dang_nhap ?? '' }}</strong>
+            </div>
+        </a>
+    </div>
+
+    <form method="POST" action="{{ route('logout') }}" class="logout-form">
+        @csrf
+        <button type="submit" class="logout-btn">Đăng xuất</button>
+    </form>
+
+</div>
+       @else
+<div class="guest-actions">
+    <a href="{{ route('login') }}" class="login-btn">
+        Đăng nhập
+    </a>
+
+    <a href="{{ route('register') }}" class="register-btn">
+        Đăng ký
+    </a>
+</div>
+@endauth
     </div>
 </header>
 
@@ -288,21 +358,24 @@ document.querySelectorAll('#catNav [data-cat]').forEach(btn => {
 });
 
     function handleSearch() {
-        const val = document.getElementById('searchInput').value.trim();
-        if (PAGE === 'dashboard') {
-            if (typeof setSearchVal === 'function') setSearchVal(val);
-        } else {
-            navigateTo(val ? DASH_URL + '?q=' + encodeURIComponent(val) : DASH_URL);
+    const input = document.getElementById('searchInput');
+    const val = input ? input.value.trim() : '';
+
+    window.location.href = val
+        ? DASH_URL + '?q=' + encodeURIComponent(val)
+        : DASH_URL;
+}
+
+const searchInput = document.getElementById('searchInput');
+
+if (searchInput) {
+    searchInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            handleSearch();
         }
-    }
-    document.getElementById('searchInput').addEventListener('keydown', e => {
-        if (e.key === 'Enter') handleSearch();
     });
-    document.getElementById('searchInput').addEventListener('input', function() {
-        if (PAGE === 'dashboard' && typeof setSearchVal === 'function') {
-            setSearchVal(this.value.trim());
-        }
-    });
+}
 
     function showToast(msg) {
         const toast = document.getElementById('toast');
