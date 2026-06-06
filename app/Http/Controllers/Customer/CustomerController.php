@@ -163,33 +163,31 @@ public function lienHe()
 }
 
     private function applyPriceFilter($query, Request $request): void
-    {
-        if (!$request->filled('price')) {
-            return;
-        }
-
-        $query->whereHas('chiTietNhaps', function ($q) use ($request) {
-            $q->where('so_luong_con_lai', '>', 0)
-                ->whereHas('phieuNhap', fn($q2) => $q2->where('trang_thai', 'CONFIRMED'))
-                ->where(function ($sub) use ($request) {
-                    foreach ($request->price as $price) {
-                        if ($price === 'duoi_20000') {
-                            $sub->orWhere('gia_ban', '<', 20000);
-                        }
-
-                        if ($price === '20000_50000') {
-                            $sub->orWhereBetween('gia_ban', [20000, 50000]);
-                        }
-
-                        if ($price === '50000_100000') {
-                            $sub->orWhereBetween('gia_ban', [50000, 100000]);
-                        }
-
-                        if ($price === 'tren_100000') {
-                            $sub->orWhere('gia_ban', '>', 100000);
-                        }
-                    }
-                });
-        });
+{
+    if (!$request->filled('price')) {
+        return;
     }
+
+    $query->where(function ($sub) use ($request) {
+
+        foreach ($request->price as $price) {
+
+            if ($price === 'duoi_20000') {
+                $sub->orWhere('gia_ban_hien_tai', '<', 20000);
+            }
+
+            if ($price === '20000_50000') {
+                $sub->orWhereBetween('gia_ban_hien_tai', [20000, 50000]);
+            }
+
+            if ($price === '50000_100000') {
+                $sub->orWhereBetween('gia_ban_hien_tai', [50000, 100000]);
+            }
+
+            if ($price === 'tren_100000') {
+                $sub->orWhere('gia_ban_hien_tai', '>', 100000);
+            }
+        }
+    });
+}
 }

@@ -22,13 +22,15 @@ class SanPham extends Model
         'mo_ta',
         'hinh_anh',
         'trang_thai',
+        'gia_ban_hien_tai',
     ];
 
     protected $casts = [
-        'so_luong'     => 'integer',
-        'loai_san_pham' => 'string',
-        'trang_thai'   => 'string',
-    ];
+    'so_luong' => 'integer',
+    'gia_ban_hien_tai' => 'float',
+    'loai_san_pham' => 'string',
+    'trang_thai' => 'string',
+];
 
 
     public function chiTietHoaDons()

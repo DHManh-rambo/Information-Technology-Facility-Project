@@ -104,13 +104,12 @@
 @php
     $loGiaConHang = $loGia->where('so_luong_con_lai', '>', 0);
 
-    $giaApDung = $loGiaConHang->max('gia_ban');
+    $giaApDung = $sanPham->gia_ban_hien_tai;
     $tongTon = $loGiaConHang->sum('so_luong_con_lai');
 
-    $loDaiDien = $loGiaConHang
-        ->where('gia_ban', $giaApDung)
-        ->sortBy('ma_chi_tiet_nhap')
-        ->first();
+   $loDaiDien = $loGiaConHang
+    ->sortBy('ma_chi_tiet_nhap')
+    ->first();
 @endphp
 
 @if($loDaiDien && $tongTon > 0)

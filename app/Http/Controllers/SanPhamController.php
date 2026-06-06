@@ -59,6 +59,7 @@ class SanPhamController extends Controller
         $request->validate([
             'ten_san_pham'  => 'required|string|max:100',
             'loai_san_pham' => 'required|in:' . implode(',', array_keys($this->danhSachLoai)),
+            'gia_ban_hien_tai' => 'nullable|numeric|min:0',
             'mo_ta'         => 'nullable|string',
             'hinh_anh'      => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
         ], [
@@ -78,14 +79,15 @@ class SanPhamController extends Controller
             $duongDanAnh = 'img/' . $tenFile;
         }
 
-        SanPham::create([
-            'ten_san_pham'  => $request->ten_san_pham,
-            'so_luong'      => 0,
-            'loai_san_pham' => $request->loai_san_pham,
-            'mo_ta'         => $request->mo_ta,
-            'hinh_anh'      => $duongDanAnh,
-            'trang_thai'    => 'NGUNG_BAN',
-        ]);
+SanPham::create([
+    'ten_san_pham'      => $request->ten_san_pham,
+    'so_luong'          => 0,
+    'loai_san_pham'     => $request->loai_san_pham,
+    'gia_ban_hien_tai'  => $request->gia_ban_hien_tai,
+    'mo_ta'             => $request->mo_ta,
+    'hinh_anh'          => $duongDanAnh,
+    'trang_thai'        => 'NGUNG_BAN',
+]);
 
         return redirect()->route('san-pham.index')
             ->with('success', 'Thêm sản phẩm thành công! Trạng thái mặc định là Ngừng bán. Hãy nhập hàng rồi bật lại để bán.');
@@ -95,11 +97,18 @@ class SanPhamController extends Controller
     // LẤY DỮ LIỆU ĐỂ SỬA 
     
 
+    
     public function editData($id)
-    {
-        $sanPham = SanPham::findOrFail($id);
-        return response()->json($sanPham);
-    }
+{
+    $sanPham = SanPham::with(['chiTietNhaps' => function ($q) {
+        $q->where('so_luong_con_lai', '>', 0)
+          ->whereHas('phieuNhap', fn($q2) => $q2->where('trang_thai', 'CONFIRMED'));
+    }])->findOrFail($id);
+
+    $sanPham->ton_kho_thuc_te = $sanPham->chiTietNhaps->sum('so_luong_con_lai');
+
+    return response()->json($sanPham);
+}
 
     
     // CẬP NHẬT SẢN PHẨM
@@ -133,6 +142,7 @@ class SanPhamController extends Controller
 
         $sanPham->update([
             'ten_san_pham' => $request->ten_san_pham,
+            'gia_ban_hien_tai' => $request->gia_ban_hien_tai,
             'mo_ta'        => $request->mo_ta,
             'hinh_anh'     => $duongDanAnh,
         ]);
@@ -193,17 +203,18 @@ class SanPhamController extends Controller
     public function baoHangHong(Request $request)
     {
         $request->validate([
-            'ma_san_pham'      => 'required|exists:san_pham,ma_san_pham',
-            'ma_chi_tiet_nhap' => 'required|exists:chi_tiet_nhap,ma_chi_tiet_nhap',
-            'so_luong_hong'    => 'required|integer|min:1',
-            'ly_do'            => 'nullable|string|max:255',
-            'ghi_chu'          => 'nullable|string',
-        ], [
-            'ma_chi_tiet_nhap.required' => 'Vui lòng chọn lô nhập bị hỏng.',
-            'ma_chi_tiet_nhap.exists'   => 'Lô nhập không hợp lệ.',
-            'so_luong_hong.required'    => 'Vui lòng nhập số lượng hỏng.',
-            'so_luong_hong.min'         => 'Số lượng hỏng phải lớn hơn 0.',
-        ]);
+    'ten_san_pham'      => 'required|string|max:100',
+    'gia_ban_hien_tai'  => 'nullable|numeric|min:0',
+    'mo_ta'             => 'nullable|string',
+    'hinh_anh'          => 'nullable|image|mimes:jpg,jpeg,png,gif,webp|max:2048',
+], [
+    'ten_san_pham.required'     => 'Vui lòng nhập tên sản phẩm.',
+    'gia_ban_hien_tai.numeric'  => 'Giá bán hiện tại phải là số.',
+    'gia_ban_hien_tai.min'      => 'Giá bán hiện tại không được âm.',
+    'hinh_anh.image'            => 'File tải lên phải là hình ảnh.',
+    'hinh_anh.mimes'            => 'Chỉ chấp nhận JPG, PNG, GIF, WEBP.',
+    'hinh_anh.max'              => 'Ảnh không được vượt quá 2MB.',
+]);
 
         
         $chiTietNhap = ChiTietNhap::with('phieuNhap')

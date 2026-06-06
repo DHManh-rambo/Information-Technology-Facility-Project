@@ -25,7 +25,7 @@
                     @foreach($sanPhams as $sp)
                         @php
                             $loConHang = $sp->chiTietNhaps->where('so_luong_con_lai', '>', 0);
-                            $gia = $loConHang->max('gia_ban');
+                            $gia = $sp->gia_ban_hien_tai;
                             $tonKho = $loConHang->sum('so_luong_con_lai');
                         @endphp
 
@@ -134,7 +134,8 @@
                 @foreach($hoaTuoiBanChay as $sp)
                     @php
                         $loConHang = $sp->chiTietNhaps->where('so_luong_con_lai', '>', 0);
-                        $gia = $loConHang->max('gia_ban');
+                        /////$gia = $loConHang->max('gia_ban');
+                         $gia = $sp->gia_ban_hien_tai;
                         $tonKho = $loConHang->sum('so_luong_con_lai');
                     @endphp
 
@@ -183,7 +184,7 @@
                     @foreach($phuKienNoiBat as $sp)
                         @php
                             $loConHang = $sp->chiTietNhaps->where('so_luong_con_lai', '>', 0);
-                            $gia = $loConHang->max('gia_ban');
+                            $gia = $sp->gia_ban_hien_tai;
                             $tonKho = $loConHang->sum('so_luong_con_lai');
                         @endphp
 
@@ -233,7 +234,7 @@
                     @foreach($quaTangNoiBat as $sp)
                         @php
                             $loConHang = $sp->chiTietNhaps->where('so_luong_con_lai', '>', 0);
-                            $gia = $loConHang->max('gia_ban');
+                            $gia = $sp->gia_ban_hien_tai;
                             $tonKho = $loConHang->sum('so_luong_con_lai');
                         @endphp
 

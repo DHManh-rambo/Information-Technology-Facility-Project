@@ -96,7 +96,7 @@ class GioHangController extends Controller
                 'ma_san_pham'      => $chiTiet->ma_san_pham,
                 'ten_san_pham'     => $chiTiet->sanPham->ten_san_pham,
                 'hinh_anh'         => $chiTiet->sanPham->hinh_anh,
-                'gia_ban'          => (float) $chiTiet->gia_ban,
+                'gia_ban' => (float) ($chiTiet->sanPham->gia_ban_hien_tai ?? $chiTiet->gia_ban),
                 'gia_nhap'         => (float) $chiTiet->gia_nhap,
                 'so_luong'         => min((int) $item['so_luong'], $chiTiet->so_luong_con_lai),
                 'so_luong_con_lai' => $chiTiet->so_luong_con_lai,

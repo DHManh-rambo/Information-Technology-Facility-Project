@@ -622,18 +622,17 @@
                             ? `${Number(ct.gia_ban).toLocaleString('vi-VN')} ₫ <small class="text-muted">(tự tính)</small>`
                             : `${Number(ct.gia_ban).toLocaleString('vi-VN')} ₫`;
 
-                        rowsSanPham += `
-                            <tr>
-                                    <td>${tenSP}</td>
-                                    <td class="text-center">${ct.so_luong}</td>
-                                    <td class="text-end">${Number(ct.gia_nhap).toLocaleString('vi-VN')} ₫</td>
-                                    <td class="text-end">${giaBanHtml}</td>
-                                    <td class="text-end">${Number((ct.gia_ban_ap_dung ?? ct.gia_ban)).toLocaleString('vi-VN')} ₫</td>
-                                    <td class="text-end fw-semibold">${thanhTien.toLocaleString('vi-VN')} ₫</td>
-                                </tr>`;
-                    });
+                       rowsSanPham += `
+                    <tr>
+                        <td>${tenSP}</td>
+                        <td class="text-center">${ct.so_luong}</td>
+                        <td class="text-end">${Number(ct.gia_nhap).toLocaleString('vi-VN')} ₫</td>
+                        <td class="text-end">${giaBanHtml}</td>
+                        <td class="text-end fw-semibold">${thanhTien.toLocaleString('vi-VN')} ₫</td>
+                    </tr>`;
+                                    });
                 } else {
-                    rowsSanPham = '<tr><td colspan="6" class="text-center text-muted">Không có sản phẩm nào</td></tr>';
+                    rowsSanPham = '<tr><td colspan="5" class="text-center text-muted">Không có sản phẩm nào</td></tr>';
                 }
 
                 const trangThaiHtml = pn.trang_thai === 'DRAFT'
@@ -669,14 +668,13 @@
                                     <th class="text-center">Số lượng</th>
                                     <th class="text-end">Giá nhập</th>
                                     <th class="text-end">Giá bán phiếu nhập</th>
-                                    <th class="text-end">Giá bán áp dụng</th>
                                     <th class="text-end">Thành tiền (nhập)</th>
                                 </tr>
                             </thead>
                             <tbody>${rowsSanPham}</tbody>
                             <tfoot>
                                 <tr style="background:#f0f0f0; font-weight:600;">
-                                    <td colspan="5" class="text-end">Tổng tiền nhập:</td>
+                                    <td colspan="4" class="text-end">Tổng tiền nhập:</td>
                                     <td class="text-end">${tongTienNhap.toLocaleString('vi-VN')} ₫</td>
                                 </tr>
                             </tfoot>

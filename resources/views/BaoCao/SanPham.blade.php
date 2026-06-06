@@ -873,7 +873,6 @@ function renderChiTietSanPham(res) {
                                 <th>Ngày nhập</th>
                                 <th class="text-end">Số lượng</th>
                                 <th class="text-end">Giá nhập</th>
-                                <th class="text-end">Giá bán áp dụng</th>
                             </tr>
                         </thead>
                         <tbody>${rowsNhap}</tbody>

@@ -144,16 +144,16 @@ class PhieuNhapController extends Controller
         // For each chi tiết, compute the "giá bán áp dụng" as the MAX(gia_ban)
         // among confirmed, in-stock lots of the same product. If none found,
         // the frontend will fall back to the phiếu nhập's gia_ban.
-        foreach ($phieuNhap->chiTietNhaps as $ct) {
-            $giaApDung = DB::table('chi_tiet_nhap as ctn')
-                ->join('phieu_nhap as pn', 'ctn.ma_phieu_nhap', '=', 'pn.ma_phieu_nhap')
-                ->where('ctn.ma_san_pham', $ct->ma_san_pham)
-                ->where('ctn.so_luong_con_lai', '>', 0)
-                ->where('pn.trang_thai', 'CONFIRMED')
-                ->max('ctn.gia_ban');
+        // foreach ($phieuNhap->chiTietNhaps as $ct) {
+        //     $giaApDung = DB::table('chi_tiet_nhap as ctn')
+        //         ->join('phieu_nhap as pn', 'ctn.ma_phieu_nhap', '=', 'pn.ma_phieu_nhap')
+        //         ->where('ctn.ma_san_pham', $ct->ma_san_pham)
+        //         ->where('ctn.so_luong_con_lai', '>', 0)
+        //         ->where('pn.trang_thai', 'CONFIRMED')
+        //         ->max('ctn.gia_ban');
 
-            $ct->gia_ban_ap_dung = $giaApDung ?: null;
-        }
+        //     $ct->gia_ban_ap_dung = $giaApDung ?: null;
+        // }
 
         return response()->json($phieuNhap);
     }

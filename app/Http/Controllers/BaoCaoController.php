@@ -386,15 +386,16 @@ public function exportDoanhThu(Request $request)
         $trangThai = $request->get('trang_thai');
 
         // 2. Danh sách sản phẩm
-        $sanPhams = SanPham::query()
-            ->select(
-                'ma_san_pham',
-                'ten_san_pham',
-                'loai_san_pham',
-                'trang_thai',
-                'hinh_anh',
-                'so_luong'
-            )
+       $sanPhams = SanPham::query()
+    ->select(
+        'ma_san_pham',
+        'ten_san_pham',
+        'loai_san_pham',
+        'trang_thai',
+        'hinh_anh',
+        'so_luong',
+        'gia_ban_hien_tai'
+    )
             ->when($keyword, function ($query) use ($keyword) {
                 $query->where('ten_san_pham', 'like', '%' . $keyword . '%');
             })
@@ -472,48 +473,19 @@ public function exportDoanhThu(Request $request)
             ->get()
             ->keyBy('ma_san_pham');
 
-//         // 6. Giá bán hiện tại: lấy giá bán ở phiếu nhập CONFIRMED gần nhất
-//         $giaHienTaiData = collect();
-
-// foreach ($sanPhams as $sp) {
-//     $giaMoiNhat = DB::table('chi_tiet_nhap as ctn')
-//         ->join('phieu_nhap as pn', 'ctn.ma_phieu_nhap', '=', 'pn.ma_phieu_nhap')
-//         ->where('ctn.ma_san_pham', $sp->ma_san_pham)
-//         ->where('pn.trang_thai', 'CONFIRMED')
-//         ->where('pn.ngay_nhap', '<=', $ngayKetThuc)
-//         ->orderByDesc('pn.ngay_nhap')
-//         ->orderByDesc('ctn.ma_chi_tiet_nhap')
-//         ->select(
-//             'ctn.ma_san_pham',
-//             'ctn.gia_nhap',
-//             'ctn.gia_ban',
-//             'pn.ngay_nhap'
-//         )
-//         ->first();
-
-//     if ($giaMoiNhat) {
-//         $giaHienTaiData[$sp->ma_san_pham] = $giaMoiNhat;
-//     }
-// }
 // 6. Giá bán hiện tại: giá bán cao nhất của lô nhập còn hàng đã xác nhận
-// 6. Giá bán hiện tại + giá nhập mới nhất
 $giaHienTaiData = collect();
 
-$giaBanMoiNhat = DB::table('chi_tiet_nhap as ctn')
+
+$giaNhapMoiNhatData = DB::table('chi_tiet_nhap as ctn')
     ->join('phieu_nhap as pn', 'ctn.ma_phieu_nhap', '=', 'pn.ma_phieu_nhap')
-    ->where('ctn.so_luong_con_lai', '>', 0)
     ->where('pn.trang_thai', 'CONFIRMED')
     ->select(
         'ctn.ma_san_pham',
-        DB::raw('MAX(ctn.gia_ban) as gia_ban')
+        'ctn.gia_nhap',
+        'pn.ngay_nhap',
+        'ctn.ma_chi_tiet_nhap'
     )
-    ->groupBy('ctn.ma_san_pham')
-    ->get()
-    ->keyBy('ma_san_pham');
-
-$giaNhapMoiNhat = DB::table('chi_tiet_nhap as ctn')
-    ->join('phieu_nhap as pn', 'ctn.ma_phieu_nhap', '=', 'pn.ma_phieu_nhap')
-    ->where('pn.trang_thai', 'CONFIRMED')
     ->orderByDesc('pn.ngay_nhap')
     ->orderByDesc('ctn.ma_chi_tiet_nhap')
     ->get()
@@ -521,16 +493,17 @@ $giaNhapMoiNhat = DB::table('chi_tiet_nhap as ctn')
     ->keyBy('ma_san_pham');
 
 foreach ($sanPhams as $sp) {
-    $giaBan = $giaBanMoiNhat[$sp->ma_san_pham]->gia_ban ?? null;
-    $giaNhap = $giaNhapMoiNhat[$sp->ma_san_pham]->gia_nhap ?? null;
+    $giaHienTaiData[$sp->ma_san_pham] = (object) [
+        'gia_ban' => $sp->gia_ban_hien_tai !== null
+            ? (float) $sp->gia_ban_hien_tai
+            : null,
 
-    if ($giaBan !== null || $giaNhap !== null) {
-        $giaHienTaiData[$sp->ma_san_pham] = (object) [
-            'gia_ban' => $giaBan !== null ? (float) $giaBan : null,
-            'gia_nhap' => $giaNhap !== null ? (float) $giaNhap : null,
-        ];
-    }
+        'gia_nhap' => isset($giaNhapMoiNhatData[$sp->ma_san_pham])
+            ? (float) $giaNhapMoiNhatData[$sp->ma_san_pham]->gia_nhap
+            : null,
+    ];
 }
+
         // 7. Ghép dữ liệu thành bảng báo cáo chính
         $baoCaoSanPham = $sanPhams->map(function ($sp) use (
             $nhapThemData,

@@ -49,7 +49,7 @@
                     $loConHang = $sp->chiTietNhaps
                         ->where('so_luong_con_lai', '>', 0);
 
-                    $gia = $loConHang->max('gia_ban');
+                    $gia = $sp->gia_ban_hien_tai;
                     $tonKho = $loConHang->sum('so_luong_con_lai');
                 @endphp
 

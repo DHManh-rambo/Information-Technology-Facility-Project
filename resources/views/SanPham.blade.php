@@ -86,13 +86,28 @@
                         <input type="text" id="inp_so_luong" class="form-control bg-light" readonly>
                         <small class="text-muted"><i class="bi bi-lock-fill me-1"></i>Chỉ thay đổi khi nhập hàng</small>
                     </div>
-
+                    {{-- Giá bán hiện tại --}}
+                  
+    <div class="col-md-3">
+    <label class="form-label fw-semibold">Giá bán hiện tại</label>
+    <input
+        type="number"
+        name="gia_ban_hien_tai"
+        id="inp_gia_ban"
+        class="form-control"
+        min="0"
+        step="1000"
+        placeholder="Ví dụ: 25000"
+    >
+    <small class="text-muted">Giá khách hàng đang nhìn thấy</small>
+</div>
                     {{-- Mô tả --}}
                     <div class="col-md-6">
                         <label class="form-label fw-semibold">Mô tả</label>
                         <textarea name="mo_ta" id="inp_mo_ta" class="form-control" rows="2"
                                   placeholder="Nhập mô tả sản phẩm...">{{ old('mo_ta') }}</textarea>
                     </div>
+                    
 
                     {{-- Hình ảnh --}}
                     <div class="col-md-6">
@@ -163,6 +178,7 @@
                             <th>Tên sản phẩm</th>
                             <th>Loại</th>
                             <th>Giá bán (từ phiếu nhập)</th>
+                            <th>Giá hiện tại</th>
                             <th>Số lượng</th>
                             <th>Mô tả</th>
                             <th>Trạng thái</th>
@@ -189,11 +205,14 @@
                             <td class="fw-semibold">{{ $sp->ten_san_pham }}</td>
 
                             {{-- Loại --}}
-                            <td>
-                                <span class="badge bg-info text-dark">
-                                    {{ $danhSachLoai[$sp->loai_san_pham] ?? $sp->loai_san_pham }}
-                                </span>
-                            </td>
+
+                                <td>
+                                    <span class="badge bg-info text-dark">
+                                        {{ $danhSachLoai[$sp->loai_san_pham] ?? $sp->loai_san_pham }}
+                                    </span>
+                                </td>
+
+                               
 
                             {{-- Giá bán theo lô --}}
                             <td>
@@ -218,7 +237,14 @@
                                     <span class="text-muted fst-italic">Chưa nhập hàng</span>
                                 @endif
                             </td>
-
+                             {{-- Giá hiện tại --}}
+                                <td class="fw-bold text-success">
+                                    {{ $sp->gia_ban_hien_tai
+                                        ? number_format($sp->gia_ban_hien_tai, 0, ',', '.') . 'đ'
+                                        : '-' }}
+                                </td>
+                    
+                            {{-- Giá bán hiện tại --}}  
                             {{-- Tổng số lượng trong kho --}}
                             <td>
                                 <span class="{{ $tongConLai == 0 ? 'text-danger fw-bold' : ($tongConLai < 5 ? 'text-warning fw-bold' : '') }}"
@@ -431,9 +457,10 @@
             .then(function(sp) {
                 document.getElementById('inp_ten').value   = sp.ten_san_pham;
                 document.getElementById('inp_mo_ta').value = sp.mo_ta ?? '';
+                document.getElementById('inp_gia_ban').value = sp.gia_ban_hien_tai ?? '';
 
                 document.getElementById('khuVucSoLuong').style.display = 'block';
-                document.getElementById('inp_so_luong').value = sp.so_luong;
+                document.getElementById('inp_so_luong').value = sp.ton_kho_thuc_te ?? sp.so_luong;
 
                 document.getElementById('inp_loai').style.display = 'none';
                 document.getElementById('inp_loai').removeAttribute('required');
@@ -476,6 +503,7 @@
     // ── Quay về chế độ thêm ────────────────────────────────────
     function chuyenVeCheDoDaThem() {
         document.getElementById('formChung').reset();
+        document.getElementById('inp_gia_ban').value = '';
         document.getElementById('formChung').action = '{{ route('san-pham.store') }}';
         document.getElementById('methodField').innerHTML = '';
 
