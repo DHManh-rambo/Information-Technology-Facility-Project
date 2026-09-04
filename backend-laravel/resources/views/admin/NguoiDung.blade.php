@@ -1,7 +1,7 @@
 @extends('layouts.admin')
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/NguoiDung.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/Admin/NguoiDung.css') }}">
 @endpush
 
 @section('content')

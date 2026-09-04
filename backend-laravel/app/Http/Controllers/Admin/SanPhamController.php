@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 use App\Models\SanPham;
 use App\Models\ChiTietNhap;
 use App\Models\BaoCaoHangHong;
@@ -47,7 +47,7 @@ class SanPhamController extends Controller
 
         $danhSachLoai = $this->danhSachLoai;
 
-        return view('SanPham', compact('danhSachSanPham', 'danhSachLoai'));
+        return view('admin.SanPham', compact('danhSachSanPham', 'danhSachLoai'));
     }
 
     

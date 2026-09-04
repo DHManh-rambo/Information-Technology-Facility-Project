@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 use App\Models\KhachHang;
 use App\Models\NguoiDung;
 use App\Models\HoaDon;
@@ -24,7 +24,7 @@ class KhachHangController extends Controller
         
         $khachHangs = KhachHang::orderBy('diem_tich_luy', $sort)->get();
         
-        return view('KhachHang', compact('khachHangs', 'sort'));
+        return view('admin.KhachHang', compact('khachHangs', 'sort'));
     }
 
     

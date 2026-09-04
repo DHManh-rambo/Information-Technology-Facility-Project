@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 
 use App\Models\HoaDon;
 use App\Models\SanPham;
@@ -85,7 +86,7 @@ class BaoCaoController extends Controller
             $data = array_merge($data, $this->dataHangHong($request));
         }
 
-        return view('BaoCao', $data);
+        return view('admin.BaoCao', $data);
 
     }
 

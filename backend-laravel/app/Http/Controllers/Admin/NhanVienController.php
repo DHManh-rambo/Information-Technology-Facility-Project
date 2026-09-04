@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 use App\Models\NhanVien;
 use App\Models\NguoiDung;
 use App\Models\HoaDon;
@@ -44,7 +44,7 @@ class NhanVienController extends Controller
             ->groupBy('ma_nhan_vien_giao')
             ->pluck('tong_can_tra', 'ma_nhan_vien_giao');
 
-        return view('NhanVien', compact('nhanViens', 'chucVus', 'shipperDebts'));
+        return view('admin.NhanVien', compact('nhanViens', 'chucVus', 'shipperDebts'));
     }
 
     public function update(Request $request, $ma_nhan_vien)

@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 use App\Models\PhieuNhap;
 use App\Models\ChiTietNhap;
 use App\Models\NhanVien;
@@ -53,7 +53,7 @@ class PhieuNhapController extends Controller
                                       return $sp;
                                   });
 
-        return view('PhieuNhap', compact(
+        return view('admin.PhieuNhap', compact(
             'danhSachPhieuNhap',
             'danhSachNhanVien',
             'danhSachSanPham'

@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 use App\Models\NguoiDung;
 use App\Models\KhachHang;
 use App\Models\NhanVien;
@@ -14,7 +14,7 @@ class NguoiDungController extends Controller
     public function index()
     {
         $nguoiDungs = NguoiDung::with(['khachHang', 'nhanVien'])->get();
-        return view('NguoiDung', compact('nguoiDungs'));
+        return view('admin.NguoiDung', compact('nguoiDungs'));
     }
 
     public function checkUsername(Request $request)

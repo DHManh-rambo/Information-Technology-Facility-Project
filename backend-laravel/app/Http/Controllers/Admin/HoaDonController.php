@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 use App\Models\HoaDon;
 use App\Models\KhachHang;
 use Illuminate\Http\Request;
@@ -44,7 +44,7 @@ class HoaDonController extends Controller
         $hoaDons    = $query->orderByDesc('ngay_dat')->paginate(15)->withQueryString();
         $khachHangs = KhachHang::orderBy('ten_khach_hang')->get();
 
-        return view('HoaDon', compact('hoaDons', 'khachHangs'));
+        return view('admin.HoaDon', compact('hoaDons', 'khachHangs'));
     }
 
    

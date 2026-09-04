@@ -1,7 +1,7 @@
 <?php
 
-namespace App\Http\Controllers;
-
+namespace App\Http\Controllers\Admin;
+use App\Http\Controllers\Controller;
 use App\Models\HoaDon;
 use App\Models\NhanVien;
 use App\Models\ChiTietNhap;
@@ -43,7 +43,7 @@ class DonHangController extends Controller
         $donHangs = $query->orderByDesc('ngay_dat')->paginate(15)->withQueryString();
         $shippers = NhanVien::where('chuc_vu', 'SHIPPER')->get();
 
-        return view('DonHang', compact('donHangs', 'shippers'));
+        return view('admin.DonHang', compact('donHangs', 'shippers'));
     }
 
     public function confirm(Request $request, $id)

@@ -1,19 +1,19 @@
 <?php
 
-use App\Http\Controllers\NguoiDungController;
-use App\Http\Controllers\KhachHangController;
-use App\Http\Controllers\NhanVienController;
-use App\Http\Controllers\SanPhamController;
-use App\Http\Controllers\HoaDonController;
-use App\Http\Controllers\DonHangController;
-use App\Http\Controllers\PhieuNhapController;
-use App\Http\Controllers\BaoCaoController;
+use App\Http\Controllers\Admin\NguoiDungController;
+use App\Http\Controllers\Admin\KhachHangController;
+use App\Http\Controllers\Admin\NhanVienController;
+use App\Http\Controllers\Admin\SanPhamController;
+use App\Http\Controllers\Admin\HoaDonController;
+use App\Http\Controllers\Admin\DonHangController;
+use App\Http\Controllers\Admin\PhieuNhapController;
+use App\Http\Controllers\Admin\BaoCaoController;
 use App\Http\Controllers\Shipper\ShipperController;
 use App\Http\Controllers\Shipper\NhanDonController;
 use App\Http\Controllers\Shipper\ShipperProfileController;
 
 use App\Http\Controllers\Shipper\ShipperThongBaoController;
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Customer\ThongBaoController as CustomerThongBaoController;
 use App\Http\Controllers\Customer\CustomerController;
 use App\Http\Controllers\Customer\CustomerProfileController;
@@ -117,7 +117,7 @@ Route::middleware(['auth', 'role:ADMIN,NHAN_VIEN'])->group(function () {
     });
 
 
-Route::prefix('don-hang')->name('don-hang.')->controller(\App\Http\Controllers\DonHangController::class)->group(function () {
+Route::prefix('don-hang')->name('don-hang.')->controller(DonHangController::class)->group(function () {
     
     Route::get('/', 'index')->name('index');
   
