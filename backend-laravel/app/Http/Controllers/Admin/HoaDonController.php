@@ -60,6 +60,10 @@ class HoaDonController extends Controller
             $chiTiet = $hoaDon->chiTietHoaDon->map(function ($ct) {
                 return [
                     'ma_chi_tiet'       => $ct->ma_chi_tiet,
+                    // THÊM: cần ma_san_pham để frontend group đúng các dòng
+                    // cùng 1 sản phẩm nhưng khác batch (ma_chi_tiet_nhap) lại
+                    // với nhau khi hiển thị (xem HoaDon_blade.php: renderPanel()).
+                    'ma_san_pham'       => $ct->ma_san_pham,
                     'so_luong'          => $ct->so_luong,
                     'gia_ban_snapshot'  => $ct->gia_ban_snapshot,
                     'gia_nhap_snapshot' => $ct->gia_nhap_snapshot,

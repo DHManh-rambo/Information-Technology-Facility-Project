@@ -129,22 +129,26 @@ class ThanhToanController extends Controller
                     'ngay_dat'               => now(),
                 ]);
 
-                foreach ($gioHang as $item) {
-                    ChiTietHoaDon::create([
-                        'ma_hoa_don'        => $hoaDon->ma_hoa_don,
-                        'ma_san_pham'       => $item['ma_san_pham'],
-                        'so_luong'          => $item['so_luong'],
-                        'gia_ban_snapshot'  => $item['gia_ban'],
-                        'gia_nhap_snapshot' => $item['gia_nhap'],
-                    ]);
-                }
-
+                // ===== THAY ĐỔI QUAN TRỌNG =====
+                // Gộp logic FIFO và tạo ChiTietHoaDon thành MỘT vòng lặp duy nhất.
+                // Ngay khi trừ số lượng từ 1 batch cụ thể, tạo luôn dòng ChiTietHoaDon
+                // ghi lại chính xác ma_chi_tiet_nhap (batch) và số lượng đã lấy từ batch đó.
+                // => Không còn tình trạng tạo 1 dòng gộp (ví dụ Hoa A x4) rồi "quên" mất
+                //    thông tin đã lấy từ những batch nào.
                 foreach ($yeuCauTheoSanPham as $maSanPham => $soLuongYeuCau) {
+                    $mauItem = collect($gioHang)->firstWhere('ma_san_pham', $maSanPham);
+                    $giaBanSnapshot = $mauItem['gia_ban'];
+
                     $soLuongCanTru = $soLuongYeuCau;
+
+                    // THÊM lockForUpdate(): khóa các dòng ChiTietNhap liên quan trong
+                    // phạm vi transaction này, tránh 2 request đặt hàng đồng thời cùng
+                    // đọc một giá trị so_luong_con_lai rồi cùng trừ đè lên nhau (race condition).
                     $loNhapTheoFIFO = ChiTietNhap::with('phieuNhap')
                         ->where('ma_san_pham', $maSanPham)
                         ->where('so_luong_con_lai', '>', 0)
                         ->whereHas('phieuNhap', fn($q) => $q->where('trang_thai', 'CONFIRMED'))
+                        ->lockForUpdate()
                         ->get()
                         ->sortBy(function ($lot) {
                             return [
@@ -161,6 +165,28 @@ class ThanhToanController extends Controller
                         $tru = min($lot->so_luong_con_lai, $soLuongCanTru);
                         $lot->decrement('so_luong_con_lai', $tru);
                         $soLuongCanTru -= $tru;
+
+                        // Ghi lại CHÍNH XÁC batch đã lấy + số lượng đã lấy từ batch đó.
+                        // Nếu 1 sản phẩm được lấy từ nhiều batch, vòng lặp này sẽ tạo
+                        // nhiều dòng ChiTietHoaDon (khác nhau ở ma_chi_tiet_nhap và so_luong),
+                        // khớp đúng với unique constraint (ma_hoa_don, ma_san_pham, ma_chi_tiet_nhap)
+                        // đã có sẵn trong migration.
+                        ChiTietHoaDon::create([
+                            'ma_hoa_don'        => $hoaDon->ma_hoa_don,
+                            'ma_san_pham'       => $maSanPham,
+                            'ma_chi_tiet_nhap'  => $lot->ma_chi_tiet_nhap,
+                            'so_luong'          => $tru,
+                            'gia_ban_snapshot'  => $giaBanSnapshot,
+                            'gia_nhap_snapshot' => $lot->gia_nhap,
+                        ]);
+                    }
+
+                    // An toàn: nếu sau khi khóa dòng thực tế (lockForUpdate) mà vẫn không đủ hàng
+                    // (do request khác vừa giành mất hàng giữa lúc pre-check và lúc khóa),
+                    // chặn lại toàn bộ giao dịch thay vì tạo đơn hàng thiếu hàng.
+                    if ($soLuongCanTru > 0) {
+                        $tenSanPham = $mauItem['ten_san_pham'] ?? 'Sản phẩm';
+                        throw new \Exception("Sản phẩm \"{$tenSanPham}\" vừa hết hàng do có đơn khác mua trước. Vui lòng thử lại.");
                     }
                 }
 

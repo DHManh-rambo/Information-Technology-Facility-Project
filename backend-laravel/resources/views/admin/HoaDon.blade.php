@@ -269,16 +269,52 @@
         let productsHtml = '';
         let grandTotal = 0;
         if (d.chi_tiet_hoa_don && d.chi_tiet_hoa_don.length) {
+            // ===== THAY ĐỔI =====
+            // Backend giờ lưu 1 dòng ChiTietHoaDon cho MỖI batch đã lấy hàng.
+            // Nếu 1 sản phẩm được lấy từ nhiều batch (VD FIFO lấy Lô1:2 + Lô2:2),
+            // d.chi_tiet_hoa_don sẽ có nhiều dòng cùng ma_san_pham nhưng khác batch.
+            // Group lại theo ma_san_pham trước khi render để hiển thị đúng
+            // "Hoa A x4" thay vì lặp "Hoa A x2" hai lần.
+            // Lưu ý: đây chỉ là gộp lúc HIỂN THỊ trên panel này — dữ liệu batch
+            // (ma_chi_tiet_nhap) vẫn còn nguyên vẹn trong d.chi_tiet_hoa_don gốc
+            // và trong database, không bị mất đi.
+            const grouped = {};
+            const order   = [];
+
             d.chi_tiet_hoa_don.forEach(ct => {
-                grandTotal += Number(ct.thanh_tien);
+                // Dùng ma_san_pham làm key group (đáng tin cậy hơn tên sản phẩm,
+                // tránh gộp nhầm nếu nhiều sản phẩm khác nhau bị xóa cùng hiện "(Đã xóa)").
+                // Nếu backend cũ chưa trả ma_san_pham, tự động fallback về tên sản phẩm.
+                const key = (ct.ma_san_pham !== undefined && ct.ma_san_pham !== null)
+                    ? 'sp_' + ct.ma_san_pham
+                    : 'ten_' + (ct.san_pham?.ten_san_pham ?? 'unknown');
+
+                if (!grouped[key]) {
+                    grouped[key] = {
+                        ten_san_pham:     ct.san_pham?.ten_san_pham ?? '—',
+                        so_luong:         0,
+                        gia_ban_snapshot: ct.gia_ban_snapshot,
+                        thanh_tien:       0,
+                    };
+                    order.push(key);
+                }
+
+                grouped[key].so_luong   += Number(ct.so_luong);
+                grouped[key].thanh_tien += Number(ct.thanh_tien);
+            });
+
+            order.forEach(key => {
+                const g = grouped[key];
+                grandTotal += g.thanh_tien;
                 productsHtml += `
                 <tr>
-                    <td>${ct.san_pham?.ten_san_pham ?? '—'}</td>
-                    <td style="text-align:center">${ct.so_luong}</td>
-                    <td style="text-align:right">${fmt(ct.gia_ban_snapshot)}</td>
-                    <td style="text-align:right;font-weight:700">${fmt(ct.thanh_tien)}</td>
+                    <td>${g.ten_san_pham}</td>
+                    <td style="text-align:center">${g.so_luong}</td>
+                    <td style="text-align:right">${fmt(g.gia_ban_snapshot)}</td>
+                    <td style="text-align:right;font-weight:700">${fmt(g.thanh_tien)}</td>
                 </tr>`;
             });
+
             productsHtml += `
                 <tr class="total-row">
                     <td colspan="3">Tổng cộng</td>

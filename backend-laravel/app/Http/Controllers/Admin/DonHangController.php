@@ -71,11 +71,21 @@ class DonHangController extends Controller
 
         $hoaDon->load('chiTietHoaDon.sanPham');
 
+        // ===== THAY ĐỔI =====
+        // Sau khi ThanhToanController::store() được sửa để ghi 1 dòng ChiTietHoaDon
+        // cho MỖI batch (thay vì 1 dòng gộp cho mỗi sản phẩm), một sản phẩm mua từ
+        // nhiều lô sẽ có nhiều dòng ChiTietHoaDon. Nếu không group lại, tin nhắn gửi
+        // shipper sẽ hiện trùng lặp kiểu "Hoa A (×2), Hoa A (×2)" thay vì "Hoa A (×4)".
+        // Group theo ma_san_pham và cộng tổng so_luong trước khi build chuỗi hiển thị.
+        // Lưu ý: đây chỉ là gộp lúc hiển thị text, dữ liệu batch trong DB không đổi.
         $danhSachSanPham = $hoaDon->chiTietHoaDon
-            ->map(fn($item) =>
-                ($item->sanPham->ten_san_pham ?? 'Sản phẩm #' . $item->ma_san_pham)
-                . ' (×' . $item->so_luong . ')'
-            )
+            ->groupBy('ma_san_pham')
+            ->map(function ($items) {
+                $first = $items->first();
+                $tenSanPham = $first->sanPham->ten_san_pham ?? 'Sản phẩm #' . $first->ma_san_pham;
+                $tongSoLuong = $items->sum('so_luong');
+                return $tenSanPham . ' (×' . $tongSoLuong . ')';
+            })
             ->join(', ');
 
         $coHoaTuoi = $hoaDon->chiTietHoaDon->contains(function ($item) {
@@ -155,16 +165,25 @@ class DonHangController extends Controller
 
         DB::transaction(function () use ($hoaDon, $khachHang, $diemHienTai, $diemSauHuy) {
 
-           
+            // ===== THAY ĐỔI QUAN TRỌNG =====
+            // TRƯỚC: hệ thống tự "đoán" 1 batch bất kỳ (lô có ma_chi_tiet_nhap lớn nhất)
+            // rồi dồn toàn bộ số lượng vào đó — SAI vì không liên quan gì tới batch
+            // thực sự đã bị trừ lúc mua hàng.
+            //
+            // SAU: đọc trực tiếp ma_chi_tiet_nhap đã được lưu chính xác trong
+            // ChiTietHoaDon (tại thời điểm mua hàng, xem ThanhToanController::store()).
+            // Không còn tìm/đoán batch nào khác. Nếu 1 sản phẩm được lấy từ nhiều batch,
+            // hoaDon->chiTietHoaDon sẽ có nhiều dòng tương ứng, mỗi dòng tự hoàn đúng
+            // batch + đúng số lượng của chính nó.
             foreach ($hoaDon->chiTietHoaDon as $ct) {
-                $loNhap = ChiTietNhap::where('ma_san_pham', $ct->ma_san_pham)
-                    ->whereHas('phieuNhap', fn($q) => $q->where('trang_thai', 'CONFIRMED'))
-                    ->orderByDesc('ma_chi_tiet_nhap')
-                    ->first();
-
-                if ($loNhap) {
-                    $loNhap->increment('so_luong_con_lai', $ct->so_luong);
+                if ($ct->ma_chi_tiet_nhap) {
+                    ChiTietNhap::where('ma_chi_tiet_nhap', $ct->ma_chi_tiet_nhap)
+                        ->increment('so_luong_con_lai', $ct->so_luong);
                 }
+                // Nếu ma_chi_tiet_nhap là null: đây là đơn hàng cũ được tạo TRƯỚC khi
+                // hệ thống lưu batch allocation. Không có dữ liệu để xác định đúng batch
+                // nên không thể hoàn chính xác theo lô — chỉ hoàn tổng SanPham.so_luong
+                // ở dưới. Đây là giới hạn dữ liệu lịch sử, không phải lỗi logic.
 
                 SanPham::where('ma_san_pham', $ct->ma_san_pham)
                     ->increment('so_luong', $ct->so_luong);
