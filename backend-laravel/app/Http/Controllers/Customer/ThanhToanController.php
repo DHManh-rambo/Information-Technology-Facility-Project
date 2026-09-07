@@ -43,6 +43,7 @@ class ThanhToanController extends Controller
             'quan_huyen'             => 'required|string|max:100',
             'xa_phuong'              => 'required|string|max:100',
             'dia_chi_chi_tiet'       => 'required|string|max:255',
+            
             'phuong_thuc_thanh_toan' => 'required|in:NGAN_HANG,COD',
         ], [
             'ten_nguoi_nhan.required'         => 'Vui lòng nhập tên người nhận.',
@@ -87,20 +88,21 @@ class ThanhToanController extends Controller
             . ', ' . $request->quan_huyen
             . ', Hà Nội';
 
-        $trangThaiTT = $request->phuong_thuc_thanh_toan === 'NGAN_HANG'
-            ? 'DA_THANH_TOAN'
-            : 'CHUA_THANH_TOAN';
+        
+        $laVnpay = $request->phuong_thuc_thanh_toan === 'NGAN_HANG';
 
         try {
-            DB::transaction(function () use (
+            $hoaDon = DB::transaction(function () use (
                 $request,
                 $gioHang,
                 $khachHang,
                 $tongTien,
                 $diemSuDung,
-                $trangThaiTT,
-                $diaChiGiao
+                $diaChiGiao,
+                $laVnpay
             ) {
+                // Pre-check tồn kho theo tổng (GIỮ NGUYÊN – áp dụng chung cho cả COD và VNPay,
+                // để không tạo đơn VNPay cho sản phẩm chắc chắn không đủ hàng).
                 $yeuCauTheoSanPham = collect($gioHang)
                     ->groupBy('ma_san_pham')
                     ->map(fn($items) => $items->sum('so_luong'));
@@ -118,10 +120,13 @@ class ThanhToanController extends Controller
                     }
                 }
 
+                // trang_thai_thanh_toan LUÔN LUÔN là CHUA_THANH_TOAN lúc tạo đơn, kể cả VNPay
+                // (đơn VNPay chỉ chuyển DA_THANH_TOAN khi IPN xác nhận thành công — xem Phase 3).
+                // Đây đã là hành vi gốc của nhánh COD, không đổi gì cho COD.
                 $hoaDon = HoaDon::create([
                     'ma_khach_hang'          => $khachHang->ma_khach_hang,
                     'trang_thai'             => 'PENDING',
-                    'trang_thai_thanh_toan'  => $trangThaiTT,
+                    'trang_thai_thanh_toan'  => 'CHUA_THANH_TOAN',
                     'phuong_thuc_thanh_toan' => $request->phuong_thuc_thanh_toan,
                     'dia_chi_giao'           => $diaChiGiao,
                     'so_dien_thoai'          => $request->so_dien_thoai,
@@ -129,88 +134,38 @@ class ThanhToanController extends Controller
                     'ngay_dat'               => now(),
                 ]);
 
-                // ===== THAY ĐỔI QUAN TRỌNG =====
-                // Gộp logic FIFO và tạo ChiTietHoaDon thành MỘT vòng lặp duy nhất.
-                // Ngay khi trừ số lượng từ 1 batch cụ thể, tạo luôn dòng ChiTietHoaDon
-                // ghi lại chính xác ma_chi_tiet_nhap (batch) và số lượng đã lấy từ batch đó.
-                // => Không còn tình trạng tạo 1 dòng gộp (ví dụ Hoa A x4) rồi "quên" mất
-                //    thông tin đã lấy từ những batch nào.
-                foreach ($yeuCauTheoSanPham as $maSanPham => $soLuongYeuCau) {
-                    $mauItem = collect($gioHang)->firstWhere('ma_san_pham', $maSanPham);
-                    $giaBanSnapshot = $mauItem['gia_ban'];
-
-                    $soLuongCanTru = $soLuongYeuCau;
-
-                    // THÊM lockForUpdate(): khóa các dòng ChiTietNhap liên quan trong
-                    // phạm vi transaction này, tránh 2 request đặt hàng đồng thời cùng
-                    // đọc một giá trị so_luong_con_lai rồi cùng trừ đè lên nhau (race condition).
-                    $loNhapTheoFIFO = ChiTietNhap::with('phieuNhap')
-                        ->where('ma_san_pham', $maSanPham)
-                        ->where('so_luong_con_lai', '>', 0)
-                        ->whereHas('phieuNhap', fn($q) => $q->where('trang_thai', 'CONFIRMED'))
-                        ->lockForUpdate()
-                        ->get()
-                        ->sortBy(function ($lot) {
-                            return [
-                                $lot->phieuNhap->ngay_nhap ?? now(),
-                                $lot->ma_chi_tiet_nhap,
-                            ];
-                        });
-
-                    foreach ($loNhapTheoFIFO as $lot) {
-                        if ($soLuongCanTru <= 0) {
-                            break;
-                        }
-
-                        $tru = min($lot->so_luong_con_lai, $soLuongCanTru);
-                        $lot->decrement('so_luong_con_lai', $tru);
-                        $soLuongCanTru -= $tru;
-
-                        // Ghi lại CHÍNH XÁC batch đã lấy + số lượng đã lấy từ batch đó.
-                        // Nếu 1 sản phẩm được lấy từ nhiều batch, vòng lặp này sẽ tạo
-                        // nhiều dòng ChiTietHoaDon (khác nhau ở ma_chi_tiet_nhap và so_luong),
-                        // khớp đúng với unique constraint (ma_hoa_don, ma_san_pham, ma_chi_tiet_nhap)
-                        // đã có sẵn trong migration.
-                        ChiTietHoaDon::create([
-                            'ma_hoa_don'        => $hoaDon->ma_hoa_don,
-                            'ma_san_pham'       => $maSanPham,
-                            'ma_chi_tiet_nhap'  => $lot->ma_chi_tiet_nhap,
-                            'so_luong'          => $tru,
-                            'gia_ban_snapshot'  => $giaBanSnapshot,
-                            'gia_nhap_snapshot' => $lot->gia_nhap,
-                        ]);
-                    }
-
-                    // An toàn: nếu sau khi khóa dòng thực tế (lockForUpdate) mà vẫn không đủ hàng
-                    // (do request khác vừa giành mất hàng giữa lúc pre-check và lúc khóa),
-                    // chặn lại toàn bộ giao dịch thay vì tạo đơn hàng thiếu hàng.
-                    if ($soLuongCanTru > 0) {
-                        $tenSanPham = $mauItem['ten_san_pham'] ?? 'Sản phẩm';
-                        throw new \Exception("Sản phẩm \"{$tenSanPham}\" vừa hết hàng do có đơn khác mua trước. Vui lòng thử lại.");
-                    }
+                if ($laVnpay) {
+                    // CHƯA trừ tồn kho, CHƯA trừ điểm, CHƯA cộng điểm (đúng mục 4 yêu cầu gốc).
+                    // Lưu lại snapshot giỏ hàng + số điểm đã dùng vào DB (KHÔNG dùng session,
+                    // vì VNPay gọi IPN từ server họ, không có session của khách hàng) để
+                    // finalizeVnpayThanhCong() có dữ liệu chạy lại đúng thuật toán FIFO này
+                    // sau khi thanh toán thành công.
+                    $hoaDon->vnpay_cart_snapshot = [
+                        'items'       => collect($gioHang)->map(fn($i) => [
+                            'ma_san_pham'  => $i['ma_san_pham'],
+                            'so_luong'     => $i['so_luong'],
+                            'gia_ban'      => $i['gia_ban'],
+                            'ten_san_pham' => $i['ten_san_pham'] ?? null,
+                        ])->values()->all(),
+                        'diem_su_dung' => $diemSuDung,
+                    ];
+                    $hoaDon->save();
+                } else {
+                    // COD — GIỮ NGUYÊN 100% thuật toán FIFO + trừ kho + điểm hiện có,
+                    // chỉ tách ra hàm dùng chung để VNPay gọi lại được (không viết FIFO lần 2).
+                    $this->xuLyFifoVaHoanTat($hoaDon, $gioHang, $diemSuDung, $khachHang, $tongTien);
                 }
 
-                foreach ($gioHang as $item) {
-                    SanPham::where('ma_san_pham', $item['ma_san_pham'])
-                        ->decrement('so_luong', $item['so_luong']);
-                }
-
-                if ($diemSuDung > 0 && $khachHang) {
-                    $khachHang->decrement('diem_tich_luy', $diemSuDung);
-                }
-
-                $diemMoi = (int) floor($tongTien / self::TICH_DIEM);
-
-                if ($diemMoi > 0 && $khachHang) {
-                    $khachHang->increment('diem_tich_luy', $diemMoi);
-                }
+                return $hoaDon;
             });
         } catch (\Exception $e) {
             return redirect()->route('customer.thanh-toan')
                 ->with('error', $e->getMessage());
         }
 
-        // Clear only relevant sessions after successful order
+        // Clear only relevant sessions after successful order (GIỮ NGUYÊN — áp dụng cho
+        // cả COD và VNPay, đơn đã được ghi nhận vào DB dù thanh toán VNPay có thành công
+        // hay không; nếu thất bại, IPN sẽ tự set trang_thai = CANCELLED, không phục hồi giỏ hàng).
         if ($isMuaNgay) {
             session()->forget(['mua_ngay', 'diem_su_dung']);
         } elseif ($isCheckout) {
@@ -226,11 +181,137 @@ class ThanhToanController extends Controller
             session()->forget(['checkout_items', 'diem_su_dung']);
         }
 
-        $ttLabel = $trangThaiTT === 'DA_THANH_TOAN'
-            ? 'Chuyển khoản – đơn hàng sẽ được xử lý sau khi xác nhận thanh toán.'
-            : 'Thanh toán khi nhận hàng (COD).';
+        if ($laVnpay) {
+            // Chuyển sang VnPayController::payment() để redirect khách sang cổng VNPay.
+            return redirect()->route('vnpay.payment', $hoaDon)
+                ->with('info', "Đơn hàng #{$hoaDon->ma_hoa_don} đã được tạo. Vui lòng hoàn tất thanh toán qua VNPay.");
+        }
 
         return redirect()->route('customer.dashboard')
-            ->with('success', "🎉 Đặt hàng thành công! Phương thức: {$ttLabel} Chúng tôi sẽ liên hệ sớm nhất.");
+            ->with('success', '🎉 Đặt hàng thành công! Phương thức: Thanh toán khi nhận hàng (COD). Chúng tôi sẽ liên hệ sớm nhất.');
+    }
+
+    /**
+     * PHASE 5 — Logic FIFO + trừ tồn kho + trừ điểm + cộng điểm, TÁCH NGUYÊN VẸN
+     * từ store() gốc (KHÔNG đổi thuật toán FIFO), để dùng chung cho:
+     *   - COD: gọi trực tiếp trong store() ngay khi tạo đơn.
+     *   - VNPay: gọi từ finalizeVnpayThanhCong() sau khi IPN xác nhận thành công.
+     *
+     * PHẢI được gọi bên trong 1 DB::transaction() đã mở sẵn ở nơi gọi (không tự mở
+     * transaction ở đây) vì cả 2 nơi gọi đều cần lockForUpdate() nằm chung transaction
+     * với các thao tác khác (tạo HoaDon, hoặc lock HoaDon ở IPN).
+     *
+     * @param array $gioHang mảng các item dạng ['ma_san_pham','so_luong','gia_ban','ten_san_pham']
+     */
+    protected function xuLyFifoVaHoanTat(HoaDon $hoaDon, array $gioHang, int $diemSuDung, $khachHang, float $tongTien): void
+    {
+        $yeuCauTheoSanPham = collect($gioHang)
+            ->groupBy('ma_san_pham')
+            ->map(fn($items) => $items->sum('so_luong'));
+
+        // ===== THAY ĐỔI QUAN TRỌNG (giữ nguyên từ code gốc) =====
+        // Gộp logic FIFO và tạo ChiTietHoaDon thành MỘT vòng lặp duy nhất.
+        // Ngay khi trừ số lượng từ 1 batch cụ thể, tạo luôn dòng ChiTietHoaDon
+        // ghi lại chính xác ma_chi_tiet_nhap (batch) và số lượng đã lấy từ batch đó.
+        foreach ($yeuCauTheoSanPham as $maSanPham => $soLuongYeuCau) {
+            $mauItem = collect($gioHang)->firstWhere('ma_san_pham', $maSanPham);
+            $giaBanSnapshot = $mauItem['gia_ban'];
+
+            $soLuongCanTru = $soLuongYeuCau;
+
+            // lockForUpdate(): khóa các dòng ChiTietNhap liên quan trong phạm vi
+            // transaction này, tránh 2 giao dịch đồng thời cùng đọc một giá trị
+            // so_luong_con_lai rồi cùng trừ đè lên nhau (race condition).
+            $loNhapTheoFIFO = ChiTietNhap::with('phieuNhap')
+                ->where('ma_san_pham', $maSanPham)
+                ->where('so_luong_con_lai', '>', 0)
+                ->whereHas('phieuNhap', fn($q) => $q->where('trang_thai', 'CONFIRMED'))
+                ->lockForUpdate()
+                ->get()
+                ->sortBy(function ($lot) {
+                    return [
+                        $lot->phieuNhap->ngay_nhap ?? now(),
+                        $lot->ma_chi_tiet_nhap,
+                    ];
+                });
+
+            foreach ($loNhapTheoFIFO as $lot) {
+                if ($soLuongCanTru <= 0) {
+                    break;
+                }
+
+                $tru = min($lot->so_luong_con_lai, $soLuongCanTru);
+                $lot->decrement('so_luong_con_lai', $tru);
+                $soLuongCanTru -= $tru;
+
+                // Ghi lại CHÍNH XÁC batch đã lấy + số lượng đã lấy từ batch đó.
+                ChiTietHoaDon::create([
+                    'ma_hoa_don'        => $hoaDon->ma_hoa_don,
+                    'ma_san_pham'       => $maSanPham,
+                    'ma_chi_tiet_nhap'  => $lot->ma_chi_tiet_nhap,
+                    'so_luong'          => $tru,
+                    'gia_ban_snapshot'  => $giaBanSnapshot,
+                    'gia_nhap_snapshot' => $lot->gia_nhap,
+                ]);
+            }
+
+            // An toàn: nếu sau khi khóa dòng thực tế mà vẫn không đủ hàng (do đơn khác
+            // vừa giành mất hàng giữa lúc pre-check và lúc khóa), chặn lại toàn bộ giao dịch.
+            if ($soLuongCanTru > 0) {
+                $tenSanPham = $mauItem['ten_san_pham'] ?? 'Sản phẩm';
+                throw new \Exception("Sản phẩm \"{$tenSanPham}\" vừa hết hàng do có đơn khác mua trước. Vui lòng thử lại.");
+            }
+        }
+
+        foreach ($gioHang as $item) {
+            SanPham::where('ma_san_pham', $item['ma_san_pham'])
+                ->decrement('so_luong', $item['so_luong']);
+        }
+
+        if ($diemSuDung > 0 && $khachHang) {
+            $khachHang->decrement('diem_tich_luy', $diemSuDung);
+        }
+
+        $diemMoi = (int) floor($tongTien / self::TICH_DIEM);
+
+        if ($diemMoi > 0 && $khachHang) {
+            $khachHang->increment('diem_tich_luy', $diemMoi);
+        }
+    }
+
+    /**
+     * PHASE 5 — Được VnPayController::ipn() gọi (bên trong DB::transaction +
+     * lockForUpdate() đã mở sẵn ở đó) NGAY SAU KHI verify chữ ký + verify amount
+     * + xác nhận vnp_ResponseCode == '00' thành công.
+     *
+     * Idempotency (chống xử lý 2 lần) đã được VnPayController::ipn() đảm bảo TRƯỚC
+     * khi gọi hàm này (check trang_thai_thanh_toan/trang_thai trước khi gọi), nên
+     * hàm này không tự check lại — nó giả định luôn "đây là lần xử lý hợp lệ đầu tiên".
+     */
+    public function finalizeVnpayThanhCong(HoaDon $hoaDon, array $vnpayMeta): void
+    {
+        if ($hoaDon->phuong_thuc_thanh_toan !== 'NGAN_HANG') {
+            throw new \RuntimeException("HoaDon #{$hoaDon->ma_hoa_don} không phải đơn thanh toán VNPay.");
+        }
+
+        $snapshot = $hoaDon->vnpay_cart_snapshot;
+        if (!is_array($snapshot) || empty($snapshot['items'])) {
+            throw new \RuntimeException("HoaDon #{$hoaDon->ma_hoa_don} thiếu dữ liệu giỏ hàng (vnpay_cart_snapshot) để xử lý FIFO.");
+        }
+
+        $gioHang    = $snapshot['items'];
+        $diemSuDung = (int) ($snapshot['diem_su_dung'] ?? 0);
+        $khachHang  = $hoaDon->khachHang;
+        $tongTien   = (float) $hoaDon->tong_tien;
+
+        // Dùng lại ĐÚNG 1 hàm FIFO duy nhất — không viết phiên bản FIFO thứ hai cho VNPay.
+        $this->xuLyFifoVaHoanTat($hoaDon, $gioHang, $diemSuDung, $khachHang, $tongTien);
+
+        $hoaDon->trang_thai_thanh_toan = 'DA_THANH_TOAN';
+        $hoaDon->vnpay_transaction_no  = $vnpayMeta['vnpay_transaction_no'] ?? null;
+        $hoaDon->vnpay_bank_code       = $vnpayMeta['vnpay_bank_code'] ?? null;
+        $hoaDon->vnpay_pay_date        = $vnpayMeta['vnpay_pay_date'] ?? null;
+        $hoaDon->vnpay_response_code   = $vnpayMeta['vnpay_response_code'] ?? null;
+        $hoaDon->save();
     }
 }

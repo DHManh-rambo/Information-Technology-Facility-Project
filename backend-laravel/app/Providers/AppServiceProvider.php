@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Providers;
+use Illuminate\Support\Facades\URL;
 
 use Illuminate\Support\ServiceProvider;
 
@@ -18,7 +19,10 @@ class AppServiceProvider extends ServiceProvider
      * Bootstrap any application services.
      */
     public function boot(): void
-    {
-        //
+{
+    // Tự động ép tất cả các link asset() sang https khi có request qua proxy/cloudflare
+    if (request()->header('x-forwarded-proto') == 'https') {
+        URL::forceScheme('https');
     }
+}
 }

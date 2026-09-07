@@ -27,12 +27,18 @@ class HoaDon extends Model
         'so_dien_thoai',
         'ngay_giao',
         'ma_nhan_vien_giao',
+        'vnpay_transaction_no',
+        'vnpay_bank_code',
+        'vnpay_pay_date',
+        'vnpay_response_code',
+        'vnpay_cart_snapshot',
     ];
 
     protected $casts = [
         'tong_tien' => 'decimal:2',
         'ngay_dat' => 'datetime',
         'ngay_giao' => 'datetime',
+        'vnpay_cart_snapshot' => 'array',
     ];
 
     public function chiTietHoaDon()

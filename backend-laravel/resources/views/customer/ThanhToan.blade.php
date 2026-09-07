@@ -108,22 +108,21 @@
                     <div class="payment-option {{ old('phuong_thuc_thanh_toan', 'NGAN_HANG') === 'NGAN_HANG' ? 'selected' : '' }}"
                          onclick="selectPayment('NGAN_HANG', this)">
                         <input type="radio" name="phuong_thuc_thanh_toan" value="NGAN_HANG"
-                               id="pay_ck" {{ old('phuong_thuc_thanh_toan', 'NGAN_HANG') === 'NGAN_HANG' ? 'checked' : '' }}>
+                               id="pay_vnpay" {{ old('phuong_thuc_thanh_toan', 'NGAN_HANG') === 'NGAN_HANG' ? 'checked' : '' }}>
                         <div class="payment-option-info">
-                            <div class="payment-option-title">🏦 Chuyển khoản ngân hàng</div>
+                            <div class="payment-option-title">💳 Thanh toán qua VNPay</div>
                             <div class="payment-option-desc">
-                                Đơn hàng sẽ được đánh dấu <strong>đã thanh toán</strong> ngay sau khi đặt.
-                                Vui lòng chuyển khoản theo thông tin bên dưới.
+                                Bạn sẽ được chuyển tới cổng thanh toán VNPay để hoàn tất giao dịch.
+                                Đơn hàng chỉ được đánh dấu <strong>đã thanh toán</strong> sau khi VNPay xác nhận thành công.
                             </div>
                         </div>
                     </div>
 
                     <div class="bank-info {{ old('phuong_thuc_thanh_toan', 'NGAN_HANG') === 'NGAN_HANG' ? 'show' : '' }}"
-                         id="bankInfoBox">
-                        <p>🏦 <strong>Ngân hàng:</strong> MB Bank (Ngân hàng Quân đội)</p>
-                        <p>💳 <strong>Số tài khoản:</strong> 0357634696</p>
-                        <p>👤 <strong>Chủ tài khoản:</strong> DUONG HUNG MANH</p>
-                        <p>📝 <strong>Nội dung CK:</strong> Họ và Tên + Số điện thoại của bạn</p>
+                         id="vnpayInfoBox">
+                        <p>💳 <strong>Cổng thanh toán:</strong> VNPay (hỗ trợ thẻ ATM nội địa, Internet Banking, quét mã QR, Visa/Master/JCB).</p>
+                        <p>🔒 <strong>Bảo mật:</strong> Bạn nhập thông tin thanh toán trực tiếp trên trang của VNPay, shop không lưu thông tin thẻ/tài khoản của bạn.</p>
+                        <p>⏱️ <strong>Lưu ý:</strong> Sau khi bấm "Đặt hàng", bạn có 15 phút để hoàn tất thanh toán trước khi phiên giao dịch hết hạn.</p>
                     </div>
 
                     <div class="payment-option {{ old('phuong_thuc_thanh_toan') === 'COD' ? 'selected' : '' }}"
@@ -212,7 +211,7 @@
                 </div>
 
                 <button type="submit" class="btn-place-order" id="btnOrder">
-                    🛍️ Đặt Hàng
+                    {{ old('phuong_thuc_thanh_toan', 'NGAN_HANG') === 'NGAN_HANG' ? '💳 Đặt Hàng & Thanh Toán VNPay' : '🛍️ Đặt Hàng (COD)' }}
                 </button>
 
                 <a href="{{ route('customer.gio-hang') }}" class="btn-back-cart">
@@ -290,9 +289,20 @@ function selectPayment(value, el) {
     document.querySelectorAll('.payment-option').forEach(o => o.classList.remove('selected'));
     el.classList.add('selected');
     el.querySelector('input[type=radio]').checked = true;
-    const bankBox = document.getElementById('bankInfoBox');
-    if (value === 'NGAN_HANG') bankBox.classList.add('show');
-    else bankBox.classList.remove('show');
+
+    const vnpayBox = document.getElementById('vnpayInfoBox');
+    if (value === 'NGAN_HANG') vnpayBox.classList.add('show');
+    else vnpayBox.classList.remove('show');
+
+    updateOrderButtonLabel(value);
+}
+
+function updateOrderButtonLabel(value) {
+    const btn = document.getElementById('btnOrder');
+    if (!btn || btn.disabled) return; // không đổi chữ nếu đã đang submit
+    btn.textContent = value === 'NGAN_HANG'
+        ? '💳 Đặt Hàng & Thanh Toán VNPay'
+        : '🛍️ Đặt Hàng (COD)';
 }
 
 // ── Áp điểm tích lũy ────────────────────────────────────────────────────────

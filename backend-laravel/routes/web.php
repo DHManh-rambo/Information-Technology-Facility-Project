@@ -21,8 +21,25 @@ use App\Http\Controllers\Customer\ChiTietSanPhamController;
 use App\Http\Controllers\Customer\GioHangController;
 use App\Http\Controllers\Customer\ThanhToanController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+
 use Illuminate\Support\Facades\Route;
 
+
+use App\Http\Controllers\VnPayController;
+
+Route::middleware(['auth'])->group(function () {
+    Route::get('/vnpay/payment/{hoaDon}', [VnPayController::class, 'payment'])
+        ->name('vnpay.payment');
+});
+ 
+// Return URL: khách hàng có thể vừa mất session (ví dụ mở app VNPay/trình duyệt khác
+// để quét QR rồi được redirect về), nên KHÔNG bắt buộc auth — chỉ hiển thị kết quả,
+// không xử lý gì (đã đảm bảo ở VnPayController::return()).
+Route::get('/vnpay/return', [VnPayController::class, 'return'])
+    ->name('vnpay.return');
+ 
+Route::get('/vnpay/ipn', [VnPayController::class, 'ipn'])
+    ->name('vnpay.ipn');
 // ─── Trang chủ ────────────────────────────────────────────────────────────────
 Route::get('/', function () {
     if (auth()->check()) {
@@ -239,3 +256,5 @@ Route::get('/customer/gioi-thieu', [CustomerController::class, 'gioiThieu'])
 // Liên hệ
 Route::get('/customer/lien-he', [CustomerController::class, 'lienHe'])
     ->name('customer.lien-he');
+
+
