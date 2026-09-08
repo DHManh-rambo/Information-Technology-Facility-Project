@@ -101,28 +101,10 @@ class ThanhToanController extends Controller
                 $diaChiGiao,
                 $laVnpay
             ) {
-                // Pre-check tồn kho theo tổng (GIỮ NGUYÊN – áp dụng chung cho cả COD và VNPay,
-                // để không tạo đơn VNPay cho sản phẩm chắc chắn không đủ hàng).
-                $yeuCauTheoSanPham = collect($gioHang)
-                    ->groupBy('ma_san_pham')
-                    ->map(fn($items) => $items->sum('so_luong'));
-
-                foreach ($yeuCauTheoSanPham as $maSanPham => $soLuongYeuCau) {
-                    $tongTonSanPham = ChiTietNhap::where('ma_san_pham', $maSanPham)
-                        ->where('so_luong_con_lai', '>', 0)
-                        ->whereHas('phieuNhap', fn($q) => $q->where('trang_thai', 'CONFIRMED'))
-                        ->sum('so_luong_con_lai');
-
-                    if ($tongTonSanPham < $soLuongYeuCau) {
-                        $tenSanPham = collect($gioHang)
-                            ->firstWhere('ma_san_pham', $maSanPham)['ten_san_pham'] ?? 'Sản phẩm';
-                        throw new \Exception("Sản phẩm \"{$tenSanPham}\" không đủ hàng theo FIFO. Vui lòng cập nhật giỏ hàng.");
-                    }
-                }
-
                 // trang_thai_thanh_toan LUÔN LUÔN là CHUA_THANH_TOAN lúc tạo đơn, kể cả VNPay
                 // (đơn VNPay chỉ chuyển DA_THANH_TOAN khi IPN xác nhận thành công — xem Phase 3).
-                // Đây đã là hành vi gốc của nhánh COD, không đổi gì cho COD.
+                // Trạng thái thanh toán KHÔNG liên quan đến việc trừ kho — trừ kho xảy ra
+                // ngay tại đây, đơn thanh toán online hay COD đều bị trừ kho như nhau.
                 $hoaDon = HoaDon::create([
                     'ma_khach_hang'          => $khachHang->ma_khach_hang,
                     'trang_thai'             => 'PENDING',
@@ -134,27 +116,15 @@ class ThanhToanController extends Controller
                     'ngay_dat'               => now(),
                 ]);
 
-                if ($laVnpay) {
-                    // CHƯA trừ tồn kho, CHƯA trừ điểm, CHƯA cộng điểm (đúng mục 4 yêu cầu gốc).
-                    // Lưu lại snapshot giỏ hàng + số điểm đã dùng vào DB (KHÔNG dùng session,
-                    // vì VNPay gọi IPN từ server họ, không có session của khách hàng) để
-                    // finalizeVnpayThanhCong() có dữ liệu chạy lại đúng thuật toán FIFO này
-                    // sau khi thanh toán thành công.
-                    $hoaDon->vnpay_cart_snapshot = [
-                        'items'       => collect($gioHang)->map(fn($i) => [
-                            'ma_san_pham'  => $i['ma_san_pham'],
-                            'so_luong'     => $i['so_luong'],
-                            'gia_ban'      => $i['gia_ban'],
-                            'ten_san_pham' => $i['ten_san_pham'] ?? null,
-                        ])->values()->all(),
-                        'diem_su_dung' => $diemSuDung,
-                    ];
-                    $hoaDon->save();
-                } else {
-                    // COD — GIỮ NGUYÊN 100% thuật toán FIFO + trừ kho + điểm hiện có,
-                    // chỉ tách ra hàm dùng chung để VNPay gọi lại được (không viết FIFO lần 2).
-                    $this->xuLyFifoVaHoanTat($hoaDon, $gioHang, $diemSuDung, $khachHang, $tongTien);
-                }
+                // THAY ĐỔI: trừ tồn kho (FIFO theo lô) + trừ/cộng điểm NGAY KHI TẠO ĐƠN,
+                // áp dụng như nhau cho cả COD và VNPay — không còn phân biệt 2 nhánh.
+                // Lý do: nếu đơn bị admin từ chối (DonHangController::cancel()), tồn kho
+                // sẽ được hoàn lại CHÍNH XÁC theo từng lô đã lấy (dựa vào ma_chi_tiet_nhap
+                // đã ghi trong ChiTietHoaDon ở dưới), nên việc trừ sớm không gây sai lệch.
+                // Đơn VNPay chưa thanh toán vẫn giữ hàng cho tới khi thanh toán thành công
+                // hoặc bị admin từ chối — không dùng vnpay_cart_snapshot để trừ kho lần 2 nữa
+                // (xem finalizeVnpayThanhCong() bên dưới, giờ chỉ còn cập nhật trạng thái).
+                $this->xuLyFifoVaHoanTat($hoaDon, $gioHang, $diemSuDung, $khachHang, $tongTien);
 
                 return $hoaDon;
             });
@@ -192,14 +162,17 @@ class ThanhToanController extends Controller
     }
 
     /**
-     * PHASE 5 — Logic FIFO + trừ tồn kho + trừ điểm + cộng điểm, TÁCH NGUYÊN VẸN
-     * từ store() gốc (KHÔNG đổi thuật toán FIFO), để dùng chung cho:
-     *   - COD: gọi trực tiếp trong store() ngay khi tạo đơn.
-     *   - VNPay: gọi từ finalizeVnpayThanhCong() sau khi IPN xác nhận thành công.
+     * PHASE 6 — Logic FIFO + trừ tồn kho + trừ điểm + cộng điểm.
+     * Từ nay chỉ có DUY NHẤT 1 nơi gọi: store() — ngay khi tạo đơn, cho CẢ COD và VNPay.
+     * finalizeVnpayThanhCong() (khi IPN báo thanh toán VNPay thành công) KHÔNG gọi lại
+     * hàm này nữa — nó chỉ cập nhật trang_thai_thanh_toan, tránh trừ kho/điểm 2 lần.
+     *
+     * Nếu đơn bị admin từ chối sau đó (DonHangController::cancel()), tồn kho được hoàn
+     * lại đúng theo từng lô nhờ ma_chi_tiet_nhap đã ghi vào ChiTietHoaDon ở dưới.
      *
      * PHẢI được gọi bên trong 1 DB::transaction() đã mở sẵn ở nơi gọi (không tự mở
-     * transaction ở đây) vì cả 2 nơi gọi đều cần lockForUpdate() nằm chung transaction
-     * với các thao tác khác (tạo HoaDon, hoặc lock HoaDon ở IPN).
+     * transaction ở đây) vì cần lockForUpdate() nằm chung transaction với thao tác
+     * tạo HoaDon.
      *
      * @param array $gioHang mảng các item dạng ['ma_san_pham','so_luong','gia_ban','ten_san_pham']
      */
@@ -280,9 +253,15 @@ class ThanhToanController extends Controller
     }
 
     /**
-     * PHASE 5 — Được VnPayController::ipn() gọi (bên trong DB::transaction +
+     * PHASE 6 — Được VnPayController::ipn() gọi (bên trong DB::transaction +
      * lockForUpdate() đã mở sẵn ở đó) NGAY SAU KHI verify chữ ký + verify amount
      * + xác nhận vnp_ResponseCode == '00' thành công.
+     *
+     * THAY ĐỔI: tồn kho + điểm giờ đã được trừ/cộng NGAY LÚC TẠO ĐƠN (trong store(),
+     * xem xuLyFifoVaHoanTat() gọi ở trên) — áp dụng như nhau cho COD và VNPay. Vì vậy
+     * hàm này KHÔNG được gọi lại xuLyFifoVaHoanTat() nữa (tránh trừ kho/điểm 2 lần).
+     * Trách nhiệm duy nhất còn lại của hàm này là XÁC NHẬN đơn đã thanh toán: cập nhật
+     * trang_thai_thanh_toan = DA_THANH_TOAN và lưu lại metadata giao dịch VNPay.
      *
      * Idempotency (chống xử lý 2 lần) đã được VnPayController::ipn() đảm bảo TRƯỚC
      * khi gọi hàm này (check trang_thai_thanh_toan/trang_thai trước khi gọi), nên
@@ -293,19 +272,6 @@ class ThanhToanController extends Controller
         if ($hoaDon->phuong_thuc_thanh_toan !== 'NGAN_HANG') {
             throw new \RuntimeException("HoaDon #{$hoaDon->ma_hoa_don} không phải đơn thanh toán VNPay.");
         }
-
-        $snapshot = $hoaDon->vnpay_cart_snapshot;
-        if (!is_array($snapshot) || empty($snapshot['items'])) {
-            throw new \RuntimeException("HoaDon #{$hoaDon->ma_hoa_don} thiếu dữ liệu giỏ hàng (vnpay_cart_snapshot) để xử lý FIFO.");
-        }
-
-        $gioHang    = $snapshot['items'];
-        $diemSuDung = (int) ($snapshot['diem_su_dung'] ?? 0);
-        $khachHang  = $hoaDon->khachHang;
-        $tongTien   = (float) $hoaDon->tong_tien;
-
-        // Dùng lại ĐÚNG 1 hàm FIFO duy nhất — không viết phiên bản FIFO thứ hai cho VNPay.
-        $this->xuLyFifoVaHoanTat($hoaDon, $gioHang, $diemSuDung, $khachHang, $tongTien);
 
         $hoaDon->trang_thai_thanh_toan = 'DA_THANH_TOAN';
         $hoaDon->vnpay_transaction_no  = $vnpayMeta['vnpay_transaction_no'] ?? null;

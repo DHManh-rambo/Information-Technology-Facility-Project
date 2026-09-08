@@ -84,33 +84,35 @@ class VnPayController extends Controller
      */
     public function return(Request $request)
     {
-        $vnpData = $request->query();
-        $verify  = $this->vnPayService->verifyResponse($vnpData);
+    $vnpData = $request->query();
+    $verify  = $this->vnPayService->verifyResponse($vnpData);
 
-        $txnRef = $vnpData['vnp_TxnRef'] ?? null;
-        $hoaDon = $txnRef ? HoaDon::find((int) $txnRef) : null;
+    $txnRef = $vnpData['vnp_TxnRef'] ?? null;
+    $hoaDon = $txnRef ? HoaDon::find((int) $txnRef) : null;
 
-        if (!$verify['valid'] || !$hoaDon) {
-            return redirect()->route('customer.dashboard')
-                ->with('error', 'Không xác thực được kết quả thanh toán từ VNPay.');
-        }
-
-        // Không tin vnp_ResponseCode ở Return URL để hiển thị "thành công" — chỉ đọc
-        // trạng thái THẬT đã được ipn() ghi vào DB (IPN thường tới trước hoặc gần như
-        // đồng thời với việc khách bấm quay lại, nhưng không đảm bảo tuyệt đối).
-        if ($hoaDon->trang_thai_thanh_toan === 'DA_THANH_TOAN') {
-            return redirect()->route('customer.dashboard')
-                ->with('success', "🎉 Thanh toán VNPay thành công cho đơn hàng #{$hoaDon->ma_hoa_don}!");
-        }
-
-        if ($hoaDon->trang_thai === 'CANCELLED') {
-            return redirect()->route('customer.dashboard')
-                ->with('error', "Thanh toán VNPay cho đơn hàng #{$hoaDon->ma_hoa_don} không thành công hoặc đã bị huỷ.");
-        }
-
-        // Trường hợp khách quay lại trước khi IPN kịp xử lý xong (độ trễ mạng bình thường).
+    if (!$verify['valid'] || !$hoaDon) {
         return redirect()->route('customer.dashboard')
-            ->with('info', "Đơn hàng #{$hoaDon->ma_hoa_don} đang được xác nhận thanh toán, vui lòng đợi trong giây lát và kiểm tra lại.");
+            ->with('error', 'Không xác thực được kết quả thanh toán từ VNPay.');
+    }
+
+    // Chỉ đọc trạng thái THẬT đã được ipn() ghi vào DB để báo thành công.
+    if ($hoaDon->trang_thai_thanh_toan === 'DA_THANH_TOAN') {
+        return redirect()->route('customer.dashboard')
+            ->with('success', "🎉 Thanh toán VNPay thành công cho đơn hàng #{$hoaDon->ma_hoa_don}!");
+    }
+
+    // Đọc vnp_ResponseCode CHỈ để hiển thị thông báo phù hợp cho khách — KHÔNG dùng để
+    // ghi DB (nguồn ghi DB duy nhất vẫn là ipn()). Đơn luôn được giữ nguyên Chua_TT để
+    // khách bấm "Thanh toán" thử lại trên chính đơn này.
+    $responseCode = $vnpData['vnp_ResponseCode'] ?? null;
+    if ($responseCode !== null && !$this->vnPayService->isSuccessResponseCode($responseCode)) {
+        return redirect()->route('customer.dashboard')
+            ->with('error', "Thanh toán cho đơn hàng #{$hoaDon->ma_hoa_don} không thành công. Bạn có thể bấm \"Thanh toán\" ở đơn hàng này để thử lại.");
+    }
+
+    // Khách quay lại trước khi IPN kịp xử lý xong (độ trễ mạng bình thường).
+    return redirect()->route('customer.dashboard')
+        ->with('info', "Đơn hàng #{$hoaDon->ma_hoa_don} đang được xác nhận thanh toán, vui lòng đợi trong giây lát và kiểm tra lại.");
     }
 
     /**
@@ -179,13 +181,21 @@ class VnPayController extends Controller
                         'vnpay_response_code'  => $responseCode,
                     ]);
                 } else {
-                    // Thất bại / khách huỷ trên trang VNPay: KHÔNG trừ kho, KHÔNG trừ/cộng điểm.
-                    $hoaDon->trang_thai            = 'CANCELLED';
-                    $hoaDon->vnpay_response_code    = $responseCode;
-                    $hoaDon->vnpay_transaction_no   = $vnpData['vnp_TransactionNo'] ?? null;
-                    $hoaDon->vnpay_bank_code        = $vnpData['vnp_BankCode'] ?? null;
-                    $hoaDon->save();
-                }
+    // Thất bại / khách huỷ trên trang VNPay: KHÔNG trừ kho, KHÔNG trừ/cộng điểm.
+    // QUAN TRỌNG: KHÔNG đổi trang_thai (giữ nguyên PENDING) và KHÔNG đổi
+    // trang_thai_thanh_toan (giữ nguyên CHUA_THANH_TOAN) — đơn phải sống nguyên
+    // để khách bấm "Thanh toán" lại trên CHÍNH đơn này (không tạo đơn mới).
+    // Chỉ ghi lại kết quả lần thử gần nhất để tra cứu/hỗ trợ khi cần.
+                             $hoaDon->vnpay_response_code   = $responseCode;
+                             $hoaDon->vnpay_transaction_no  = $vnpData['vnp_TransactionNo'] ?? null;
+                             $hoaDon->vnpay_bank_code       = $vnpData['vnp_BankCode'] ?? null;
+                              $hoaDon->save();
+
+                             Log::info('VNPay IPN: thanh toán thất bại/huỷ, đơn được giữ nguyên để retry', [
+                             'ma_hoa_don'    => $hoaDon->ma_hoa_don,
+                                'response_code' => $responseCode,
+                             ]);
+                        }
 
                 $result = ['RspCode' => '00', 'Message' => 'Confirm Success'];
             });

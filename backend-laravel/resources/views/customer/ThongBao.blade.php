@@ -184,6 +184,25 @@
                         </div>
                     </div>
 
+                    @if($hd->phuong_thuc_thanh_toan === 'NGAN_HANG' && $hd->trang_thai_thanh_toan !== 'DA_THANH_TOAN')
+                    <div style="padding:10px 16px; border-top:1px dashed #eee; background:#fffbeb;
+                                display:flex; align-items:center; justify-content:space-between; gap:12px;">
+                        <span style="font-size:.82rem; color:#b45309;">
+                            <i class="fas fa-exclamation-circle"></i> Đơn hàng chưa thanh toán
+                        </span>
+                        <a href="{{ route('vnpay.payment', $hd->ma_hoa_don) }}"
+                           style="background:var(--brand,#e75480); color:#fff; padding:6px 16px;
+                                  border-radius:6px; font-size:.85rem; text-decoration:none; font-weight:600; white-space:nowrap;"
+                           onclick="event.stopPropagation();
+                                    if (this.dataset.clicked) { event.preventDefault(); return; }
+                                    this.dataset.clicked = '1';
+                                    this.style.opacity = '.6';
+                                    this.innerHTML = '<i class=\'fas fa-spinner fa-spin\'></i> Đang chuyển...';">
+                            <i class="fas fa-credit-card"></i> Thanh toán
+                        </a>
+                    </div>
+                    @endif
+
                     <div class="order-detail">
                         <div class="order-detail-inner">
 
