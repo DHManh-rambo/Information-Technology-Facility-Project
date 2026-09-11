@@ -10,14 +10,19 @@ class SanPham extends Model
     use HasFactory;
 
     protected $table = 'san_pham';
+
     protected $primaryKey = 'ma_san_pham';
+
     public $incrementing = true;
+
     protected $keyType = 'int';
-    public $timestamps = false; 
+
+    public $timestamps = false;
 
     protected $fillable = [
         'ten_san_pham',
         'so_luong',
+        'don_vi_tinh',
         'loai_san_pham',
         'mo_ta',
         'hinh_anh',
@@ -26,27 +31,53 @@ class SanPham extends Model
     ];
 
     protected $casts = [
-    'so_luong' => 'integer',
-    'gia_ban_hien_tai' => 'float',
-    'loai_san_pham' => 'string',
-    'trang_thai' => 'string',
-];
+        'so_luong' => 'integer',
+        'gia_ban_hien_tai' => 'float',
+        'loai_san_pham' => 'string',
+        'don_vi_tinh' => 'string',
+        'trang_thai' => 'string',
+    ];
 
-
+    
     public function chiTietHoaDons()
     {
-        return $this->hasMany(ChiTietHoaDon::class, 'ma_san_pham', 'ma_san_pham');
+        return $this->hasMany(
+            ChiTietHoaDon::class,
+            'ma_san_pham',
+            'ma_san_pham'
+        );
     }
 
     public function chiTietNhaps()
     {
-        return $this->hasMany(ChiTietNhap::class, 'ma_san_pham', 'ma_san_pham');
+        return $this->hasMany(
+            ChiTietNhap::class,
+            'ma_san_pham',
+            'ma_san_pham'
+        );
     }
+
+    
 
     public function getAnhAttribute(): string
     {
-        return asset($this->hinh_anh ?? 'img/default.jpg');
+        return asset(
+            $this->hinh_anh ?? 'img/default.jpg'
+        );
     }
+
+    public function getDonViTinhTextAttribute(): string
+    {
+        return match ($this->don_vi_tinh) {
+            'CANH' => 'Cành',
+            'CAI'  => 'Cái',
+            'CHAU' => 'Chậu',
+            'TO'   => 'Tờ',
+            'MET'  => 'Mét',
+            default => '',
+        };
+    }
+
 
 
     public function scopeDangBan($query)
@@ -61,6 +92,9 @@ class SanPham extends Model
 
     public function scopeTheoLoai($query, string $loai)
     {
-        return $query->where('loai_san_pham', $loai);
+        return $query->where(
+            'loai_san_pham',
+            $loai
+        );
     }
 }

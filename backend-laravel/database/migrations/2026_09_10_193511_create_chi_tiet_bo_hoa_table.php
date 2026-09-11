@@ -12,9 +12,15 @@ return new class extends Migration
 
             $table->id('ma_chi_tiet');
 
+            // bo_hoa được tạo mới bằng $table->id() => bigint unsigned
             $table->unsignedBigInteger('ma_bo_hoa');
 
+            // san_pham.ma_san_pham là int signed thường
             $table->integer('ma_san_pham');
+
+            // chi_tiet_nhap.ma_chi_tiet_nhap là int signed thường
+            // Nullable: DRAFT chưa phân bổ lô
+            $table->integer('ma_chi_tiet_nhap')->nullable();
 
             $table->enum('vai_tro', [
                 'HOA_CHINH',
@@ -22,7 +28,7 @@ return new class extends Migration
                 'GIAY_GOI',
                 'RUY_BANG',
                 'PHU_KIEN_TRANG_TRI',
-                'THIEP'
+                'THIEP',
             ]);
 
             $table->integer('so_luong');
@@ -35,6 +41,11 @@ return new class extends Migration
             $table->foreign('ma_san_pham')
                 ->references('ma_san_pham')
                 ->on('san_pham');
+
+            $table->foreign('ma_chi_tiet_nhap')
+                ->references('ma_chi_tiet_nhap')
+                ->on('chi_tiet_nhap')
+                ->nullOnDelete();
         });
     }
 

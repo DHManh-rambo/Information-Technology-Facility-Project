@@ -22,8 +22,14 @@ class ChiTietBoHoa extends Model
     protected $fillable = [
         'ma_bo_hoa',
         'ma_san_pham',
+        'ma_chi_tiet_nhap',
         'vai_tro',
         'so_luong',
+    ];
+
+    protected $casts = [
+        'vai_tro'  => 'string',
+        'so_luong' => 'integer',
     ];
 
     public function boHoa()
@@ -42,5 +48,26 @@ class ChiTietBoHoa extends Model
             'ma_san_pham',
             'ma_san_pham'
         );
+    }
+
+    public function chiTietNhap()
+    {
+        return $this->belongsTo(
+            ChiTietNhap::class,
+            'ma_chi_tiet_nhap',
+            'ma_chi_tiet_nhap'
+        );
+    }
+
+    // Chưa phân bổ lô (còn ở trạng thái DRAFT)
+    public function scopeChuaCoLo($query)
+    {
+        return $query->whereNull('ma_chi_tiet_nhap');
+    }
+
+    // Đã phân bổ lô (đã ACTIVE, đã trừ tồn kho)
+    public function scopeDaCoLo($query)
+    {
+        return $query->whereNotNull('ma_chi_tiet_nhap');
     }
 }

@@ -12,15 +12,21 @@ return new class extends Migration
 
             $table->id('ma_bo_hoa');
 
-            // NULL = bó hoa do hệ thống tạo
-            // Có giá trị = bó hoa do khách hàng tự tạo
             $table->integer('ma_khach_hang')->nullable();
+
+            $table->unsignedBigInteger('ma_mau_bo_hoa')->nullable();
+
+            $table->integer('ma_hoa_don')->nullable();
 
             $table->string('ten_bo_hoa', 100);
 
+            $table->unsignedInteger('so_luong')->default(0);
+
+            $table->decimal('gia_ban', 12, 2)->nullable();
+
             $table->enum('loai_bo_hoa', [
                 'HE_THONG',
-                'TUY_CHON'
+                'TUY_CHON',
             ]);
 
             $table->enum('kieu_bo_hoa', [
@@ -30,7 +36,7 @@ return new class extends Migration
                 'CASCADING',
                 'ASYMMETRIC',
                 'COMPACT',
-                'LONG_STEM'
+                'LONG_STEM',
             ]);
 
             $table->enum('size', [
@@ -39,7 +45,7 @@ return new class extends Migration
                 'L',
                 'XL',
                 'XXL',
-                'SPECIAL'
+                'SPECIAL',
             ]);
 
             $table->string('concept', 100)->nullable();
@@ -49,13 +55,27 @@ return new class extends Migration
             $table->enum('trang_thai', [
                 'DRAFT',
                 'ACTIVE',
-                'INACTIVE'
             ])->default('DRAFT');
 
+            $table->timestamps();
+
+            // Khách hàng
             $table->foreign('ma_khach_hang')
                 ->references('ma_khach_hang')
                 ->on('khach_hang')
-                ->onDelete('cascade');
+                ->nullOnDelete();
+
+            // Mẫu bó hoa
+            $table->foreign('ma_mau_bo_hoa')
+                ->references('ma_mau_bo_hoa')
+                ->on('mau_bo_hoa')
+                ->nullOnDelete();
+
+            // Hóa đơn
+            $table->foreign('ma_hoa_don')
+                ->references('ma_hoa_don')
+                ->on('hoa_don')
+                ->nullOnDelete();
         });
     }
 
